@@ -23,7 +23,10 @@ public class Livro extends EntidadeAuditavel {
     private String titulo;
 
     @Column(unique = true, length = 13)
-    private String isbn;
+    private String isbn13;
+
+    @Column(unique = true, length = 10)
+    private String isbn10;
 
     @Column(columnDefinition = "integer default 1")
     private Integer edicao = 1;
