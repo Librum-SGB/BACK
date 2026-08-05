@@ -1,7 +1,9 @@
 package com.sgb.mylibrum.controllers;
 
-import com.sgb.mylibrum.dtos.UsuarioDTO;
+import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.services.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +19,22 @@ public class UsuarioController {
     private final UsuarioService service;
 
     @GetMapping
-    public ResponseEntity<List<UsuarioDTO>> findAll() {
+    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioDTO> create(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> create(@Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> update(@PathVariable Long id, @RequestBody UsuarioDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

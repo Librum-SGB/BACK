@@ -1,7 +1,9 @@
 package com.sgb.mylibrum.controllers;
 
-import com.sgb.mylibrum.dtos.LivroDTO;
+import com.sgb.mylibrum.dtos.request.LivroRequestDTO;
+import com.sgb.mylibrum.dtos.response.LivroResponseDTO;
 import com.sgb.mylibrum.services.LivroService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +19,22 @@ public class LivroController {
     private final LivroService service;
 
     @GetMapping
-    public ResponseEntity<List<LivroDTO>> findAll() {
+    public ResponseEntity<List<LivroResponseDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LivroDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<LivroResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<LivroDTO> create(@RequestBody LivroDTO dto) {
+    public ResponseEntity<LivroResponseDTO> create(@Valid @RequestBody LivroRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LivroDTO> update(@PathVariable Long id, @RequestBody LivroDTO dto) {
+    public ResponseEntity<LivroResponseDTO> update(@PathVariable Long id, @Valid @RequestBody LivroRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

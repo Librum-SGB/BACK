@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.GeneroDTO;
+import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
+import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;
 import com.sgb.mylibrum.entities.Genero;
 import com.sgb.mylibrum.repositories.GeneroRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +19,29 @@ public class GeneroService {
     private final GeneroRepository repository;
 
     @Transactional(readOnly = true)
-    public List<GeneroDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<GeneroResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public GeneroDTO findById(Long id) {
-        Genero entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gênero não encontrado com id: " + id));
-        return toDTO(entity);
+    public GeneroResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gênero não encontrado")));
     }
 
     @Transactional
-    public GeneroDTO create(GeneroDTO dto) {
+    public GeneroResponseDTO create(GeneroRequestDTO dto) {
         Genero entity = new Genero();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public GeneroDTO update(Long id, GeneroDTO dto) {
+    public GeneroResponseDTO update(Long id, GeneroRequestDTO dto) {
         Genero entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gênero não encontrado com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Gênero não encontrado"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,8 +49,8 @@ public class GeneroService {
         repository.deleteById(id);
     }
 
-    private GeneroDTO toDTO(Genero entity) {
-        GeneroDTO dto = new GeneroDTO();
+    private GeneroResponseDTO toResponseDTO(Genero entity) {
+        GeneroResponseDTO dto = new GeneroResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
     }

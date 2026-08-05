@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.FilialDTO;
+import com.sgb.mylibrum.dtos.request.FilialRequestDTO;
+import com.sgb.mylibrum.dtos.response.FilialResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.repositories.FilialRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +19,29 @@ public class FilialService {
     private final FilialRepository repository;
 
     @Transactional(readOnly = true)
-    public List<FilialDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<FilialResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public FilialDTO findById(Long id) {
-        Filial entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Filial não encontrada com id: " + id));
-        return toDTO(entity);
+    public FilialResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Filial não encontrada")));
     }
 
     @Transactional
-    public FilialDTO create(FilialDTO dto) {
+    public FilialResponseDTO create(FilialRequestDTO dto) {
         Filial entity = new Filial();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public FilialDTO update(Long id, FilialDTO dto) {
+    public FilialResponseDTO update(Long id, FilialRequestDTO dto) {
         Filial entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Filial não encontrada com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Filial não encontrada"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,8 +49,8 @@ public class FilialService {
         repository.deleteById(id);
     }
 
-    private FilialDTO toDTO(Filial entity) {
-        FilialDTO dto = new FilialDTO();
+    private FilialResponseDTO toResponseDTO(Filial entity) {
+        FilialResponseDTO dto = new FilialResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
     }

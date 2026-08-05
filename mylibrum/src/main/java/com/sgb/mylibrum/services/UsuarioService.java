@@ -1,6 +1,8 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.UsuarioDTO;
+import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
+import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +20,39 @@ public class UsuarioService {
     private final UsuarioRepository repository;
 
     @Transactional(readOnly = true)
-    public List<UsuarioDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<UsuarioResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public UsuarioDTO findById(Long id) {
-        Usuario entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + id));
-        return toDTO(entity);
+    public UsuarioResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado")));
     }
 
     @Transactional
-    public UsuarioDTO create(UsuarioDTO dto) {
+    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
         Usuario entity = new Usuario();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        if (dto.getFilialId() != null) {
+            Filial filial = new Filial();
+            filial.setId(dto.getFilialId());
+            entity.setFilial(filial);
+        }
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public UsuarioDTO update(Long id, UsuarioDTO dto) {
+    public UsuarioResponseDTO update(Long id, UsuarioRequestDTO dto) {
         Usuario entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        if (dto.getFilialId() != null) {
+            Filial filial = new Filial();
+            filial.setId(dto.getFilialId());
+            entity.setFilial(filial);
+        }
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,8 +60,8 @@ public class UsuarioService {
         repository.deleteById(id);
     }
 
-    private UsuarioDTO toDTO(Usuario entity) {
-        UsuarioDTO dto = new UsuarioDTO();
+    private UsuarioResponseDTO toResponseDTO(Usuario entity) {
+        UsuarioResponseDTO dto = new UsuarioResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         if (entity.getFilial() != null) dto.setFilialId(entity.getFilial().getId());
         return dto;

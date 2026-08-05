@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.EditoraDTO;
+import com.sgb.mylibrum.dtos.request.EditoraRequestDTO;
+import com.sgb.mylibrum.dtos.response.EditoraResponseDTO;
 import com.sgb.mylibrum.entities.Editora;
 import com.sgb.mylibrum.repositories.EditoraRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +19,29 @@ public class EditoraService {
     private final EditoraRepository repository;
 
     @Transactional(readOnly = true)
-    public List<EditoraDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<EditoraResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public EditoraDTO findById(Long id) {
-        Editora entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Editora não encontrada com id: " + id));
-        return toDTO(entity);
+    public EditoraResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Editora não encontrada")));
     }
 
     @Transactional
-    public EditoraDTO create(EditoraDTO dto) {
+    public EditoraResponseDTO create(EditoraRequestDTO dto) {
         Editora entity = new Editora();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public EditoraDTO update(Long id, EditoraDTO dto) {
+    public EditoraResponseDTO update(Long id, EditoraRequestDTO dto) {
         Editora entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Editora não encontrada com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Editora não encontrada"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,8 +49,8 @@ public class EditoraService {
         repository.deleteById(id);
     }
 
-    private EditoraDTO toDTO(Editora entity) {
-        EditoraDTO dto = new EditoraDTO();
+    private EditoraResponseDTO toResponseDTO(Editora entity) {
+        EditoraResponseDTO dto = new EditoraResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
     }

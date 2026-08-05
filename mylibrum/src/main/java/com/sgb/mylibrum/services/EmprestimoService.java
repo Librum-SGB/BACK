@@ -1,7 +1,11 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.EmprestimoDTO;
+import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
+import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
 import com.sgb.mylibrum.entities.Emprestimo;
+import com.sgb.mylibrum.entities.Exemplar;
+import com.sgb.mylibrum.entities.Gestor;
+import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -18,41 +22,52 @@ public class EmprestimoService {
     private final EmprestimoRepository repository;
 
     @Transactional(readOnly = true)
-    public List<EmprestimoDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<EmprestimoResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public EmprestimoDTO findById(Long id) {
-        Emprestimo entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado com id: " + id));
-        return toDTO(entity);
+    public EmprestimoResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado")));
     }
 
     @Transactional
-    public EmprestimoDTO create(EmprestimoDTO dto) {
+    public EmprestimoResponseDTO create(EmprestimoRequestDTO dto) {
         Emprestimo entity = new Emprestimo();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        setRelacionamentos(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public EmprestimoDTO update(Long id, EmprestimoDTO dto) {
+    public EmprestimoResponseDTO update(Long id, EmprestimoRequestDTO dto) {
         Emprestimo entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado com id: " + id));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado"));
+        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "dataSaida");
+        setRelacionamentos(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
     }
+    
+    private void setRelacionamentos(EmprestimoRequestDTO dto, Emprestimo entity) {
+        if (dto.getUsuarioId() != null) {
+            Usuario u = new Usuario(); u.setId(dto.getUsuarioId()); entity.setUsuario(u);
+        }
+        if (dto.getExemplarId() != null) {
+            Exemplar e = new Exemplar(); e.setId(dto.getExemplarId()); entity.setExemplar(e);
+        }
+        if (dto.getGestorId() != null) {
+            Gestor g = new Gestor(); g.setId(dto.getGestorId()); entity.setGestor(g);
+        }
+    }
 
-    private EmprestimoDTO toDTO(Emprestimo entity) {
-        EmprestimoDTO dto = new EmprestimoDTO();
+    private EmprestimoResponseDTO toResponseDTO(Emprestimo entity) {
+        EmprestimoResponseDTO dto = new EmprestimoResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         if (entity.getUsuario() != null) dto.setUsuarioId(entity.getUsuario().getId());
         if (entity.getExemplar() != null) dto.setExemplarId(entity.getExemplar().getId());

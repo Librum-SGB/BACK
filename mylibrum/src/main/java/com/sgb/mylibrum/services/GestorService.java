@@ -1,6 +1,8 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.GestorDTO;
+import com.sgb.mylibrum.dtos.request.GestorRequestDTO;
+import com.sgb.mylibrum.dtos.response.GestorResponseDTO;
+import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.repositories.GestorRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +20,39 @@ public class GestorService {
     private final GestorRepository repository;
 
     @Transactional(readOnly = true)
-    public List<GestorDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<GestorResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public GestorDTO findById(Long id) {
-        Gestor entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gestor não encontrado com id: " + id));
-        return toDTO(entity);
+    public GestorResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gestor não encontrado")));
     }
 
     @Transactional
-    public GestorDTO create(GestorDTO dto) {
+    public GestorResponseDTO create(GestorRequestDTO dto) {
         Gestor entity = new Gestor();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        if (dto.getFilialId() != null) {
+            Filial filial = new Filial();
+            filial.setId(dto.getFilialId());
+            entity.setFilial(filial);
+        }
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public GestorDTO update(Long id, GestorDTO dto) {
+    public GestorResponseDTO update(Long id, GestorRequestDTO dto) {
         Gestor entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gestor não encontrado com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Gestor não encontrado"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        if (dto.getFilialId() != null) {
+            Filial filial = new Filial();
+            filial.setId(dto.getFilialId());
+            entity.setFilial(filial);
+        }
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,9 +60,9 @@ public class GestorService {
         repository.deleteById(id);
     }
 
-    private GestorDTO toDTO(Gestor entity) {
-        GestorDTO dto = new GestorDTO();
-        BeanUtils.copyProperties(entity, dto);
+    private GestorResponseDTO toResponseDTO(Gestor entity) {
+        GestorResponseDTO dto = new GestorResponseDTO();
+        BeanUtils.copyProperties(entity, dto, "senha"); // Omitindo a senha na resposta
         if (entity.getFilial() != null) dto.setFilialId(entity.getFilial().getId());
         return dto;
     }

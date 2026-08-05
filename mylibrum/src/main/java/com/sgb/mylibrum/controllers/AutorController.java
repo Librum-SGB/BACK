@@ -1,7 +1,9 @@
 package com.sgb.mylibrum.controllers;
 
-import com.sgb.mylibrum.dtos.AutorDTO;
+import com.sgb.mylibrum.dtos.request.AutorRequestDTO;
+import com.sgb.mylibrum.dtos.response.AutorResponseDTO;
 import com.sgb.mylibrum.services.AutorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +19,22 @@ public class AutorController {
     private final AutorService service;
 
     @GetMapping
-    public ResponseEntity<List<AutorDTO>> findAll() {
+    public ResponseEntity<List<AutorResponseDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AutorDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<AutorResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<AutorDTO> create(@RequestBody AutorDTO dto) {
+    public ResponseEntity<AutorResponseDTO> create(@Valid @RequestBody AutorRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AutorDTO> update(@PathVariable Long id, @RequestBody AutorDTO dto) {
+    public ResponseEntity<AutorResponseDTO> update(@PathVariable Long id, @Valid @RequestBody AutorRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

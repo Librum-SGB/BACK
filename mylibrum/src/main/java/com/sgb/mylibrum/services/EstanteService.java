@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.EstanteDTO;
+import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
+import com.sgb.mylibrum.dtos.response.EstanteResponseDTO;
 import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.repositories.EstanteRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +19,29 @@ public class EstanteService {
     private final EstanteRepository repository;
 
     @Transactional(readOnly = true)
-    public List<EstanteDTO> findAll() {
-        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<EstanteResponseDTO> findAll() {
+        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public EstanteDTO findById(Long id) {
-        Estante entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estante não encontrada com id: " + id));
-        return toDTO(entity);
+    public EstanteResponseDTO findById(Long id) {
+        return toResponseDTO(repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estante não encontrada")));
     }
 
     @Transactional
-    public EstanteDTO create(EstanteDTO dto) {
+    public EstanteResponseDTO create(EstanteRequestDTO dto) {
         Estante entity = new Estante();
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        BeanUtils.copyProperties(dto, entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
-    public EstanteDTO update(Long id, EstanteDTO dto) {
+    public EstanteResponseDTO update(Long id, EstanteRequestDTO dto) {
         Estante entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estante não encontrada com id: " + id));
+                .orElseThrow(() -> new RuntimeException("Estante não encontrada"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        entity = repository.save(entity);
-        return toDTO(entity);
+        return toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -51,8 +49,8 @@ public class EstanteService {
         repository.deleteById(id);
     }
 
-    private EstanteDTO toDTO(Estante entity) {
-        EstanteDTO dto = new EstanteDTO();
+    private EstanteResponseDTO toResponseDTO(Estante entity) {
+        EstanteResponseDTO dto = new EstanteResponseDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
     }
