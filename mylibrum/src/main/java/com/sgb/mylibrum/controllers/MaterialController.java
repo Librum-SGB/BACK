@@ -1,8 +1,8 @@
 package com.sgb.mylibrum.controllers;
 
-import com.sgb.mylibrum.dtos.request.LivroRequestDTO;
-import com.sgb.mylibrum.dtos.response.LivroResponseDTO;
-import com.sgb.mylibrum.services.LivroService;
+import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
+import com.sgb.mylibrum.dtos.response.MaterialResponseDTO;
+import com.sgb.mylibrum.services.MaterialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,29 +12,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/livros")
+@RequestMapping("/api/materiais")
 @RequiredArgsConstructor
-public class LivroController {
+public class MaterialController {
 
-    private final LivroService service;
+    private final MaterialService service;
 
     @GetMapping
-    public ResponseEntity<List<LivroResponseDTO>> findAll() {
+    public ResponseEntity<List<MaterialResponseDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LivroResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<MaterialResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<LivroResponseDTO> create(@Valid @RequestBody LivroRequestDTO dto) {
+    public ResponseEntity<MaterialResponseDTO> create(@Valid @RequestBody MaterialRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LivroResponseDTO> update(@PathVariable Long id, @Valid @RequestBody LivroRequestDTO dto) {
+    public ResponseEntity<MaterialResponseDTO> update(@PathVariable Long id, @Valid @RequestBody MaterialRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

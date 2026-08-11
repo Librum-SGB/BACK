@@ -5,14 +5,16 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sgb.mylibrum.entities.enums.TipoMaterial;
+
 @Entity
-@Table(name = "livros")
+@Table(name = "materiais")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-public class Livro extends EntidadeAuditavel {
+public class Material extends EntidadeAuditavel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +24,29 @@ public class Livro extends EntidadeAuditavel {
     @Column(nullable = false, length = 255)
     private String titulo;
 
-    @Column(unique = true, length = 13)
-    private String isbn13;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TipoMaterial tipo = TipoMaterial.LIVRO;
 
-    @Column(unique = true, length = 10)
-    private String isbn10;
+    private String subtitulo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "autor_id")
+    private Autor autor;
+
+    @Column(columnDefinition = "TEXT")
+    private String sinopse;
+
+    @Column(length = 20)
+    private String issn;
+
+    private String tema;
+
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
+    @Column(unique = true, length = 13)
+    private String isbn;
 
     @Column(columnDefinition = "integer default 1")
     private Integer edicao = 1;
@@ -44,8 +64,8 @@ public class Livro extends EntidadeAuditavel {
     // Relacionamento N:M com Autores
     @ManyToMany
     @JoinTable(
-        name = "livros_autores",
-        joinColumns = @JoinColumn(name = "livro_id"),
+        name = "materiais_autores",
+        joinColumns = @JoinColumn(name = "material_id"),
         inverseJoinColumns = @JoinColumn(name = "autor_id")
     )
     private Set<Autor> autores = new HashSet<>();
@@ -53,8 +73,8 @@ public class Livro extends EntidadeAuditavel {
     // Relacionamento N:M com Generos
     @ManyToMany
     @JoinTable(
-        name = "livros_generos",
-        joinColumns = @JoinColumn(name = "livro_id"),
+        name = "materiais_generos",
+        joinColumns = @JoinColumn(name = "material_id"),
         inverseJoinColumns = @JoinColumn(name = "genero_id")
     )
     private Set<Genero> generos = new HashSet<>();

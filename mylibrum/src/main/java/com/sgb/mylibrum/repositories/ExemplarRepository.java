@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface ExemplarRepository extends JpaRepository<Exemplar, Long> {
     Optional<Exemplar> findByCodigoBarras(String codigoBarras);
-    List<Exemplar> findByLivroId(Long livroId);
+    List<Exemplar> findByMaterialId(Long materialId);
     List<Exemplar> findByStatus(StatusExemplar status);
 }

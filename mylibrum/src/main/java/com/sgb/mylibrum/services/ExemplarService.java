@@ -5,7 +5,7 @@ import com.sgb.mylibrum.dtos.response.ExemplarResponseDTO;
 import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Filial;
-import com.sgb.mylibrum.entities.Livro;
+import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -55,10 +55,10 @@ public class ExemplarService {
     }
 
     private void setRelacionamentos(ExemplarRequestDTO dto, Exemplar entity) {
-        if (dto.getLivroId() != null) {
-            Livro livro = new Livro();
-            livro.setId(dto.getLivroId());
-            entity.setLivro(livro);
+        if (dto.getMaterialId() != null) {
+            Material material = new Material();
+            material.setId(dto.getMaterialId());
+            entity.setMaterial(material);
         }
         if (dto.getFilialId() != null) {
             Filial filial = new Filial();
@@ -75,7 +75,7 @@ public class ExemplarService {
     private ExemplarResponseDTO toResponseDTO(Exemplar entity) {
         ExemplarResponseDTO dto = new ExemplarResponseDTO();
         BeanUtils.copyProperties(entity, dto);
-        if (entity.getLivro() != null) dto.setLivroId(entity.getLivro().getId());
+        if (entity.getMaterial() != null) dto.setMaterialId(entity.getMaterial().getId());
         if (entity.getFilial() != null) dto.setFilialId(entity.getFilial().getId());
         if (entity.getEstante() != null) dto.setEstanteId(entity.getEstante().getId());
         return dto;

@@ -20,8 +20,8 @@ public class Exemplar extends EntidadeAuditavel {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "livro_id", nullable = false)
-    private Livro livro;
+    @JoinColumn(name = "material_id", nullable = false)
+    private Material material;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filial_id", nullable = false)

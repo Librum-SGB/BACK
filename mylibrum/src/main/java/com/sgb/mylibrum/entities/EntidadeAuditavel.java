@@ -21,4 +21,10 @@ public abstract class EntidadeAuditavel {
     @UpdateTimestamp
     @Column(name = "data_ultima_atualizacao")
     private OffsetDateTime dataUltimaAtualizacao;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean excluido = false;
+
+    @Column(columnDefinition = "boolean default true")
+    private Boolean ativo = true;
 }

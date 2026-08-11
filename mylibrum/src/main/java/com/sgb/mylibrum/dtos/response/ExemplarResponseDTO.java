@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 @Data
 public class ExemplarResponseDTO {
     private Long id;
-    private Long livroId;
+    private Long materialId;
     private Long filialId;
     private Long estanteId;
     private String prateleira;

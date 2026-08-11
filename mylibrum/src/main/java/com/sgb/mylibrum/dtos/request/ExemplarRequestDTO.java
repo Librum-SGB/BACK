@@ -8,8 +8,8 @@ import java.time.LocalDate;
 
 @Data
 public class ExemplarRequestDTO {
-    @NotNull(message = "O livro é obrigatório")
-    private Long livroId;
+    @NotNull(message = "O material é obrigatório")
+    private Long materialId;
     
     @NotNull(message = "A filial é obrigatória")
     private Long filialId;

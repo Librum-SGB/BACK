@@ -4,12 +4,20 @@ import lombok.Data;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
+import com.sgb.mylibrum.entities.enums.TipoMaterial;
+
 @Data
-public class LivroResponseDTO {
+public class MaterialResponseDTO {
     private Long id;
     private String titulo;
-    private String isbn13;
-    private String isbn10;
+    private TipoMaterial tipo;
+    private String subtitulo;
+    private Long autorId;
+    private String sinopse;
+    private String issn;
+    private String tema;
+    private String descricao;
+    private String isbn;
     private Integer edicao;
     private Integer anoPublicacao;
     private Integer quantidadePaginas;
