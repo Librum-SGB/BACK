@@ -1,0 +1,151 @@
+{
+  "info": {
+    "_postman_id": "7f07d9d6-4be2-4a4b-9b6f-3e4c1f8a2c11",
+    "name": "MyLibrum API",
+    "description": "Collection CRUD completa da API MyLibrum. Configure baseUrl e token nas variáveis da collection. O token deve ser gerado pelo fluxo de autenticação disponível no backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "id", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Autores",
+      "item": [
+        { "name": "Listar autores", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/autores" } },
+        { "name": "Buscar autor por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/autores/{{id}}" } },
+        { "name": "Criar autor", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Machado de Assis\",\n  \"nacionalidade\": \"Brasileira\",\n  \"dataNascimento\": \"1839-06-21\",\n  \"biografia\": \"Escritor brasileiro.\"\n}" }, "url": "{{baseUrl}}/api/autores" } },
+        { "name": "Atualizar autor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Machado de Assis Atualizado\",\n  \"nacionalidade\": \"Brasileira\"\n}" }, "url": "{{baseUrl}}/api/autores/{{id}}" } },
+        { "name": "Excluir autor", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/autores/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Configurações",
+      "item": [
+        { "name": "Listar configurações", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/configuracoes" } },
+        { "name": "Buscar configuração por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/configuracoes/{{id}}" } },
+        { "name": "Criar configuração", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"filialId\": 1,\n  \"chave\": \"diasEmprestimo\",\n  \"valor\": \"14\",\n  \"descricao\": \"Prazo padrão de empréstimo\"\n}" }, "url": "{{baseUrl}}/api/configuracoes" } },
+        { "name": "Atualizar configuração", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"filialId\": 1,\n  \"chave\": \"diasEmprestimo\",\n  \"valor\": \"21\",\n  \"descricao\": \"Prazo atualizado\"\n}" }, "url": "{{baseUrl}}/api/configuracoes/{{id}}" } },
+        { "name": "Excluir configuração", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/configuracoes/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Editoras",
+      "item": [
+        { "name": "Listar editoras", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/editoras" } },
+        { "name": "Buscar editora por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/editoras/{{id}}" } },
+        { "name": "Criar editora", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Companhia das Letras\",\n  \"nacionalidade\": \"Brasileira\"\n}" }, "url": "{{baseUrl}}/api/editoras" } },
+        { "name": "Atualizar editora", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Companhia das Letras Atualizada\",\n  \"nacionalidade\": \"Brasileira\"\n}" }, "url": "{{baseUrl}}/api/editoras/{{id}}" } },
+        { "name": "Excluir editora", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/editoras/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Empréstimos",
+      "item": [
+        { "name": "Listar empréstimos", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/emprestimos" } },
+        { "name": "Buscar empréstimo por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/emprestimos/{{id}}" } },
+        { "name": "Criar empréstimo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"gestorId\": 1,\n  \"dataDevolucaoPrevista\": \"2026-09-08\",\n  \"dataSaida\": \"2026-08-25T10:00:00Z\"\n}" }, "url": "{{baseUrl}}/api/emprestimos" } },
+        { "name": "Atualizar empréstimo", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"gestorId\": 1,\n  \"dataDevolucaoPrevista\": \"2026-09-15\",\n  \"renovacoesContagem\": 1\n}" }, "url": "{{baseUrl}}/api/emprestimos/{{id}}" } },
+        { "name": "Excluir empréstimo", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/emprestimos/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Estantes",
+      "item": [
+        { "name": "Listar estantes", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/estantes" } },
+        { "name": "Buscar estante por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/estantes/{{id}}" } },
+        { "name": "Criar estante", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"localizacao\": \"A-01\",\n  \"capacidade\": 100\n}" }, "url": "{{baseUrl}}/api/estantes" } },
+        { "name": "Atualizar estante", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"localizacao\": \"A-02\",\n  \"capacidade\": 120\n}" }, "url": "{{baseUrl}}/api/estantes/{{id}}" } },
+        { "name": "Excluir estante", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/estantes/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Exemplares",
+      "item": [
+        { "name": "Listar exemplares", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares" } },
+        { "name": "Buscar exemplar por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
+        { "name": "Criar exemplar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"prateleira\": \"P1\",\n  \"posicao\": \"01\",\n  \"status\": \"DISPONIVEL\",\n  \"dataAquisicao\": \"2026-08-25\"\n}" }, "url": "{{baseUrl}}/api/exemplares" } },
+        { "name": "Atualizar exemplar", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"status\": \"MANUTENCAO\"\n}" }, "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
+        { "name": "Excluir exemplar", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/exemplares/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Filiais",
+      "item": [
+        { "name": "Listar filiais", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/filiais" } },
+        { "name": "Buscar filial por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/filiais/{{id}}" } },
+        { "name": "Criar filial", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nomeFantasia\": \"MyLibrum Centro\",\n  \"razaoSocial\": \"MyLibrum Biblioteca LTDA\",\n  \"cnpj\": \"12345678000199\",\n  \"endereco\": \"Rua Principal\",\n  \"numero\": \"100\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"telefone\": \"1130000000\",\n  \"email\": \"centro@mylibrum.com\",\n  \"ativo\": true\n}" }, "url": "{{baseUrl}}/api/filiais" } },
+        { "name": "Atualizar filial", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nomeFantasia\": \"MyLibrum Centro Atualizada\",\n  \"razaoSocial\": \"MyLibrum Biblioteca LTDA\",\n  \"cnpj\": \"12345678000199\",\n  \"endereco\": \"Rua Principal\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\"\n}" }, "url": "{{baseUrl}}/api/filiais/{{id}}" } },
+        { "name": "Excluir filial", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/filiais/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Gêneros",
+      "item": [
+        { "name": "Listar gêneros", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/generos" } },
+        { "name": "Buscar gênero por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/generos/{{id}}" } },
+        { "name": "Criar gênero", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Ficção\",\n  \"descricao\": \"Obras de ficção literária\"\n}" }, "url": "{{baseUrl}}/api/generos" } },
+        { "name": "Atualizar gênero", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Ficção científica\",\n  \"descricao\": \"Obras de ficção científica\"\n}" }, "url": "{{baseUrl}}/api/generos/{{id}}" } },
+        { "name": "Excluir gênero", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/generos/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Gestores",
+      "item": [
+        { "name": "Listar gestores", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores" } },
+        { "name": "Buscar gestor por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } },
+        { "name": "Criar gestor", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"login\": \"gestor.teste\",\n  \"senha\": \"senha-temporaria\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores" } },
+        { "name": "Atualizar gestor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"login\": \"gestor.teste\",\n  \"senha\": \"nova-senha\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores/{{id}}" } },
+        { "name": "Excluir gestor", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Histórico de Multas",
+      "item": [
+        { "name": "Listar históricos de multa", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/historico-multas" } },
+        { "name": "Buscar histórico por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/historico-multas/{{id}}" } },
+        { "name": "Criar histórico de multa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"emprestimoId\": 1,\n  \"valor\": 12.50,\n  \"diasAtraso\": 5,\n  \"pago\": false\n}" }, "url": "{{baseUrl}}/api/historico-multas" } },
+        { "name": "Atualizar histórico de multa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"emprestimoId\": 1,\n  \"valor\": 12.50,\n  \"diasAtraso\": 5,\n  \"pago\": true,\n  \"dataPagamento\": \"2026-08-25\"\n}" }, "url": "{{baseUrl}}/api/historico-multas/{{id}}" } },
+        { "name": "Excluir histórico de multa", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/historico-multas/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Tarefas",
+      "item": [
+        { "name": "Listar tarefas", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Buscar tarefa por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
+        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"gestorId\": 1,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"concluida\": false\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"gestorId\": 1,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"concluida\": true\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
+        { "name": "Excluir tarefa", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Materiais",
+      "item": [
+        { "name": "Listar materiais", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais" } },
+        { "name": "Buscar material por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } },
+        { "name": "Criar material", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Dom Casmurro\",\n  \"editoraId\": 1,\n  \"tipo\": \"LIVRO\",\n  \"autorId\": 1,\n  \"autorIds\": [1],\n  \"generoIds\": [1],\n  \"isbn\": \"9788535902778\",\n  \"edicao\": 1,\n  \"anoPublicacao\": 1899,\n  \"quantidadePaginas\": 256,\n  \"sinopse\": \"Romance de Machado de Assis.\"\n}" }, "url": "{{baseUrl}}/api/materiais" } },
+        { "name": "Atualizar material", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Dom Casmurro - Edição Atualizada\",\n  \"editoraId\": 1,\n  \"tipo\": \"LIVRO\",\n  \"autorIds\": [1],\n  \"generoIds\": [1],\n  \"edicao\": 2,\n  \"anoPublicacao\": 2026\n}" }, "url": "{{baseUrl}}/api/materiais/{{id}}" } },
+        { "name": "Excluir material", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        { "name": "Listar usuários", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios" } },
+        { "name": "Buscar usuário por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
+        { "name": "Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"endereco\": \"Rua de Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"limiteLivros\": 3,\n  \"estaBloqueado\": false\n}" }, "url": "{{baseUrl}}/api/usuarios" } },
+        { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"limiteLivros\": 5,\n  \"estaBloqueado\": false\n}" }, "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
+        { "name": "Excluir usuário", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } }
+      ]
+    }
+  ]
+}

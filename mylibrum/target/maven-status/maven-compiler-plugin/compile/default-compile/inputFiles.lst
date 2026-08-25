@@ -1,4 +1,5 @@
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\config\OpenApiConfig.java
+C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\config\SecurityConfig.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\config\WebConfig.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\controllers\AutorController.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\controllers\ConfiguracaoController.java
@@ -70,6 +71,8 @@ C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\repositories\ListaTarefaRepository.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\repositories\MaterialRepository.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\repositories\UsuarioRepository.java
+C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\security\JwtAuthenticationFilter.java
+C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\security\JwtUtil.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\services\AutorService.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\services\ConfiguracaoService.java
 C:\Users\joao_m_lessa\Documents\MyLibrumBack\BACK\mylibrum\src\main\java\com\sgb\mylibrum\services\EditoraService.java
