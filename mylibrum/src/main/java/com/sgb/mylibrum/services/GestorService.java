@@ -1,23 +1,27 @@
 package com.sgb.mylibrum.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sgb.mylibrum.dtos.request.GestorRequestDTO;
 import com.sgb.mylibrum.dtos.response.GestorResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.repositories.GestorRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class GestorService {
 
     private final GestorRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<GestorResponseDTO> findAll() {
@@ -34,6 +38,9 @@ public class GestorService {
     public GestorResponseDTO create(GestorRequestDTO dto) {
         Gestor entity = new Gestor();
         BeanUtils.copyProperties(dto, entity);
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
         if (dto.getFilialId() != null) {
             Filial filial = new Filial();
             filial.setId(dto.getFilialId());
@@ -46,7 +53,10 @@ public class GestorService {
     public GestorResponseDTO update(Long id, GestorRequestDTO dto) {
         Gestor entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Gestor não encontrado"));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
+        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "senha");
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
         if (dto.getFilialId() != null) {
             Filial filial = new Filial();
             filial.setId(dto.getFilialId());

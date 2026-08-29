@@ -18,6 +18,41 @@
   },
   "item": [
     {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "Login - Gerar JWT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('Token salvo com sucesso:', json.token);",
+                  "}",
+                  "else {",
+                  "  console.log('Resposta sem token:', json);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin\",\n  \"senha\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
       "name": "Autores",
       "item": [
         { "name": "Listar autores", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/autores" } },
