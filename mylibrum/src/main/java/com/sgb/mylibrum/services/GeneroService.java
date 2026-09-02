@@ -4,6 +4,7 @@ import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
 import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;
 import com.sgb.mylibrum.entities.Genero;
 import com.sgb.mylibrum.repositories.GeneroRepository;
+import com.sgb.mylibrum.utils.GeneroMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class GeneroService {
 
     private final GeneroRepository repository;
+    private final GeneroMapper mapper;
 
     @Transactional(readOnly = true)
     public List<GeneroResponseDTO> findAll() {
@@ -25,8 +27,7 @@ public class GeneroService {
 
     @Transactional(readOnly = true)
     public GeneroResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gênero não encontrado")));
+        return toResponseDTO(repository.findById(id).orElse(null));
     }
 
     @Transactional
@@ -38,15 +39,25 @@ public class GeneroService {
 
     @Transactional
     public GeneroResponseDTO update(Long id, GeneroRequestDTO dto) {
-        Genero entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gênero não encontrado"));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        return toResponseDTO(repository.save(entity));
+        Genero entity = repository.findById(id).orElse(null);
+        if (entity == null) {
+            return null;
+        }
+
+        entity.setNome(dto.getNome());
+        entity.setDescricao(dto.getDescricao());
+
+        return toResponseDTO(entity);
     }
 
     @Transactional
-    public void delete(Long id) {
-        repository.deleteById(id);
+    public boolean delete(Long id) {
+        Genero genero = repository.findById(id).orElse(null);
+        if (genero != null) {
+            genero.setAtivo(false);
+            return true;
+        }
+        return false;
     }
 
     private GeneroResponseDTO toResponseDTO(Genero entity) {
