@@ -45,6 +45,9 @@ public class Material extends EntidadeAuditavel {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    @Column(columnDefinition = "TEXT")
+    private String observacao;
+
     @Column(unique = true, length = 13)
     private String isbn;
 
