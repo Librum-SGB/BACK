@@ -3,6 +3,9 @@ package com.sgb.mylibrum.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "editoras")
 @Getter
@@ -22,4 +25,7 @@ public class Editora extends EntidadeAuditavel {
 
     @Column(length = 100)
     private String nacionalidade;
+
+    @OneToMany(mappedBy = "editora")
+    private List<Material> materiais = new ArrayList<>();
 }
