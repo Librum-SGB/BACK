@@ -45,7 +45,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"login\": \"admin\",\n  \"senha\": \"admin123\"\n}"
+              "raw": "{\n  \"login\": \"gestor1\",\n  \"senha\": \"senhaTeste\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
           }
@@ -167,6 +167,9 @@
       "item": [
         { "name": "Listar materiais", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais" } },
         { "name": "Buscar material por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } },
+        { "name": "Buscar material por ISBN", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/isbn?isbn=9788535902778" } },
+        { "name": "Buscar materiais por título", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/titulo?titulo=Dom%20Casmurro" } },
+        { "name": "Buscar materiais por editora", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/editora?editoraId=1" } },
         { "name": "Criar material", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Dom Casmurro\",\n  \"editoraId\": 1,\n  \"tipo\": \"LIVRO\",\n  \"autorId\": 1,\n  \"autorIds\": [1],\n  \"generoIds\": [1],\n  \"isbn\": \"9788535902778\",\n  \"edicao\": 1,\n  \"anoPublicacao\": 1899,\n  \"quantidadePaginas\": 256,\n  \"sinopse\": \"Romance de Machado de Assis.\"\n}" }, "url": "{{baseUrl}}/api/materiais" } },
         { "name": "Atualizar material", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Dom Casmurro - Edição Atualizada\",\n  \"editoraId\": 1,\n  \"tipo\": \"LIVRO\",\n  \"autorIds\": [1],\n  \"generoIds\": [1],\n  \"edicao\": 2,\n  \"anoPublicacao\": 2026\n}" }, "url": "{{baseUrl}}/api/materiais/{{id}}" } },
         { "name": "Excluir material", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } }
