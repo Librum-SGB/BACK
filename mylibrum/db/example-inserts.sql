@@ -25,7 +25,7 @@ VALUES (1, 'Joao Silva', 'Brasil', 'Autor exemplo.', '1970-05-12', true, false),
 INSERT INTO usuarios (id, nome, cpf, telefone, email, data_nascimento, filial_id, ativo, excluido)
 VALUES (1, 'Aluno Exemplo', '12345678901', '11988887777', 'aluno@exemplo.com', '1995-03-10', 1, true, false);
 
--- GESTORES
+-- GESTORES -- senha: senhaTeste
 INSERT INTO gestores (id, login, senha, matricula_funcionario, filial_id, ultimo_acesso, ativo, excluido)
 VALUES (1, 'gestor1', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false);
 
