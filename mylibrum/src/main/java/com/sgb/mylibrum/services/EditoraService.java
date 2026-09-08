@@ -5,7 +5,7 @@ import com.sgb.mylibrum.dtos.response.EditoraResponseDTO;
 import com.sgb.mylibrum.entities.Editora;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EditoraRepository;
-import com.sgb.mylibrum.utils.EditoraMapper;
+import com.sgb.mylibrum.dtos.mapper.EditoraMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

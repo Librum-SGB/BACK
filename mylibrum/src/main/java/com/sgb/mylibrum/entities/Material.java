@@ -9,10 +9,9 @@ import com.sgb.mylibrum.entities.enums.TipoMaterial;
 
 @Entity
 @Table(name = "materiais")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class Material extends EntidadeAuditavel {
 
