@@ -29,7 +29,7 @@ Use o endpoint de autenticação da API:
 Exemplo de payload:
 ```json
 {
-  "login": "admin",
+  "login": "gestor1",
   "senha": "senhaTeste"
 }
 ```
