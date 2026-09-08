@@ -30,7 +30,7 @@ Exemplo de payload:
 ```json
 {
   "login": "admin",
-  "senha": "admin123"
+  "senha": "senhaTeste"
 }
 ```
 
