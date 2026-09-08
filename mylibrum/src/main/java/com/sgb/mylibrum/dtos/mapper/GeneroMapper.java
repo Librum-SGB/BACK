@@ -1,4 +1,4 @@
-package com.sgb.mylibrum.utils;
+package com.sgb.mylibrum.dtos.mapper;
 
 import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
 import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;

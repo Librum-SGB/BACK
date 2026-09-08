@@ -4,7 +4,7 @@ import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
 import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;
 import com.sgb.mylibrum.entities.Genero;
 import com.sgb.mylibrum.repositories.GeneroRepository;
-import com.sgb.mylibrum.utils.GeneroMapper;
+import com.sgb.mylibrum.dtos.mapper.GeneroMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
