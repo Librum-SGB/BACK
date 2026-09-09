@@ -28,7 +28,6 @@ public class GeneroController {
     @GetMapping("/{id}")
     public ResponseEntity<GeneroResponseDTO> findById(@PathVariable Long id) {
         GeneroResponseDTO genero = service.findById(id);
-        log.info("Genero: {}", genero);
 
         if (genero == null) {
             return ResponseEntity.notFound().build();
@@ -45,17 +44,35 @@ public class GeneroController {
     @PutMapping("/{id}")
     public ResponseEntity<GeneroResponseDTO> update(@PathVariable Long id, @Valid @RequestBody GeneroRequestDTO dto) {
         GeneroResponseDTO genero = service.update(id, dto);
-        if (genero == null){
+        if (genero == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().body(genero);
+    }
+
+    @PutMapping("/desativar/{id}")
+    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+        boolean isDesativo = service.desativar(id);
+        if (isDesativo) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/ativar/{id}")
+    public ResponseEntity<Void> ativar(@PathVariable Long id) {
+        boolean isAtivo = service.ativar(id);
+        if (isAtivo) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         boolean isDeletado = service.delete(id);
         if (isDeletado) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }

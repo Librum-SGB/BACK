@@ -6,13 +6,14 @@ import com.sgb.mylibrum.entities.Genero;
 import com.sgb.mylibrum.repositories.GeneroRepository;
 import com.sgb.mylibrum.dtos.mapper.GeneroMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GeneroService {
@@ -22,19 +23,27 @@ public class GeneroService {
 
     @Transactional(readOnly = true)
     public List<GeneroResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        log.debug("Buscando todos os generos ativos");
+        return repository.findAllByAtivoTrueAndExcluidoFalse().stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public GeneroResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id).orElse(null));
+        log.info("Buscando genero com id={}", id);
+        Optional<Genero> genero = repository.findByIdAndAtivoTrueAndExcluidoFalse(id);
+        if (genero.isPresent()) {
+            log.info("Genero com id={}", genero.get().getId());
+        } else {
+            log.warn("Genero não encontrado com id ={} ", id);
+        }
+        return genero.map(mapper::toResponseDTO).orElse(null);
     }
 
     @Transactional
     public GeneroResponseDTO create(GeneroRequestDTO dto) {
-        Genero entity = new Genero();
-        BeanUtils.copyProperties(dto, entity);
-        return toResponseDTO(repository.save(entity));
+        log.info("Criando novo genero: nome={}", dto.getNome());
+        Genero entity = mapper.toEntity(dto);
+        return mapper.toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -43,26 +52,65 @@ public class GeneroService {
         if (entity == null) {
             return null;
         }
-
-        entity.setNome(dto.getNome());
-        entity.setDescricao(dto.getDescricao());
-
-        return toResponseDTO(entity);
+        log.info("Genero id={} atualizando Genero: nome={}", id, entity.getNome());
+        mapper.updateEntityFromDTO(dto, entity);
+        log.info("Genero id={} atualizado com sucesso: novoNome={}", id, entity.getNome());
+        repository.saveAndFlush(entity);
+        return mapper.toResponseDTO(entity);
     }
 
     @Transactional
     public boolean delete(Long id) {
         Genero genero = repository.findById(id).orElse(null);
         if (genero != null) {
-            genero.setAtivo(false);
+            desativar(genero);
+            genero.setExcluido(true);
+            log.info("Genero id={} - nome= {} excluido com sucesso", genero.getId(), genero.getNome());
             return true;
         }
+        log.warn("Tentativa de excluir genero inexistente: id={}", id);
         return false;
     }
 
-    private GeneroResponseDTO toResponseDTO(Genero entity) {
-        GeneroResponseDTO dto = new GeneroResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        return dto;
+    @Transactional
+    public boolean desativar(Long id) {
+        Genero genero = repository.findById(id).orElse(null);
+        if (genero != null) {
+            genero.setAtivo(false);
+            log.info("Genero id={} - nome= {} desativado com sucesso", genero.getId(), genero.getNome());
+            return true;
+        }
+        log.warn("Tentativa de desativar genero inexistente: id={}", id);
+        return false;
+    }
+
+    @Transactional
+    public boolean ativar(Long id) {
+        Genero genero = repository.findById(id).orElse(null);
+        if (genero != null) {
+            if (!genero.getAtivo()) {
+                genero.setAtivo(true);
+                log.info("Genero id={} - nome= {} ativando com sucesso", genero.getId(), genero.getNome());
+                return true;
+            }
+            log.warn("Tentativa de ativar genero já ativo: id={}", id);
+            return true;
+        }
+        log.warn("Tentativa de ativando genero inexistente: id={}", id);
+        return false;
+    }
+
+    private void desativar(Genero genero) {
+        if (genero != null) {
+            if (genero.getAtivo()) {
+                genero.setAtivo(false);
+                log.info("Genero id={} - nome= {} desativado com sucesso", genero.getId(), genero.getNome());
+            } else {
+                log.warn("Tentativa de desativar genero já desativo");
+            }
+            return;
+        } else {
+            log.warn("Tentativa de desativar genero inexistente");
+        }
     }
 }

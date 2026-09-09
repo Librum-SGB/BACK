@@ -28,4 +28,10 @@ public class GeneroMapper {
 
         return dto;
     }
+    //não cria nem retorna um objeto novo. Ele modifica o objeto genero que já existe na memória.
+    public void updateEntityFromDTO(GeneroRequestDTO dto, Genero genero) {
+        genero.setNome(dto.getNome());
+        genero.setDescricao(dto.getDescricao());
+    }
+
 }
