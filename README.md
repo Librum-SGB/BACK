@@ -1,5 +1,33 @@
 # BACK
 
+## Banco PostgreSQL com Docker
+
+Com o Docker Desktop em execução, inicie o banco na raiz de `mylibrum`:
+
+```powershell
+docker compose up -d postgres
+```
+
+O suporte nativo do Spring Boot também inicia esse Compose automaticamente ao executar `MylibrumApplication` pelo VS Code. O Docker Desktop precisa estar em execução.
+
+O Compose cria automaticamente o banco `librumDb`, o usuário `postgres` e mantém os dados no volume `mylibrum-postgres-data`. Depois, inicie a API normalmente:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Para parar o container sem apagar os dados:
+
+```powershell
+docker compose down
+```
+
+Para apagar também o banco persistido e recriá-lo do zero:
+
+```powershell
+docker compose down -v
+```
+
 ## Swagger
 
 Documentação dos endpoints: http://localhost:8080/swagger-ui/index.html#/
