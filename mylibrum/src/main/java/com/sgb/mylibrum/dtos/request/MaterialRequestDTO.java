@@ -24,6 +24,7 @@ public class MaterialRequestDTO {
     private String issn;
     private String tema;
     private String descricao;
+    private String observacao;
     @Size(max = 13, message = "O ISBN deve ter no máximo 13 caracteres")
     @Pattern(regexp = "\\d{1,13}", message = "O ISBN deve conter apenas dígitos (até 13)")
     private String isbn;
