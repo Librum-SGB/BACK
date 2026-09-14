@@ -17,5 +17,35 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mylibrum-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-librumDb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      JWT_SECRET: ${JWT_SECRET:-bXlsaWJydW0tc2VjcmV0LWtleS1mb3ItZGV2LW9ubHktMzItYnl0ZXM=}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
+  frontend:
+    build:
+      context: ../../FRONT/FRONT/Librum
+      dockerfile: Dockerfile
+    container_name: mylibrum-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+
 volumes:
   mylibrum-postgres-data:
