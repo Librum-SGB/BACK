@@ -17,6 +17,7 @@ public class MaterialResponseDTO {
     private String issn;
     private String tema;
     private String descricao;
+    private String observacao;
     private String isbn;
     private Integer edicao;
     private Integer anoPublicacao;
