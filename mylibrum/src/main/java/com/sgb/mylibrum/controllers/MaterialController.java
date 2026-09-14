@@ -16,31 +16,102 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MaterialController {
 
-    private final MaterialService service;
+    private final MaterialService materialService;
+
+    @PostMapping
+    public ResponseEntity<MaterialResponseDTO> criar(
+            @Valid @RequestBody MaterialRequestDTO materialRequestDTO) {
+
+        MaterialResponseDTO salvo = materialService.create(materialRequestDTO);
+
+        if (salvo == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
 
     @GetMapping
-    public ResponseEntity<List<MaterialResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<MaterialResponseDTO>> listarTodos() {
+
+        List<MaterialResponseDTO> materiais = materialService.findAll();
+
+        if (materiais.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(materiais);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MaterialResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<MaterialResponseDTO> buscarPorId(
+            @PathVariable Long id) {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(materialService.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<MaterialResponseDTO> create(@Valid @RequestBody MaterialRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    @GetMapping("/isbn")
+    public ResponseEntity<MaterialResponseDTO> buscarPorIsbn(
+            @RequestParam String isbn) {
+
+        MaterialResponseDTO material = materialService.findByIsbn(isbn);
+
+        if (material == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(material);
+    }
+
+    @GetMapping("/titulo")
+    public ResponseEntity<List<MaterialResponseDTO>> buscarPorTitulo(
+            @RequestParam String titulo) {
+
+        List<MaterialResponseDTO> materiais =
+                materialService.findByTitulo(titulo);
+
+        if (materiais.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(materiais);
+    }
+
+    @GetMapping("/editora")
+    public ResponseEntity<List<MaterialResponseDTO>> buscarPorEditora(
+            @RequestParam Long editoraId) {
+
+        List<MaterialResponseDTO> materiais =
+                materialService.findByEditoraId(editoraId);
+
+        if (materiais.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(materiais);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MaterialResponseDTO> update(@PathVariable Long id, @Valid @RequestBody MaterialRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    public ResponseEntity<MaterialResponseDTO> alterar(
+            @PathVariable Long id,
+            @Valid @RequestBody MaterialRequestDTO materialRequestDTO) {
+
+        MaterialResponseDTO modificado =
+                materialService.update(id, materialRequestDTO);
+
+        if (modificado == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(modificado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+
+        materialService.delete(id);
+
         return ResponseEntity.noContent().build();
     }
 }

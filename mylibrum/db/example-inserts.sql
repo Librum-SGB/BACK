@@ -25,9 +25,9 @@ VALUES (1, 'Joao Silva', 'Brasil', 'Autor exemplo.', '1970-05-12', true, false),
 INSERT INTO usuarios (id, nome, cpf, telefone, email, data_nascimento, filial_id, ativo, excluido)
 VALUES (1, 'Aluno Exemplo', '12345678901', '11988887777', 'aluno@exemplo.com', '1995-03-10', 1, true, false);
 
--- GESTORES
+-- GESTORES -- senha: senhaTeste
 INSERT INTO gestores (id, login, senha, matricula_funcionario, filial_id, ultimo_acesso, ativo, excluido)
-VALUES (1, 'gestor1', '$2a$10$EXEMPLOHASH...', 'MAT123', 1, now(), true, false);
+VALUES (1, 'gestor1', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false);
 
 -- ESTANTES
 INSERT INTO estantes (id, localizacao, capacidade, ativo, excluido)
@@ -64,9 +64,24 @@ VALUES (1, 1, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false);
 INSERT INTO configuracoes (id, filial_id, chave, descricao, valor, ativo, excluido)
 VALUES (1, 1, 'emprestimo.dias.max', 'Max days for loan', '30', true, false);
 
+-- Ajusta as sequencias das colunas identity para o proximo ID ficar disponivel.
+SELECT setval(pg_get_serial_sequence('filiais', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM filiais;
+SELECT setval(pg_get_serial_sequence('editoras', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM editoras;
+SELECT setval(pg_get_serial_sequence('generos', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM generos;
+SELECT setval(pg_get_serial_sequence('autores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM autores;
+SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM usuarios;
+SELECT setval(pg_get_serial_sequence('gestores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM gestores;
+SELECT setval(pg_get_serial_sequence('estantes', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM estantes;
+SELECT setval(pg_get_serial_sequence('materiais', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM materiais;
+SELECT setval(pg_get_serial_sequence('exemplares', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM exemplares;
+SELECT setval(pg_get_serial_sequence('emprestimos', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM emprestimos;
+SELECT setval(pg_get_serial_sequence('historico_multas', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM historico_multas;
+SELECT setval(pg_get_serial_sequence('lista_tarefas', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM lista_tarefas;
+SELECT setval(pg_get_serial_sequence('configuracoes', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM configuracoes;
+
 COMMIT;
 
 -- Notes:
--- - Adjust sequence values (e.g., ALTER SEQUENCE ... RESTART WITH ...) after inserting explicit ids if using serial/identity columns.
+-- - The sequence adjustments above make subsequent inserts start after the highest explicit id.
 -- - Passwords above are placeholders; replace with properly hashed values for real use.
 -- - The script assumes tables and constraints already exist. Remove or adapt `id` explicit values if your DB uses automatic identities.
