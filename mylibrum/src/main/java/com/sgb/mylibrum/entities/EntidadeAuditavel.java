@@ -1,24 +1,23 @@
 package com.sgb.mylibrum.entities;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.OffsetDateTime;
 
 @Getter
 @Setter
 @MappedSuperclass
 public abstract class EntidadeAuditavel {
 
-    @CreationTimestamp
     @Column(name = "data_criacao", updatable = false)
     private OffsetDateTime dataCriacao;
 
-    @UpdateTimestamp
     @Column(name = "data_ultima_atualizacao")
     private OffsetDateTime dataUltimaAtualizacao;
 
@@ -27,4 +26,18 @@ public abstract class EntidadeAuditavel {
 
     @Column(columnDefinition = "boolean default true")
     private Boolean ativo = true;
+
+    @PrePersist
+    protected void aoCriar() {
+        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.UTC);
+        if (dataCriacao == null) {
+            dataCriacao = agora;
+        }
+        dataUltimaAtualizacao = agora;
+    }
+
+    @PreUpdate
+    protected void aoAtualizar() {
+        dataUltimaAtualizacao = OffsetDateTime.now(ZoneOffset.UTC);
+    }
 }
