@@ -23,7 +23,7 @@ VALUES (1, 'Aluno Exemplo', '12345678901', '11988887777', 'aluno@exemplo.com', '
 ON CONFLICT DO NOTHING;
 
 INSERT INTO gestores (id, login, senha, matricula_funcionario, filial_id, ultimo_acesso, ativo, excluido)
-VALUES (1, 'gestor1', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false)
+VALUES (1, 'admin@gmail.com', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO estantes (id, localizacao, capacidade, ativo, excluido)

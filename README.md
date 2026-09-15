@@ -60,7 +60,7 @@ Use o endpoint de autenticação da API:
 Exemplo de payload:
 ```json
 {
-  "login": "gestor1",
+  "login": "admin@gmail.com",
   "senha": "senhaTeste"
 }
 ```
