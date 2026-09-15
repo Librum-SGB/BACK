@@ -1,3 +1,6 @@
+
+MANTENHA O DOCKER ABERTO!!
+
 # BACK
 
 ## Banco PostgreSQL com Docker
