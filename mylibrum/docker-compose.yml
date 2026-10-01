@@ -38,7 +38,7 @@ services:
 
   frontend:
     build:
-      context: ../../FRONT/FRONT/Librum
+      context: ../../FRONT/Librum
       dockerfile: Dockerfile
     container_name: mylibrum-frontend
     restart: unless-stopped
