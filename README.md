@@ -60,7 +60,7 @@ Use o endpoint de autenticação da API:
 Exemplo de payload:
 ```json
 {
-  "login": "admin@gmail.com",
+  "email": "admin@gmail.com",
   "senha": "senhaTeste"
 }
 ```
@@ -80,13 +80,31 @@ Copie o valor do campo `token` e cole no Swagger no botão "Authorize" com o pre
 
 - Os endpoints protegidos ficam em `/api/**`.
 - O endpoint `/auth/login` e as rotas públicas do Swagger ficam liberadas sem autenticação.
-- Se o banco estiver vazio, será necessário criar um gestor válido antes de autenticar. O usuário padrão de teste é:
-  ```json
-  {
-    "login": "admin",
-    "senha": "admin123"
-  }
-  ```
+- As credenciais abaixo são somente para desenvolvimento e são inseridas pela migration V3 em um banco novo.
+
+### Gestores de teste
+
+| E-mail | Senha |
+| --- | --- |
+| `admin@gmail.com` | `senhaTeste` |
+| `gestor.norte@biblioteca.ex` | `senha123` |
+| `gestor.sul@biblioteca.ex` | `senha123` |
+| `gestor.leste@biblioteca.ex` | `senha123` |
+| `gestor.oeste@biblioteca.ex` | `senha123` |
+| `gestor.central2@biblioteca.ex` | `senha123` |
+
+### Usuários de teste
+
+Todos usam a senha `senha123`.
+
+- `aluno@exemplo.com`
+- `ana@exemplo.com`
+- `bruno@exemplo.com`
+- `carla@exemplo.com`
+- `diego@exemplo.com`
+- `elisa@exemplo.com`
+- `fabio@exemplo.com`
+- `gabi@exemplo.com`
 
 ## Testando no Postman
 

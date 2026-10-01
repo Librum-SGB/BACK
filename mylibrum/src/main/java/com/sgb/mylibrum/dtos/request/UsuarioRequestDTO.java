@@ -1,9 +1,11 @@
 package com.sgb.mylibrum.dtos.request;
 
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import java.time.LocalDate;
 
 @Data
 public class UsuarioRequestDTO {
@@ -14,7 +16,11 @@ public class UsuarioRequestDTO {
     private String cpf;
     
     @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "O e-mail deve ser válido")
     private String email;
+
+    @NotBlank(message = "A senha é obrigatória")
+    private String senha;
     
     @NotBlank(message = "O telefone é obrigatório")
     private String telefone;

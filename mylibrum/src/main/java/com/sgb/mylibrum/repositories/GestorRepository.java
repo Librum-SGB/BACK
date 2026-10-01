@@ -1,13 +1,14 @@
 package com.sgb.mylibrum.repositories;
 
-import com.sgb.mylibrum.entities.Gestor;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.sgb.mylibrum.entities.Gestor;
 
 @Repository
 public interface GestorRepository extends JpaRepository<Gestor, Long> {
-    Optional<Gestor> findByLogin(String login);
+    Optional<Gestor> findByEmail(String email);
     Optional<Gestor> findByMatriculaFuncionario(String matriculaFuncionario);
 }

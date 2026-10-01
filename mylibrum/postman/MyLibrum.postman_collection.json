@@ -45,7 +45,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"login\": \"gestor1\",\n  \"senha\": \"senhaTeste\"\n}"
+              "raw": "{\n  \"email\": \"gestor1@example.com\",\n  \"senha\": \"senhaTeste\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
           }
@@ -137,8 +137,8 @@
       "item": [
         { "name": "Listar gestores", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores" } },
         { "name": "Buscar gestor por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } },
-        { "name": "Criar gestor", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"login\": \"gestor.teste\",\n  \"senha\": \"senha-temporaria\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores" } },
-        { "name": "Atualizar gestor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"login\": \"gestor.teste\",\n  \"senha\": \"nova-senha\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores/{{id}}" } },
+        { "name": "Criar gestor", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"gestor.teste@example.com\",\n  \"senha\": \"senha-temporaria\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores" } },
+        { "name": "Atualizar gestor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"gestor.teste@example.com\",\n  \"senha\": \"nova-senha\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores/{{id}}" } },
         { "name": "Excluir gestor", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } }
       ]
     },

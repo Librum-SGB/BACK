@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sgb.mylibrum.entities.Gestor;
+import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.GestorRepository;
+import com.sgb.mylibrum.repositories.UsuarioRepository;
 import com.sgb.mylibrum.security.JwtUtil;
 
 import jakarta.validation.Valid;
@@ -25,19 +27,32 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final GestorRepository gestorRepository;
+    private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
-        Gestor gestor = gestorRepository.findByLogin(request.getLogin())
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
+        if (usuario != null) {
+            if (!passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
+                throw new IllegalArgumentException("Credenciais inválidas");
+            }
+            return loginResponse(usuario.getEmail());
+        }
+
+        Gestor gestor = gestorRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas"));
 
         if (!passwordEncoder.matches(request.getSenha(), gestor.getSenha())) {
             throw new IllegalArgumentException("Credenciais inválidas");
         }
 
-        String token = jwtUtil.generateToken(gestor.getLogin());
+        return loginResponse(gestor.getEmail());
+    }
+
+    private ResponseEntity<Map<String, String>> loginResponse(String email) {
+        String token = jwtUtil.generateToken(email);
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "type", "Bearer",
@@ -54,7 +69,11 @@ public class AuthController {
 
     @Data
     public static class LoginRequest {
-        private String login;
+        @jakarta.validation.constraints.NotBlank(message = "O e-mail é obrigatório")
+        @jakarta.validation.constraints.Email(message = "O e-mail deve ser válido")
+        private String email;
+
+        @jakarta.validation.constraints.NotBlank(message = "A senha é obrigatória")
         private String senha;
     }
 }

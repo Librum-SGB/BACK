@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +17,10 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Gestor;
+import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.FilialRepository;
 import com.sgb.mylibrum.repositories.GestorRepository;
+import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -33,11 +36,15 @@ class AuthControllerIntegrationTest {
     private GestorRepository gestorRepository;
 
     @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
         gestorRepository.deleteAll();
+        usuarioRepository.deleteAll();
         filialRepository.deleteAll();
 
         Filial filial = new Filial();
@@ -53,17 +60,45 @@ class AuthControllerIntegrationTest {
         filial = filialRepository.save(filial);
 
         Gestor gestor = new Gestor();
-        gestor.setLogin("admin");
+        gestor.setEmail("admin@example.com");
         gestor.setSenha(passwordEncoder.encode("admin123"));
         gestor.setMatriculaFuncionario("M-001");
         gestor.setFilial(filial);
         gestorRepository.save(gestor);
+
+        Usuario usuario = new Usuario();
+        usuario.setNome("Usuário Teste");
+        usuario.setCpf("12345678901");
+        usuario.setEmail("usuario@example.com");
+        usuario.setSenha(passwordEncoder.encode("user123"));
+        usuario.setTelefone("11987654321");
+        usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        usuario.setFilial(filial);
+        usuarioRepository.save(usuario);
     }
 
     @Test
     void shouldLoginAndReturnJwtToken() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        String json = "{\"login\":\"admin\",\"senha\":\"admin123\"}";
+        String json = "{\"email\":\"admin@example.com\",\"senha\":\"admin123\"}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + port + "/auth/login"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).contains("token");
+        assertThat(response.body()).contains("Bearer");
+    }
+
+    @Test
+    void shouldLoginUsuarioAndReturnJwtToken() throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        String json = "{\"email\":\"usuario@example.com\",\"senha\":\"user123\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:" + port + "/auth/login"))
