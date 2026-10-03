@@ -45,7 +45,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"gestor1@example.com\",\n  \"senha\": \"senhaTeste\"\n}"
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"senha\": \"senha123\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
           }
@@ -87,8 +87,8 @@
       "item": [
         { "name": "Listar empréstimos", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/emprestimos" } },
         { "name": "Buscar empréstimo por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/emprestimos/{{id}}" } },
-        { "name": "Criar empréstimo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"gestorId\": 1,\n  \"dataDevolucaoPrevista\": \"2026-09-08\",\n  \"dataSaida\": \"2026-08-25T10:00:00Z\"\n}" }, "url": "{{baseUrl}}/api/emprestimos" } },
-        { "name": "Atualizar empréstimo", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"gestorId\": 1,\n  \"dataDevolucaoPrevista\": \"2026-09-15\",\n  \"renovacoesContagem\": 1\n}" }, "url": "{{baseUrl}}/api/emprestimos/{{id}}" } },
+        { "name": "Criar empréstimo", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"usuarioResponsavelId\": 9,\n  \"dataDevolucaoPrevista\": \"2026-09-08\",\n  \"dataSaida\": \"2026-08-25T10:00:00Z\"\n}" }, "url": "{{baseUrl}}/api/emprestimos" } },
+        { "name": "Atualizar empréstimo", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"usuarioId\": 1,\n  \"exemplarId\": 1,\n  \"usuarioResponsavelId\": 9,\n  \"dataDevolucaoPrevista\": \"2026-09-15\",\n  \"renovacoesContagem\": 1\n}" }, "url": "{{baseUrl}}/api/emprestimos/{{id}}" } },
         { "name": "Excluir empréstimo", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/emprestimos/{{id}}" } }
       ]
     },
@@ -133,16 +133,6 @@
       ]
     },
     {
-      "name": "Gestores",
-      "item": [
-        { "name": "Listar gestores", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores" } },
-        { "name": "Buscar gestor por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } },
-        { "name": "Criar gestor", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"gestor.teste@example.com\",\n  \"senha\": \"senha-temporaria\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores" } },
-        { "name": "Atualizar gestor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"gestor.teste@example.com\",\n  \"senha\": \"nova-senha\",\n  \"matriculaFuncionario\": \"MAT001\",\n  \"filialId\": 1\n}" }, "url": "{{baseUrl}}/api/gestores/{{id}}" } },
-        { "name": "Excluir gestor", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/gestores/{{id}}" } }
-      ]
-    },
-    {
       "name": "Histórico de Multas",
       "item": [
         { "name": "Listar históricos de multa", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/historico-multas" } },
@@ -157,8 +147,8 @@
       "item": [
         { "name": "Listar tarefas", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas" } },
         { "name": "Buscar tarefa por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
-        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"gestorId\": 1,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"concluida\": false\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
-        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"gestorId\": 1,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"concluida\": true\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
+        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"concluida\": false\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"concluida\": true\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
         { "name": "Excluir tarefa", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } }
       ]
     },
@@ -180,8 +170,8 @@
       "item": [
         { "name": "Listar usuários", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios" } },
         { "name": "Buscar usuário por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
-        { "name": "Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"endereco\": \"Rua de Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"limiteLivros\": 3,\n  \"estaBloqueado\": false\n}" }, "url": "{{baseUrl}}/api/usuarios" } },
-        { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"limiteLivros\": 5,\n  \"estaBloqueado\": false\n}" }, "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
+        { "name": "Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"endereco\": \"Rua de Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"limiteLivros\": 3,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios" } },
+        { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"limiteLivros\": 5,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
         { "name": "Excluir usuário", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } }
       ]
     }

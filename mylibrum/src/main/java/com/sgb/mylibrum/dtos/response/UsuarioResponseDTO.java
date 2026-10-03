@@ -3,6 +3,7 @@ package com.sgb.mylibrum.dtos.response;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import com.sgb.mylibrum.entities.enums.Funcao;
 
 @Data
 public class UsuarioResponseDTO {
@@ -21,6 +22,9 @@ public class UsuarioResponseDTO {
     private String cep;
     private Integer limiteLivros;
     private Boolean estaBloqueado;
+    private Funcao funcao;
+    private String matriculaFuncionario;
+    private OffsetDateTime ultimoAcesso;
     private OffsetDateTime dataCriacao;
     private OffsetDateTime dataUltimaAtualizacao;
 }

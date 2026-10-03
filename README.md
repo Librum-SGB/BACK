@@ -1,31 +1,16 @@
 
 MANTENHA O DOCKER ABERTO!!
 
-# BACK
-
-## Banco PostgreSQL com Docker
+## Execução do sistema
 
 Com o Docker Desktop em execução, inicie o banco na raiz de `mylibrum`:
 
 ```powershell
-docker compose up -d postgres
-```
-
-O suporte nativo do Spring Boot também inicia esse Compose automaticamente ao executar `MylibrumApplication` pelo VS Code. O Docker Desktop precisa estar em execução.
-
-O Compose cria automaticamente o banco `librumDb`, o usuário `postgres` e mantém os dados no volume `mylibrum-postgres-data`. Depois, inicie a API normalmente:
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-Para parar o container sem apagar os dados:
-
-```powershell
-docker compose down
+docker compose up -d --build
 ```
 
 Para apagar também o banco persistido e recriá-lo do zero:
+**Faça Isso Sempre que mudar alguma Migration**
 
 ```powershell
 docker compose down -v
@@ -37,18 +22,6 @@ Documentação dos endpoints: http://localhost:8080/swagger-ui/index.html#/
 
 A interface do Swagger agora está configurada para autenticação Bearer JWT. Para testar endpoints protegidos:
 
-1. Inicie a aplicação com o comando:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-2. Acesse a documentação em: http://localhost:8080/swagger-ui/index.html
-3. No topo da página, clique em "Authorize".
-4. No campo de valor, insira o token no formato:
-   ```text
-   Bearer <seu-token-jwt>
-   ```
-5. Em seguida, qualquer endpoint protegido pode ser testado diretamente pela UI do Swagger.
-
 ## Como gerar o token JWT
 
 Use o endpoint de autenticação da API:
@@ -56,14 +29,6 @@ Use o endpoint de autenticação da API:
 - Método: POST
 - URL: http://localhost:8080/auth/login
 - Content-Type: application/json
-
-Exemplo de payload:
-```json
-{
-  "email": "admin@gmail.com",
-  "senha": "senhaTeste"
-}
-```
 
 Resposta esperada:
 ```json
@@ -73,7 +38,6 @@ Resposta esperada:
   "message": "Login realizado com sucesso"
 }
 ```
-
 Copie o valor do campo `token` e cole no Swagger no botão "Authorize" com o prefixo `Bearer `.
 
 ## Observações
@@ -82,36 +46,13 @@ Copie o valor do campo `token` e cole no Swagger no botão "Authorize" com o pre
 - O endpoint `/auth/login` e as rotas públicas do Swagger ficam liberadas sem autenticação.
 - As credenciais abaixo são somente para desenvolvimento e são inseridas pela migration V3 em um banco novo.
 
-### Gestores de teste
+### Usuários de teste por função
 
-| E-mail | Senha |
+Todas estas contas usam a senha `senha123`.
+
+| E-mail | Função |
 | --- | --- |
-| `admin@gmail.com` | `senhaTeste` |
-| `gestor.norte@biblioteca.ex` | `senha123` |
-| `gestor.sul@biblioteca.ex` | `senha123` |
-| `gestor.leste@biblioteca.ex` | `senha123` |
-| `gestor.oeste@biblioteca.ex` | `senha123` |
-| `gestor.central2@biblioteca.ex` | `senha123` |
-
-### Usuários de teste
-
-Todos usam a senha `senha123`.
-
-- `aluno@exemplo.com`
-- `ana@exemplo.com`
-- `bruno@exemplo.com`
-- `carla@exemplo.com`
-- `diego@exemplo.com`
-- `elisa@exemplo.com`
-- `fabio@exemplo.com`
-- `gabi@exemplo.com`
-
-## Testando no Postman
-
-1. Faça a requisição POST para `{{baseUrl}}/auth/login` com o JSON acima.
-2. O retorno inclui o campo `token`.
-3. Salve esse token na variável `token` da collection.
-4. Nos endpoints protegidos, use o cabeçalho:
-   ```http
-   Authorization: Bearer {{token}}
-   ```
+| `admin@gmail.com` | `ADMIN` |
+| `bibliotecaria@gmail.com` | `BIBLIOTECARIA` |
+| `assistente@gmail.com` | `ASSISTENTE` |
+| `usuario@gmail.com` | `USUARIO` |

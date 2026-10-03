@@ -1,5 +1,6 @@
 package com.sgb.mylibrum.security;
 
+import com.sgb.mylibrum.entities.enums.Funcao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,6 +19,13 @@ class JwtUtilTest {
 
         assertTrue(jwtUtil.validateToken(token));
         assertEquals("usuario@teste.com", jwtUtil.getUsernameFromToken(token));
+    }
+
+    @Test
+    void shouldIncludeFuncaoClaim() {
+        String token = jwtUtil.generateToken("admin@teste.com", Funcao.ADMIN);
+
+        assertEquals("ADMIN", jwtUtil.getFuncaoFromToken(token));
     }
 
     @Test

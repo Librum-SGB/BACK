@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 @Data
 public class ListaTarefaResponseDTO {
     private Long id;
-    private Long gestorId;
+    private Long usuarioId;
     private String descricao;
     private PrioridadeTarefa prioridade;
     private Boolean concluida;

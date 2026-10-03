@@ -2,8 +2,8 @@ package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.ListaTarefaRequestDTO;
 import com.sgb.mylibrum.dtos.response.ListaTarefaResponseDTO;
-import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.entities.ListaTarefa;
+import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.ListaTarefaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -34,10 +34,10 @@ public class ListaTarefaService {
     public ListaTarefaResponseDTO create(ListaTarefaRequestDTO dto) {
         ListaTarefa entity = new ListaTarefa();
         BeanUtils.copyProperties(dto, entity);
-        if (dto.getGestorId() != null) {
-            Gestor gestor = new Gestor();
-            gestor.setId(dto.getGestorId());
-            entity.setGestor(gestor);
+        if (dto.getUsuarioId() != null) {
+            Usuario usuario = new Usuario();
+            usuario.setId(dto.getUsuarioId());
+            entity.setUsuario(usuario);
         }
         return toResponseDTO(repository.save(entity));
     }
@@ -47,10 +47,10 @@ public class ListaTarefaService {
         ListaTarefa entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        if (dto.getGestorId() != null) {
-            Gestor gestor = new Gestor();
-            gestor.setId(dto.getGestorId());
-            entity.setGestor(gestor);
+        if (dto.getUsuarioId() != null) {
+            Usuario usuario = new Usuario();
+            usuario.setId(dto.getUsuarioId());
+            entity.setUsuario(usuario);
         }
         return toResponseDTO(repository.save(entity));
     }
@@ -63,7 +63,7 @@ public class ListaTarefaService {
     private ListaTarefaResponseDTO toResponseDTO(ListaTarefa entity) {
         ListaTarefaResponseDTO dto = new ListaTarefaResponseDTO();
         BeanUtils.copyProperties(entity, dto);
-        if (entity.getGestor() != null) dto.setGestorId(entity.getGestor().getId());
+        if (entity.getUsuario() != null) dto.setUsuarioId(entity.getUsuario().getId());
         return dto;
     }
 }

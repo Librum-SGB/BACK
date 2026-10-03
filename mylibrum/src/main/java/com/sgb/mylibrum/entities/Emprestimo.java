@@ -28,8 +28,8 @@ public class Emprestimo extends EntidadeAuditavel {
     private Exemplar exemplar;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gestor_id", nullable = false)
-    private Gestor gestor;
+    @JoinColumn(name = "usuario_responsavel_id", nullable = false)
+    private Usuario usuarioResponsavel;
 
     @Column(name = "data_saida")
     private OffsetDateTime dataSaida = OffsetDateTime.now();

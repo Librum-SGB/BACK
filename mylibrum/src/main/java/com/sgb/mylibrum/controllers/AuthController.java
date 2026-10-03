@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.entities.Usuario;
-import com.sgb.mylibrum.repositories.GestorRepository;
+import com.sgb.mylibrum.entities.enums.Funcao;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import com.sgb.mylibrum.security.JwtUtil;
 
@@ -26,36 +25,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final GestorRepository gestorRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
-        if (usuario != null) {
-            if (!passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
-                throw new IllegalArgumentException("Credenciais inválidas");
-            }
-            return loginResponse(usuario.getEmail());
-        }
-
-        Gestor gestor = gestorRepository.findByEmail(request.getEmail())
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas"));
 
-        if (!passwordEncoder.matches(request.getSenha(), gestor.getSenha())) {
+        if (usuario.getSenha() == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
             throw new IllegalArgumentException("Credenciais inválidas");
         }
 
-        return loginResponse(gestor.getEmail());
+        return loginResponse(usuario.getEmail(), usuario.getFuncao());
     }
 
-    private ResponseEntity<Map<String, String>> loginResponse(String email) {
-        String token = jwtUtil.generateToken(email);
+    private ResponseEntity<Map<String, String>> loginResponse(String email, Funcao funcao) {
+        String token = jwtUtil.generateToken(email, funcao);
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "type", "Bearer",
+                "funcao", funcao.name(),
                 "message", "Login realizado com sucesso"
         ));
     }

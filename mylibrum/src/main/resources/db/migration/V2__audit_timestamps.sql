@@ -59,11 +59,6 @@ SET data_criacao = COALESCE(data_criacao, CURRENT_TIMESTAMP),
     data_ultima_atualizacao = COALESCE(data_ultima_atualizacao, data_criacao, CURRENT_TIMESTAMP)
 WHERE data_criacao IS NULL OR data_ultima_atualizacao IS NULL;
 
-UPDATE gestores
-SET data_criacao = COALESCE(data_criacao, CURRENT_TIMESTAMP),
-    data_ultima_atualizacao = COALESCE(data_ultima_atualizacao, data_criacao, CURRENT_TIMESTAMP)
-WHERE data_criacao IS NULL OR data_ultima_atualizacao IS NULL;
-
 UPDATE historico_multas
 SET data_criacao = COALESCE(data_criacao, CURRENT_TIMESTAMP),
     data_ultima_atualizacao = COALESCE(data_ultima_atualizacao, data_criacao, CURRENT_TIMESTAMP)
@@ -114,10 +109,6 @@ FOR EACH ROW EXECUTE FUNCTION preencher_timestamps_auditoria();
 
 CREATE TRIGGER generos_preencher_timestamps
 BEFORE INSERT OR UPDATE ON generos
-FOR EACH ROW EXECUTE FUNCTION preencher_timestamps_auditoria();
-
-CREATE TRIGGER gestores_preencher_timestamps
-BEFORE INSERT OR UPDATE ON gestores
 FOR EACH ROW EXECUTE FUNCTION preencher_timestamps_auditoria();
 
 CREATE TRIGGER historico_multas_preencher_timestamps

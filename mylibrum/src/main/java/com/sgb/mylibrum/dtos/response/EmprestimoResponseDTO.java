@@ -9,7 +9,7 @@ public class EmprestimoResponseDTO {
     private Long id;
     private Long usuarioId;
     private Long exemplarId;
-    private Long gestorId;
+    private Long usuarioResponsavelId;
     private OffsetDateTime dataSaida;
     private LocalDate dataDevolucaoPrevista;
     private OffsetDateTime dataDevolucaoEfetivada;

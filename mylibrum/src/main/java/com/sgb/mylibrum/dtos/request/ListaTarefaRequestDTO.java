@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ListaTarefaRequestDTO {
-    @NotNull(message = "O gestor é obrigatório")
-    private Long gestorId;
+    @NotNull(message = "O usuário é obrigatório")
+    private Long usuarioId;
     
     @NotBlank(message = "A descrição é obrigatória")
     private String descricao;

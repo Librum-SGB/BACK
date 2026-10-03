@@ -19,8 +19,8 @@ public class ListaTarefa extends EntidadeAuditavel {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gestor_id", nullable = false)
-    private Gestor gestor;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @Column(nullable = false, length = 255)
     private String descricao;

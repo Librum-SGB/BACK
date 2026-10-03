@@ -38,24 +38,21 @@ VALUES (1, 'Joao Silva', 'Brasil', 'Autor exemplo.', '1970-05-12', true, false),
     (7, 'Sofia Martins', 'Argentina', 'Poeta e tradutora.', '1990-12-09', true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO usuarios (id, nome, cpf, telefone, email, senha, data_nascimento, filial_id, ativo, excluido)
-VALUES (1, 'Aluno Exemplo', '12345678901', '11988887777', 'aluno@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1995-03-10', 1, true, false),
-       (2, 'Ana Exemplo', '23456789012', '11977776666', 'ana@exemplo.com', '$2a$10$fr55WgsWbo46V8JXk.fonum3hisiPdi/qPJ9axO/6JSrVYvkm2y5i', '1998-07-22', 1, true, false),
-    (3, 'Bruno Exemplo', '34567890123', '11966665555', 'bruno@exemplo.com', '$2a$10$NKjDfkoodmEUMjSpP1pI0OIDomNBt0iBzyiGq70gWYarySyfB0iva', '1992-11-05', 1, true, false),
-    (4, 'Carla Exemplo', '45678901234', '11955554444', 'carla@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1994-04-16', 2, true, false),
-    (5, 'Diego Exemplo', '56789012345', '11944443333', 'diego@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1988-10-03', 3, true, false),
-    (6, 'Elisa Exemplo', '67890123456', '11933332222', 'elisa@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '2000-02-21', 4, true, false),
-    (7, 'Fabio Exemplo', '78901234567', '11922221111', 'fabio@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1991-08-12', 5, true, false),
-    (8, 'Gabi Exemplo', '89012345678', '11911110000', 'gabi@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1997-05-30', 6, true, false)
+INSERT INTO usuarios (id, nome, cpf, telefone, email, senha, data_nascimento, filial_id, funcao, ativo, excluido)
+VALUES (1, 'Usuário Geral', '12345678901', '11988887777', 'usuario@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1995-03-10', 1, 'USUARIO', true, false),
+       (2, 'Ana Exemplo', '23456789012', '11977776666', 'ana@exemplo.com', '$2a$10$fr55WgsWbo46V8JXk.fonum3hisiPdi/qPJ9axO/6JSrVYvkm2y5i', '1998-07-22', 1, 'USUARIO', true, false),
+    (3, 'Bruno Exemplo', '34567890123', '11966665555', 'bruno@exemplo.com', '$2a$10$NKjDfkoodmEUMjSpP1pI0OIDomNBt0iBzyiGq70gWYarySyfB0iva', '1992-11-05', 1, 'USUARIO', true, false),
+    (4, 'Carla Exemplo', '45678901234', '11955554444', 'carla@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1994-04-16', 2, 'USUARIO', true, false),
+    (5, 'Diego Exemplo', '56789012345', '11944443333', 'diego@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1988-10-03', 3, 'USUARIO', true, false),
+    (6, 'Elisa Exemplo', '67890123456', '11933332222', 'elisa@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '2000-02-21', 4, 'USUARIO', true, false),
+    (7, 'Fabio Exemplo', '78901234567', '11922221111', 'fabio@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1991-08-12', 5, 'USUARIO', true, false),
+    (8, 'Gabi Exemplo', '89012345678', '11911110000', 'gabi@exemplo.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1997-05-30', 6, 'USUARIO', true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO gestores (id, email, senha, matricula_funcionario, filial_id, ultimo_acesso, ativo, excluido)
-VALUES (1, 'admin@gmail.com', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false),
-       (2, 'gestor.norte@biblioteca.ex', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT002', 2, now(), true, false),
-       (3, 'gestor.sul@biblioteca.ex', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT003', 3, now(), true, false),
-       (4, 'gestor.leste@biblioteca.ex', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT004', 4, now(), true, false),
-       (5, 'gestor.oeste@biblioteca.ex', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT005', 5, now(), true, false),
-       (6, 'gestor.central2@biblioteca.ex', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT006', 6, now(), true, false)
+INSERT INTO usuarios (id, nome, email, senha, matricula_funcionario, filial_id, ultimo_acesso, funcao, ativo, excluido)
+VALUES (9, 'Admin', 'admin@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT123', 1, now(), 'ADMIN', true, false),
+       (10, 'Bibliotecária', 'bibliotecaria@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT002', 2, now(), 'BIBLIOTECARIA', true, false),
+       (15, 'Assistente Exemplo', 'assistente@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT007', 1, now(), 'ASSISTENTE', true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO estantes (id, localizacao, capacidade, ativo, excluido)
@@ -96,13 +93,13 @@ VALUES (1, 1, 1, 1, 'P1', '01', 'CB-0001', 'DISPONIVEL', '2022-01-10', 'Exemplar
     (7, 7, 6, 7, 'P2', '02', 'CB-0007', 'DISPONIVEL', '2025-03-15', NULL, true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO emprestimos (id, exemplar_id, gestor_id, usuario_id, data_saida, data_devolucao_prevista, renovacoes_contagem, data_devolucao_efetivada, ativo, excluido)
-VALUES (1, 1, 1, 1, now(), CURRENT_DATE + 20, 0, NULL, true, false),
-       (2, 3, 2, 4, now(), CURRENT_DATE + 14, 0, NULL, true, false),
-       (3, 4, 3, 5, now(), CURRENT_DATE + 21, 1, NULL, true, false),
-       (4, 5, 4, 6, now(), CURRENT_DATE + 10, 0, NULL, true, false),
-       (5, 6, 5, 7, now(), CURRENT_DATE + 18, 0, NULL, true, false),
-       (6, 7, 6, 8, now(), CURRENT_DATE + 30, 0, NULL, true, false)
+INSERT INTO emprestimos (id, exemplar_id, usuario_responsavel_id, usuario_id, data_saida, data_devolucao_prevista, renovacoes_contagem, data_devolucao_efetivada, ativo, excluido)
+VALUES (1, 1, 9, 1, now(), CURRENT_DATE + 20, 0, NULL, true, false),
+       (2, 3, 10, 4, now(), CURRENT_DATE + 14, 0, NULL, true, false),
+       (3, 4, 10, 5, now(), CURRENT_DATE + 21, 1, NULL, true, false),
+       (4, 5, 10, 6, now(), CURRENT_DATE + 10, 0, NULL, true, false),
+       (5, 6, 10, 7, now(), CURRENT_DATE + 18, 0, NULL, true, false),
+       (6, 7, 10, 8, now(), CURRENT_DATE + 30, 0, NULL, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO historico_multas (id, emprestimo_id, dias_atraso, valor, pago, data_pagamento, ativo, excluido)
@@ -114,13 +111,13 @@ VALUES (1, 1, 0, 0.00, false, NULL, true, false),
        (6, 6, 3, 8.25, false, NULL, true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO lista_tarefas (id, gestor_id, descricao, prioridade, concluida, ativo, excluido)
-VALUES (1, 1, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false),
-       (2, 2, 'Conferir devolucoes da semana', 'ALTA', false, true, false),
-       (3, 3, 'Atualizar catalogo de novidades', 'MEDIA', false, true, false),
-       (4, 4, 'Revisar materiais em manutencao', 'URGENTE', false, true, false),
-       (5, 5, 'Preparar atividades de leitura', 'BAIXA', false, true, false),
-       (6, 6, 'Organizar recebimento de livros', 'ALTA', false, true, false)
+INSERT INTO lista_tarefas (id, usuario_id, descricao, prioridade, concluida, ativo, excluido)
+VALUES (1, 9, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false),
+       (2, 10, 'Conferir devolucoes da semana', 'ALTA', false, true, false),
+       (3, 10, 'Atualizar catalogo de novidades', 'MEDIA', false, true, false),
+       (4, 10, 'Revisar materiais em manutencao', 'URGENTE', false, true, false),
+       (5, 10, 'Preparar atividades de leitura', 'BAIXA', false, true, false),
+       (6, 10, 'Organizar recebimento de livros', 'ALTA', false, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO configuracoes (id, filial_id, chave, descricao, valor, ativo, excluido)
@@ -137,7 +134,6 @@ SELECT setval(pg_get_serial_sequence('editoras', 'id'), COALESCE(MAX(id), 1), MA
 SELECT setval(pg_get_serial_sequence('generos', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM generos;
 SELECT setval(pg_get_serial_sequence('autores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM autores;
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM usuarios;
-SELECT setval(pg_get_serial_sequence('gestores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM gestores;
 SELECT setval(pg_get_serial_sequence('estantes', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM estantes;
 SELECT setval(pg_get_serial_sequence('materiais', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM materiais;
 SELECT setval(pg_get_serial_sequence('exemplares', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM exemplares;

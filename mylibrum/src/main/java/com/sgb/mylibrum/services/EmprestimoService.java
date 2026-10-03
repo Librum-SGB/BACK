@@ -4,7 +4,6 @@ import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Exemplar;
-import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,8 +60,10 @@ public class EmprestimoService {
         if (dto.getExemplarId() != null) {
             Exemplar e = new Exemplar(); e.setId(dto.getExemplarId()); entity.setExemplar(e);
         }
-        if (dto.getGestorId() != null) {
-            Gestor g = new Gestor(); g.setId(dto.getGestorId()); entity.setGestor(g);
+        if (dto.getUsuarioResponsavelId() != null) {
+            Usuario usuarioResponsavel = new Usuario();
+            usuarioResponsavel.setId(dto.getUsuarioResponsavelId());
+            entity.setUsuarioResponsavel(usuarioResponsavel);
         }
     }
 
@@ -71,7 +72,9 @@ public class EmprestimoService {
         BeanUtils.copyProperties(entity, dto);
         if (entity.getUsuario() != null) dto.setUsuarioId(entity.getUsuario().getId());
         if (entity.getExemplar() != null) dto.setExemplarId(entity.getExemplar().getId());
-        if (entity.getGestor() != null) dto.setGestorId(entity.getGestor().getId());
+        if (entity.getUsuarioResponsavel() != null) {
+            dto.setUsuarioResponsavelId(entity.getUsuarioResponsavel().getId());
+        }
         return dto;
     }
 }

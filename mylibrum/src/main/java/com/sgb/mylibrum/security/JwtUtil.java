@@ -1,5 +1,6 @@
 package com.sgb.mylibrum.security;
 
+import com.sgb.mylibrum.entities.enums.Funcao;
 import java.util.Base64;
 import java.util.Date;
 
@@ -27,15 +28,21 @@ public class JwtUtil {
     }
 
     public String generateToken(String username) {
+        return generateToken(username, null);
+    }
+
+    public String generateToken(String username, Funcao funcao) {
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + expirationMs);
 
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(username)
                 .issuedAt(issuedAt)
-                .expiration(expiration)
-                .signWith(signingKey)
-                .compact();
+                .expiration(expiration);
+        if (funcao != null) {
+            builder.claim("funcao", funcao.name());
+        }
+        return builder.signWith(signingKey).compact();
     }
 
     public boolean validateToken(String token) {
@@ -49,6 +56,10 @@ public class JwtUtil {
 
     public String getUsernameFromToken(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public String getFuncaoFromToken(String token) {
+        return parseClaims(token).get("funcao", String.class);
     }
 
     private Claims parseClaims(String token) {

@@ -22,12 +22,11 @@ VALUES (1, 'Joao Silva', 'Brasil', 'Autor exemplo.', '1970-05-12', true, false),
        (2, 'Maria Souza', 'Brasil', 'Outra autora exemplo.', '1980-08-20', true, false);
 
 -- USUARIOS
-INSERT INTO usuarios (id, nome, cpf, telefone, email, data_nascimento, filial_id, ativo, excluido)
-VALUES (1, 'Aluno Exemplo', '12345678901', '11988887777', 'aluno@exemplo.com', '1995-03-10', 1, true, false);
-
--- GESTORES -- senha: senhaTeste
-INSERT INTO gestores (id, login, senha, matricula_funcionario, filial_id, ultimo_acesso, ativo, excluido)
-VALUES (1, 'gestor1', '$2a$10$ok.f.ukSnJNPiqpRZ0xExeHWEWkpdnNo2tegG.HoMvCbpzzl4ktPa', 'MAT123', 1, now(), true, false);
+INSERT INTO usuarios (id, nome, cpf, telefone, email, senha, data_nascimento, filial_id, funcao, matricula_funcionario, ativo, excluido)
+VALUES (1, 'Usuario Geral', '12345678901', '11988887777', 'usuario@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', '1995-03-10', 1, 'USUARIO', NULL, true, false),
+       (2, 'Admin', NULL, NULL, 'admin@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', NULL, 1, 'ADMIN', 'MAT001', true, false),
+       (3, 'Bibliotecaria', NULL, NULL, 'bibliotecaria@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', NULL, 1, 'BIBLIOTECARIA', 'MAT002', true, false),
+       (4, 'Assistente', NULL, NULL, 'assistente@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', NULL, 1, 'ASSISTENTE', 'MAT003', true, false);
 
 -- ESTANTES
 INSERT INTO estantes (id, localizacao, capacidade, ativo, excluido)
@@ -49,16 +48,16 @@ VALUES (1, 1, 1, 1, 'P1', '01', 'CB-0001', 'DISPONIVEL', '2022-01-10', 'Exemplar
        (2, 2, 1, 2, 'P2', '05', 'CB-0002', 'DISPONIVEL', '2022-02-15', NULL, true, false);
 
 -- EMPRESTIMOS
-INSERT INTO emprestimos (id, exemplar_id, gestor_id, usuario_id, data_saida, data_devolucao_prevista, renovacoes_contagem, data_devolucao_efetivada, ativo, excluido)
-VALUES (1, 1, 1, 1, now()-interval '10 days', now()+interval '20 days', 0, NULL, true, false);
+INSERT INTO emprestimos (id, exemplar_id, usuario_responsavel_id, usuario_id, data_saida, data_devolucao_prevista, renovacoes_contagem, data_devolucao_efetivada, ativo, excluido)
+VALUES (1, 1, 3, 1, now()-interval '10 days', now()+interval '20 days', 0, NULL, true, false);
 
 -- HISTORICO_MULTAS (relacionado ao emprestimo)
 INSERT INTO historico_multas (id, emprestimo_id, dias_atraso, valor, pago, data_pagamento, ativo, excluido)
 VALUES (1, 1, 0, 0.00, false, NULL, true, false);
 
 -- LISTA_TAREFAS
-INSERT INTO lista_tarefas (id, gestor_id, descricao, prioridade, concluida, ativo, excluido)
-VALUES (1, 1, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false);
+INSERT INTO lista_tarefas (id, usuario_id, descricao, prioridade, concluida, ativo, excluido)
+VALUES (1, 3, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false);
 
 -- CONFIGURACOES (chave unica por filial)
 INSERT INTO configuracoes (id, filial_id, chave, descricao, valor, ativo, excluido)
@@ -70,7 +69,6 @@ SELECT setval(pg_get_serial_sequence('editoras', 'id'), COALESCE(MAX(id), 1), MA
 SELECT setval(pg_get_serial_sequence('generos', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM generos;
 SELECT setval(pg_get_serial_sequence('autores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM autores;
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM usuarios;
-SELECT setval(pg_get_serial_sequence('gestores', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM gestores;
 SELECT setval(pg_get_serial_sequence('estantes', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM estantes;
 SELECT setval(pg_get_serial_sequence('materiais', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM materiais;
 SELECT setval(pg_get_serial_sequence('exemplares', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM exemplares;

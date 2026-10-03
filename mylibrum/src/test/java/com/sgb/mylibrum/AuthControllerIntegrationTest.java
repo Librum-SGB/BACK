@@ -16,10 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.sgb.mylibrum.entities.Filial;
-import com.sgb.mylibrum.entities.Gestor;
 import com.sgb.mylibrum.entities.Usuario;
+import com.sgb.mylibrum.entities.enums.Funcao;
 import com.sgb.mylibrum.repositories.FilialRepository;
-import com.sgb.mylibrum.repositories.GestorRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -33,9 +32,6 @@ class AuthControllerIntegrationTest {
     private FilialRepository filialRepository;
 
     @Autowired
-    private GestorRepository gestorRepository;
-
-    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
@@ -43,7 +39,6 @@ class AuthControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        gestorRepository.deleteAll();
         usuarioRepository.deleteAll();
         filialRepository.deleteAll();
 
@@ -59,20 +54,23 @@ class AuthControllerIntegrationTest {
         filial.setAtivo(true);
         filial = filialRepository.save(filial);
 
-        Gestor gestor = new Gestor();
-        gestor.setEmail("admin@example.com");
-        gestor.setSenha(passwordEncoder.encode("admin123"));
-        gestor.setMatriculaFuncionario("M-001");
-        gestor.setFilial(filial);
-        gestorRepository.save(gestor);
+        Usuario admin = new Usuario();
+        admin.setNome("Admin Teste");
+        admin.setEmail("admin@gmail.com");
+        admin.setSenha(passwordEncoder.encode("admin123"));
+        admin.setMatriculaFuncionario("M-001");
+        admin.setFuncao(Funcao.ADMIN);
+        admin.setFilial(filial);
+        usuarioRepository.save(admin);
 
         Usuario usuario = new Usuario();
         usuario.setNome("Usuário Teste");
         usuario.setCpf("12345678901");
-        usuario.setEmail("usuario@example.com");
+        usuario.setEmail("usuario@gmail.com");
         usuario.setSenha(passwordEncoder.encode("user123"));
         usuario.setTelefone("11987654321");
         usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        usuario.setFuncao(Funcao.USUARIO);
         usuario.setFilial(filial);
         usuarioRepository.save(usuario);
     }
@@ -80,7 +78,7 @@ class AuthControllerIntegrationTest {
     @Test
     void shouldLoginAndReturnJwtToken() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        String json = "{\"email\":\"admin@example.com\",\"senha\":\"admin123\"}";
+        String json = "{\"email\":\"admin@gmail.com\",\"senha\":\"admin123\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:" + port + "/auth/login"))
@@ -93,12 +91,13 @@ class AuthControllerIntegrationTest {
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).contains("token");
         assertThat(response.body()).contains("Bearer");
+        assertThat(response.body()).contains("\"funcao\":\"ADMIN\"");
     }
 
     @Test
     void shouldLoginUsuarioAndReturnJwtToken() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        String json = "{\"email\":\"usuario@example.com\",\"senha\":\"user123\"}";
+        String json = "{\"email\":\"usuario@gmail.com\",\"senha\":\"user123\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:" + port + "/auth/login"))

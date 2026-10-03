@@ -13,8 +13,8 @@ public class EmprestimoRequestDTO {
     @NotNull(message = "O exemplar é obrigatório")
     private Long exemplarId;
     
-    @NotNull(message = "O gestor é obrigatório")
-    private Long gestorId;
+    @NotNull(message = "O usuário responsável é obrigatório")
+    private Long usuarioResponsavelId;
     
     @NotNull(message = "A data de devolução prevista é obrigatória")
     private LocalDate dataDevolucaoPrevista;

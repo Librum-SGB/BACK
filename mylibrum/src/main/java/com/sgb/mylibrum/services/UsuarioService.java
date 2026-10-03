@@ -12,6 +12,7 @@ import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
+import com.sgb.mylibrum.entities.enums.Funcao;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,9 @@ public class UsuarioService {
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
         Usuario entity = new Usuario();
         BeanUtils.copyProperties(dto, entity, "senha");
+        if (dto.getFuncao() == null) {
+            entity.setFuncao(Funcao.USUARIO);
+        }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
         if (dto.getFilialId() != null) {
             Filial filial = new Filial();
@@ -51,7 +55,10 @@ public class UsuarioService {
     public UsuarioResponseDTO update(Long id, UsuarioRequestDTO dto) {
         Usuario entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "senha");
+        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "senha", "funcao");
+        if (dto.getFuncao() != null) {
+            entity.setFuncao(dto.getFuncao());
+        }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
         if (dto.getFilialId() != null) {
             Filial filial = new Filial();

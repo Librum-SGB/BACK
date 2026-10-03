@@ -1,9 +1,12 @@
 package com.sgb.mylibrum.entities;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.sgb.mylibrum.entities.enums.Funcao;
 
 @Entity
 @Table(name = "usuarios")
@@ -34,7 +38,7 @@ public class Usuario extends EntidadeAuditavel {
     @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(unique = true, nullable = false, length = 11)
+    @Column(unique = true, length = 11)
     private String cpf;
 
     @Column(unique = true, nullable = false, length = 100)
@@ -43,10 +47,10 @@ public class Usuario extends EntidadeAuditavel {
     @Column(length = 255)
     private String senha;
 
-    @Column(unique = true, nullable = false, length = 15)
+    @Column(unique = true, length = 15)
     private String telefone;
 
-    @Column(name = "data_nascimento", nullable = false)
+    @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -76,4 +80,14 @@ public class Usuario extends EntidadeAuditavel {
 
     @Column(name = "esta_bloqueado", columnDefinition = "boolean default false")
     private Boolean estaBloqueado = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private Funcao funcao = Funcao.USUARIO;
+
+    @Column(name = "matricula_funcionario", unique = true, length = 20)
+    private String matriculaFuncionario;
+
+    @Column(name = "ultimo_acesso")
+    private OffsetDateTime ultimoAcesso;
 }
