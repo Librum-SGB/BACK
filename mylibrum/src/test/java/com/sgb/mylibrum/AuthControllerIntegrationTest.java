@@ -17,7 +17,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.repositories.FilialRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
@@ -59,7 +59,7 @@ class AuthControllerIntegrationTest {
         admin.setEmail("admin@gmail.com");
         admin.setSenha(passwordEncoder.encode("admin123"));
         admin.setMatriculaFuncionario("M-001");
-        admin.setFuncao(Funcao.ADMIN);
+        admin.setFuncao(FuncaoUsuario.ADMIN);
         admin.setFilial(filial);
         usuarioRepository.save(admin);
 
@@ -70,7 +70,7 @@ class AuthControllerIntegrationTest {
         usuario.setSenha(passwordEncoder.encode("user123"));
         usuario.setTelefone("11987654321");
         usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
-        usuario.setFuncao(Funcao.USUARIO);
+        usuario.setFuncao(FuncaoUsuario.USUARIO);
         usuario.setFilial(filial);
         usuarioRepository.save(usuario);
     }

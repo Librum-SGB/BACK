@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Entity
 @Table(name = "usuarios")
@@ -83,7 +83,7 @@ public class Usuario extends EntidadeAuditavel {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private Funcao funcao = Funcao.USUARIO;
+    private FuncaoUsuario funcao = FuncaoUsuario.USUARIO;
 
     @Column(name = "matricula_funcionario", unique = true, length = 20)
     private String matriculaFuncionario;

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Data
 public class UsuarioRequestDTO {
@@ -38,7 +38,7 @@ public class UsuarioRequestDTO {
     private String cep;
     private Integer limiteLivros;
     private Boolean estaBloqueado;
-    private Funcao funcao;
+    private FuncaoUsuario funcao;
     private String matriculaFuncionario;
     private OffsetDateTime ultimoAcesso;
 }

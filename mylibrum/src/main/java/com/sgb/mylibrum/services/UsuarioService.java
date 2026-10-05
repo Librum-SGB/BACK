@@ -12,7 +12,7 @@ import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class UsuarioService {
         Usuario entity = new Usuario();
         BeanUtils.copyProperties(dto, entity, "senha");
         if (dto.getFuncao() == null) {
-            entity.setFuncao(Funcao.USUARIO);
+            entity.setFuncao(FuncaoUsuario.USUARIO);
         }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
         if (dto.getFilialId() != null) {

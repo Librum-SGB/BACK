@@ -1,6 +1,6 @@
 package com.sgb.mylibrum.security;
 
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import java.util.Base64;
 import java.util.Date;
 
@@ -31,7 +31,7 @@ public class JwtUtil {
         return generateToken(username, null);
     }
 
-    public String generateToken(String username, Funcao funcao) {
+    public String generateToken(String username, FuncaoUsuario funcao) {
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + expirationMs);
 

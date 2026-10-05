@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sgb.mylibrum.entities.Usuario;
-import com.sgb.mylibrum.entities.enums.Funcao;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import com.sgb.mylibrum.security.JwtUtil;
 
@@ -41,7 +41,7 @@ public class AuthController {
         return loginResponse(usuario.getEmail(), usuario.getFuncao());
     }
 
-    private ResponseEntity<Map<String, String>> loginResponse(String email, Funcao funcao) {
+    private ResponseEntity<Map<String, String>> loginResponse(String email, FuncaoUsuario funcao) {
         String token = jwtUtil.generateToken(email, funcao);
         return ResponseEntity.ok(Map.of(
                 "token", token,
