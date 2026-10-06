@@ -7,6 +7,7 @@ import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
+import com.sgb.mylibrum.repositories.MaterialRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class ExemplarService {
 
     private final ExemplarRepository repository;
+    private final MaterialRepository materialRepository;
 
     @Transactional(readOnly = true)
     public List<ExemplarResponseDTO> findAll() {
@@ -37,7 +39,9 @@ public class ExemplarService {
         Exemplar entity = new Exemplar();
         BeanUtils.copyProperties(dto, entity);
         setRelacionamentos(dto, entity);
-        return toResponseDTO(repository.save(entity));
+        Exemplar salvo = repository.save(entity);
+        atualizarQuantidadeExemplares(salvo.getMaterial());
+        return toResponseDTO(salvo);
     }
 
     @Transactional
@@ -46,12 +50,30 @@ public class ExemplarService {
                 .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
         setRelacionamentos(dto, entity);
-        return toResponseDTO(repository.save(entity));
+        Exemplar salvo = repository.save(entity);
+        atualizarQuantidadeExemplares(salvo.getMaterial());
+        return toResponseDTO(salvo);
     }
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        Exemplar exemplar = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
+        repository.delete(exemplar);
+        atualizarQuantidadeExemplares(exemplar.getMaterial());
+    }
+
+    private void atualizarQuantidadeExemplares(Material material) {
+        if (material == null || material.getId() == null) {
+            return;
+        }
+
+        Material materialPersistido = materialRepository.findById(material.getId())
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
+
+        long quantidade = repository.findByMaterialId(materialPersistido.getId()).size();
+        materialPersistido.setQuantidadeExemplares((int) quantidade);
+        materialRepository.save(materialPersistido);
     }
 
     private void setRelacionamentos(ExemplarRequestDTO dto, Exemplar entity) {

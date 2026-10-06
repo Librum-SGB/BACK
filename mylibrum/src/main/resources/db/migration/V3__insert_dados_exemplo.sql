@@ -85,12 +85,12 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO exemplares (id, material_id, filial_id, estante_id, prateleira, posicao, codigo_barras, status, data_aquisicao, observacoes, ativo, excluido)
 VALUES (1, 1, 1, 1, 'P1', '01', 'CB-0001', 'DISPONIVEL', '2022-01-10', 'Exemplar em bom estado', true, false),
-    (2, 2, 1, 2, 'P2', '05', 'CB-0002', 'DISPONIVEL', '2022-02-15', NULL, true, false),
-    (3, 3, 2, 3, 'P1', '02', 'CB-0003', 'DISPONIVEL', '2023-01-12', NULL, true, false),
-    (4, 4, 3, 4, 'P2', '03', 'CB-0004', 'DISPONIVEL', '2023-04-08', NULL, true, false),
-    (5, 5, 4, 5, 'P1', '04', 'CB-0005', 'DISPONIVEL', '2024-02-19', NULL, true, false),
-    (6, 6, 5, 6, 'P3', '01', 'CB-0006', 'DISPONIVEL', '2024-05-23', NULL, true, false),
-    (7, 7, 6, 7, 'P2', '02', 'CB-0007', 'DISPONIVEL', '2025-03-15', NULL, true, false)
+    (2, 1, 2, 2, 'P2', '05', 'CB-0002', 'DISPONIVEL', '2022-02-15', NULL, true, false),
+    (3, 2, 2, 3, 'P1', '02', 'CB-0003', 'DISPONIVEL', '2023-01-12', NULL, true, false),
+    (4, 3, 3, 4, 'P2', '03', 'CB-0004', 'DISPONIVEL', '2023-04-08', NULL, true, false),
+    (5, 4, 4, 5, 'P1', '04', 'CB-0005', 'DISPONIVEL', '2024-02-19', NULL, true, false),
+    (6, 5, 5, 6, 'P3', '01', 'CB-0006', 'DISPONIVEL', '2024-05-23', NULL, true, false),
+    (7, 6, 6, 7, 'P2', '02', 'CB-0007', 'DISPONIVEL', '2025-03-15', NULL, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO emprestimos (id, exemplar_id, usuario_responsavel_id, usuario_id, data_saida, data_devolucao_prevista, renovacoes_contagem, data_devolucao_efetivada, ativo, excluido)

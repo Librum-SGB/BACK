@@ -33,6 +33,7 @@ public class MaterialMapper {
         dto.setEdicao(material.getEdicao());
         dto.setAnoPublicacao(material.getAnoPublicacao());
         dto.setQuantidadePaginas(material.getQuantidadePaginas());
+        dto.setQuantidadeExemplares(material.getQuantidadeExemplares());
 
         if (material.getAutor() != null) {
             dto.setAutorId(material.getAutor().getId());

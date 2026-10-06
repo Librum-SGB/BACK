@@ -22,6 +22,7 @@ public class MaterialResponseDTO {
     private Integer edicao;
     private Integer anoPublicacao;
     private Integer quantidadePaginas;
+    private Integer quantidadeExemplares;
     private Long editoraId;
     private Set<Long> autorIds;
     private Set<Long> generoIds;
