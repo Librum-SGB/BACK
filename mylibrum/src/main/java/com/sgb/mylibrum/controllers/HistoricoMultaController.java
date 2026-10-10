@@ -2,6 +2,7 @@ package com.sgb.mylibrum.controllers;
 
 import com.sgb.mylibrum.dtos.request.HistoricoMultaRequestDTO;
 import com.sgb.mylibrum.dtos.response.HistoricoMultaResponseDTO;
+import com.sgb.mylibrum.entities.enums.StatusMulta;
 import com.sgb.mylibrum.services.HistoricoMultaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,14 @@ public class HistoricoMultaController {
     private final HistoricoMultaService service;
 
     @GetMapping
-    public ResponseEntity<List<HistoricoMultaResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<HistoricoMultaResponseDTO>> findAll(
+            @RequestParam(required = false) StatusMulta status) {
+        return ResponseEntity.ok(service.findAll(status));
+    }
+
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<List<HistoricoMultaResponseDTO>> findByUsuarioId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByUsuarioId(id));
     }
 
     @GetMapping("/{id}")
@@ -31,6 +38,11 @@ public class HistoricoMultaController {
     @PostMapping
     public ResponseEntity<HistoricoMultaResponseDTO> create(@Valid @RequestBody HistoricoMultaRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PatchMapping("/{id}/pagamento")
+    public ResponseEntity<HistoricoMultaResponseDTO> registrarPagamento(@PathVariable Long id) {
+        return ResponseEntity.ok(service.registrarPagamento(id));
     }
 
     @PutMapping("/{id}")

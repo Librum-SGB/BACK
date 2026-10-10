@@ -169,8 +169,9 @@ class EmprestimoServiceTest {
     @Test
     void deveMarcarEmprestimosVencidosComoAtrasados() {
         Emprestimo emprestimo = emprestimo(exemplar(StatusExemplar.EMPRESTADO));
-        when(repository.findByStatusAndDataDevolucaoPrevistaBefore(
-                org.mockito.ArgumentMatchers.eq(StatusEmprestimo.ATIVO), any(LocalDate.class)))
+        when(repository.findByStatusInAndDataDevolucaoPrevistaBefore(
+                org.mockito.ArgumentMatchers.eq(List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO)),
+                any(LocalDate.class)))
                 .thenReturn(List.of(emprestimo));
 
         service.marcarEmprestimosAtrasados();

@@ -102,13 +102,13 @@ VALUES (1, 1, 9, 1, now(), CURRENT_DATE + 20, 0, NULL, true, false),
        (6, 7, 10, 8, now(), CURRENT_DATE + 30, 0, NULL, true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO historico_multas (id, emprestimo_id, dias_atraso, valor, pago, data_pagamento, ativo, excluido)
-VALUES (1, 1, 0, 0.00, false, NULL, true, false),
-       (2, 2, 2, 4.50, false, NULL, true, false),
-       (3, 3, 5, 12.00, true, CURRENT_DATE - 2, true, false),
-       (4, 4, 1, 2.00, false, NULL, true, false),
-       (5, 5, 7, 18.75, true, CURRENT_DATE - 1, true, false),
-       (6, 6, 3, 8.25, false, NULL, true, false)
+INSERT INTO historico_multas (id, emprestimo_id, usuario_id, dias_atraso, valor, status, data_pagamento, ativo, excluido)
+VALUES (1, 1, 1, 0, 0.00, 'PENDENTE', NULL, true, false),
+       (2, 2, 4, 2, 4.50, 'PENDENTE', NULL, true, false),
+       (3, 3, 5, 5, 12.00, 'PAGA', CURRENT_DATE - 2, true, false),
+       (4, 4, 6, 1, 2.00, 'PENDENTE', NULL, true, false),
+       (5, 5, 7, 7, 18.75, 'PAGA', CURRENT_DATE - 1, true, false),
+       (6, 6, 8, 3, 8.25, 'PENDENTE', NULL, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO lista_tarefas (id, usuario_id, descricao, prioridade, concluida, ativo, excluido)

@@ -144,8 +144,8 @@ public class EmprestimoService {
     @Scheduled(cron = "${mylibrum.emprestimos.marcar-atrasados-cron:0 0 0 * * *}")
     @Transactional
     public void marcarEmprestimosAtrasados() {
-        List<Emprestimo> atrasados = repository.findByStatusAndDataDevolucaoPrevistaBefore(
-                StatusEmprestimo.ATIVO, LocalDate.now());
+        List<Emprestimo> atrasados = repository.findByStatusInAndDataDevolucaoPrevistaBefore(
+                List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO), LocalDate.now());
         atrasados.forEach(emprestimo -> emprestimo.setStatus(StatusEmprestimo.ATRASADO));
         repository.saveAll(atrasados);
     }

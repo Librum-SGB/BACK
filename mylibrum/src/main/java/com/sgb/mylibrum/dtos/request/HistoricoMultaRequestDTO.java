@@ -3,7 +3,6 @@ package com.sgb.mylibrum.dtos.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 public class HistoricoMultaRequestDTO {
@@ -16,6 +15,4 @@ public class HistoricoMultaRequestDTO {
     @NotNull(message = "Os dias de atraso são obrigatórios")
     private Integer diasAtraso;
     
-    private Boolean pago;
-    private LocalDate dataPagamento;
 }
