@@ -1,15 +1,25 @@
 package com.sgb.mylibrum.repositories;
 
 import com.sgb.mylibrum.entities.Emprestimo;
+import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-@Repository
 public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Emprestimo e where e.id = :id")
+    Optional<Emprestimo> findByIdForUpdate(@Param("id") Long id);
+
     List<Emprestimo> findByUsuarioId(Long usuarioId);
     List<Emprestimo> findByExemplarId(Long exemplarId);
-    // Busca empréstimos que ainda não foram devolvidos
-    List<Emprestimo> findByDataDevolucaoEfetivadaIsNull(); 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Emprestimo> findByStatusAndDataDevolucaoPrevistaBefore(
+            StatusEmprestimo status, LocalDate data);
 }

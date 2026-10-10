@@ -1,5 +1,6 @@
 package com.sgb.mylibrum.entities;
 
+import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -26,6 +27,10 @@ public class Emprestimo extends EntidadeAuditavel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exemplar_id", nullable = false)
     private Exemplar exemplar;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusEmprestimo status = StatusEmprestimo.ATIVO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_responsavel_id", nullable = false)

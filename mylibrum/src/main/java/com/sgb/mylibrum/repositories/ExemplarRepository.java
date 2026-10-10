@@ -3,13 +3,19 @@ package com.sgb.mylibrum.repositories;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.enums.StatusExemplar;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface ExemplarRepository extends JpaRepository<Exemplar, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Exemplar e where e.id = :id")
+    Optional<Exemplar> findByIdForUpdate(@Param("id") Long id);
+
     Optional<Exemplar> findByCodigoBarras(String codigoBarras);
     List<Exemplar> findByMaterialId(Long materialId);
     List<Exemplar> findByStatus(StatusExemplar status);

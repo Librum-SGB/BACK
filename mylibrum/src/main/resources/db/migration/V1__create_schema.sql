@@ -154,6 +154,8 @@ CREATE TABLE emprestimos (
     data_devolucao_prevista DATE NOT NULL,
     renovacoes_contagem INTEGER DEFAULT 0,
     data_devolucao_efetivada TIMESTAMP WITH TIME ZONE,
+    status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'
+        CHECK (status IN ('ATIVO', 'DEVOLVIDO', 'ATRASADO')),
     ativo BOOLEAN DEFAULT TRUE,
     excluido BOOLEAN DEFAULT FALSE,
     data_criacao TIMESTAMP WITH TIME ZONE,

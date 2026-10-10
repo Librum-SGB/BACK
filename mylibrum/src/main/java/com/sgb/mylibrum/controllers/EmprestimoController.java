@@ -23,6 +23,11 @@ public class EmprestimoController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<List<EmprestimoResponseDTO>> findByUsuarioId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByUsuarioId(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -31,6 +36,16 @@ public class EmprestimoController {
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> create(@Valid @RequestBody EmprestimoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PostMapping("/{id}/devolucao")
+    public ResponseEntity<EmprestimoResponseDTO> devolver(@PathVariable Long id) {
+        return ResponseEntity.ok(service.devolver(id));
+    }
+
+    @PostMapping("/{id}/renovacao")
+    public ResponseEntity<EmprestimoResponseDTO> renovar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.renovar(id));
     }
 
     @PutMapping("/{id}")
