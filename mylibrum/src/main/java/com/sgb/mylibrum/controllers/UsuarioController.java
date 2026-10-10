@@ -1,15 +1,17 @@
 package com.sgb.mylibrum.controllers;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.request.BloqueioUsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -19,8 +21,11 @@ public class UsuarioController {
     private final UsuarioService service;
 
     @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<UsuarioResponseDTO>> findAll(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String matriculaFuncionario,
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
+        return ResponseEntity.ok(service.findAll(nome, matriculaFuncionario, pageable));
     }
 
     @GetMapping("/{id}")
@@ -36,6 +41,12 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @PatchMapping("/{id}/bloqueio")
+    public ResponseEntity<UsuarioResponseDTO> atualizarBloqueio(
+            @PathVariable Long id, @Valid @RequestBody BloqueioUsuarioRequestDTO dto) {
+        return ResponseEntity.ok(service.atualizarBloqueio(id, dto.getBloqueado()));
     }
 
     @DeleteMapping("/{id}")

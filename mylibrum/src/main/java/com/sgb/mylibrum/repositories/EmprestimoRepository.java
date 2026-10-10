@@ -19,6 +19,7 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
 
     List<Emprestimo> findByUsuarioId(Long usuarioId);
     List<Emprestimo> findByExemplarId(Long exemplarId);
+    boolean existsByUsuarioIdAndStatusIn(Long usuarioId, List<StatusEmprestimo> statuses);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Emprestimo> findByStatusInAndDataDevolucaoPrevistaBefore(
             List<StatusEmprestimo> statuses, LocalDate data);

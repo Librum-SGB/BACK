@@ -1,8 +1,11 @@
 package com.sgb.mylibrum.services;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,9 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
+import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
+import com.sgb.mylibrum.entities.enums.StatusMulta;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
+import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
+import com.sgb.mylibrum.repositories.EmprestimoRepository;
+import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,22 +31,41 @@ public class UsuarioService {
 
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final EmprestimoRepository emprestimoRepository;
+    private final HistoricoMultaRepository historicoMultaRepository;
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+    public Page<UsuarioResponseDTO> findAll(String nome, String matriculaFuncionario, Pageable pageable) {
+        String nomeBusca = nome == null || nome.isBlank() ? null : nome.trim();
+        String matriculaBusca = normalizarMatricula(matriculaFuncionario);
+
+        Page<Usuario> usuarios;
+        if (nomeBusca != null && matriculaBusca != null) {
+            usuarios = repository.findByNomeContainingIgnoreCaseAndMatriculaFuncionarioIgnoreCase(
+                    nomeBusca, matriculaBusca, pageable);
+        } else if (nomeBusca != null) {
+            usuarios = repository.findByNomeContainingIgnoreCase(nomeBusca, pageable);
+        } else if (matriculaBusca != null) {
+            usuarios = repository.findByMatriculaFuncionarioIgnoreCase(matriculaBusca, pageable);
+        } else {
+            usuarios = repository.findAll(pageable);
+        }
+        return usuarios.map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO findById(Long id) {
         return toResponseDTO(repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado")));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado")));
     }
 
     @Transactional
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+        validarUnicidade(dto, null);
         Usuario entity = new Usuario();
         BeanUtils.copyProperties(dto, entity, "senha");
+        entity.setEmail(normalizarEmail(dto.getEmail()));
+        entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
         if (dto.getFuncao() == null) {
             entity.setFuncao(FuncaoUsuario.USUARIO);
         }
@@ -54,8 +81,11 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO update(Long id, UsuarioRequestDTO dto) {
         Usuario entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        validarUnicidade(dto, id);
         BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "senha", "funcao");
+        entity.setEmail(normalizarEmail(dto.getEmail()));
+        entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
         if (dto.getFuncao() != null) {
             entity.setFuncao(dto.getFuncao());
         }
@@ -70,7 +100,55 @@ public class UsuarioService {
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if (emprestimoRepository.existsByUsuarioIdAndStatusIn(
+                id, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO))) {
+            throw new IllegalStateException("Não é possível excluir um usuário com empréstimos ativos");
+        }
+        repository.delete(usuario);
+    }
+
+    @Transactional
+    public UsuarioResponseDTO atualizarBloqueio(Long id, Boolean bloqueado) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if (!bloqueado && historicoMultaRepository.existsByUsuarioIdAndStatus(id, StatusMulta.PENDENTE)) {
+            throw new IllegalStateException("Não é possível desbloquear usuário com multas pendentes");
+        }
+        usuario.setEstaBloqueado(bloqueado);
+        return toResponseDTO(repository.save(usuario));
+    }
+
+    private void validarUnicidade(UsuarioRequestDTO dto, Long usuarioId) {
+        String email = normalizarEmail(dto.getEmail());
+        boolean emailDuplicado = usuarioId == null
+                ? repository.existsByEmailIgnoreCase(email)
+                : repository.existsByEmailIgnoreCaseAndIdNot(email, usuarioId);
+        if (emailDuplicado) {
+            throw new IllegalStateException("Já existe um usuário cadastrado com este e-mail");
+        }
+
+        String matricula = normalizarMatricula(dto.getMatriculaFuncionario());
+        if (matricula != null) {
+            boolean matriculaDuplicada = usuarioId == null
+                    ? repository.existsByMatriculaFuncionarioIgnoreCase(matricula)
+                    : repository.existsByMatriculaFuncionarioIgnoreCaseAndIdNot(matricula, usuarioId);
+            if (matriculaDuplicada) {
+                throw new IllegalStateException("Já existe um usuário cadastrado com esta matrícula");
+            }
+        }
+    }
+
+    private String normalizarEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizarMatricula(String matricula) {
+        if (matricula == null || matricula.isBlank()) {
+            return null;
+        }
+        return matricula.trim().toUpperCase(Locale.ROOT);
     }
 
     private UsuarioResponseDTO toResponseDTO(Usuario entity) {
