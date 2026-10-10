@@ -23,6 +23,11 @@ public class EstanteController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/filiais/{id}")
+    public ResponseEntity<List<EstanteResponseDTO>> findByFilialId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByFilialId(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EstanteResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));

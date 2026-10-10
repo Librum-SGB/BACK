@@ -55,14 +55,14 @@ VALUES (9, 'Admin', 'admin@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIg
        (15, 'Assistente Exemplo', 'assistente@gmail.com', '$2a$10$SqXtkYvOauuD6ULgkwVRselhWmdRknyIgFb171L/RF6Qzqrk701Si', 'MAT007', 1, now(), 'ASSISTENTE', true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO estantes (id, localizacao, capacidade, ativo, excluido)
-VALUES (1, 'A1', 100, true, false),
-    (2, 'B1', 80, true, false),
-    (3, 'C1', 90, true, false),
-    (4, 'D1', 75, true, false),
-    (5, 'E1', 110, true, false),
-    (6, 'F1', 65, true, false),
-    (7, 'G1', 120, true, false)
+INSERT INTO estantes (id, filial_id, nome, localizacao, capacidade, qtd_prateleiras, ativo, excluido)
+VALUES (1, 1, 'Estante A1', 'A1', 100, 1, true, false),
+    (2, 2, 'Estante B1', 'B1', 80, 1, true, false),
+    (3, 2, 'Estante C1', 'C1', 90, 1, true, false),
+    (4, 3, 'Estante D1', 'D1', 75, 1, true, false),
+    (5, 4, 'Estante E1', 'E1', 110, 1, true, false),
+    (6, 5, 'Estante F1', 'F1', 65, 1, true, false),
+    (7, 6, 'Estante G1', 'G1', 120, 1, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO materiais (id, titulo, tipo, subtitulo, sinopse, issn, tema, descricao, isbn, edicao, ano_publicacao, quantidade_paginas, editora_id, autor_id, ativo, excluido)

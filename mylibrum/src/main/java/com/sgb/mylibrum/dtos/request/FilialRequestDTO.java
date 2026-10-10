@@ -36,5 +36,6 @@ public class FilialRequestDTO {
     
     private String telefone;
     private String email;
+    private String horarioFuncionamento;
     private Boolean ativo;
 }

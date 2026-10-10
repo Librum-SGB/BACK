@@ -3,6 +3,9 @@ package com.sgb.mylibrum.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "filiais")
 @Getter
@@ -55,6 +58,15 @@ public class Filial extends EntidadeAuditavel {
 
     @Column(length = 100)
     private String email;
+
+    @Column(name = "horario_funcionamento", length = 255)
+    private String horarioFuncionamento;
+
+    @OneToMany(mappedBy = "filial")
+    private List<Estante> estantes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "filial")
+    private List<Exemplar> exemplares = new ArrayList<>();
 
     @Column(columnDefinition = "boolean default true")
     private Boolean ativo = true;

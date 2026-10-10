@@ -19,6 +19,7 @@ public class FilialResponseDTO {
     private String cep;
     private String telefone;
     private String email;
+    private String horarioFuncionamento;
     private Boolean ativo;
     private OffsetDateTime dataCriacao;
     private OffsetDateTime dataUltimaAtualizacao;
