@@ -1,12 +1,10 @@
 package com.sgb.mylibrum.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sgb.mylibrum.dtos.mapper.AutorMapper;
 import com.sgb.mylibrum.dtos.request.AutorRequestDTO;
 import com.sgb.mylibrum.dtos.response.AutorResponseDTO;
 import com.sgb.mylibrum.entities.Autor;
@@ -20,31 +18,30 @@ import lombok.RequiredArgsConstructor;
 public class AutorService {
 
     private final AutorRepository repository;
+    private final AutorMapper mapper;
 
     @Transactional(readOnly = true)
     public List<AutorResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public AutorResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
+        return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Autor não encontrado com id: " + id)));
     }
 
     @Transactional
     public AutorResponseDTO create(AutorRequestDTO dto) {
-        Autor entity = new Autor();
-        BeanUtils.copyProperties(dto, entity);
-        return toResponseDTO(repository.save(entity));
+        return mapper.toResponseDTO(repository.save(mapper.toEntity(dto)));
     }
 
     @Transactional
     public AutorResponseDTO update(Long id, AutorRequestDTO dto) {
         Autor entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Autor não encontrado com id: " + id));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        return toResponseDTO(repository.save(entity));
+        mapper.updateEntity(dto, entity);
+        return mapper.toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -53,11 +50,5 @@ public class AutorService {
             throw new ResourceNotFoundException("Autor não encontrado com id: " + id);
         }
         repository.deleteById(id);
-    }
-
-    private AutorResponseDTO toResponseDTO(Autor entity) {
-        AutorResponseDTO dto = new AutorResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        return dto;
     }
 }

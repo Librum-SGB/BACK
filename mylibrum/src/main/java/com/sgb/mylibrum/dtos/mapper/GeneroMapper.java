@@ -10,10 +10,7 @@ public class GeneroMapper {
 
     public Genero toEntity(GeneroRequestDTO dto) {
         Genero genero = new Genero();
-
-        genero.setNome(dto.getNome());
-        genero.setDescricao(dto.getDescricao());
-
+        updateEntity(dto, genero);
         return genero;
     }
 
@@ -28,10 +25,8 @@ public class GeneroMapper {
 
         return dto;
     }
-    //não cria nem retorna um objeto novo. Ele modifica o objeto genero que já existe na memória.
-    public void updateEntityFromDTO(GeneroRequestDTO dto, Genero genero) {
+    public void updateEntity(GeneroRequestDTO dto, Genero genero) {
         genero.setNome(dto.getNome());
         genero.setDescricao(dto.getDescricao());
     }
-
 }

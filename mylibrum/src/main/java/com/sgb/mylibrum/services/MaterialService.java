@@ -25,7 +25,7 @@ public class MaterialService {
 
         Material materialSalvo = materialRepository.save(material);
 
-        return materialMapper.toDto(materialSalvo);
+        return materialMapper.toResponseDTO(materialSalvo);
     }
 
     @Transactional
@@ -34,20 +34,17 @@ public class MaterialService {
         Material materialExistente = materialRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
 
-        Material materialAtualizado = materialMapper.toEntity(materialRequestDTO);
+        materialMapper.updateEntity(materialRequestDTO, materialExistente);
+        Material materialSalvo = materialRepository.save(materialExistente);
 
-        materialAtualizado.setId(materialExistente.getId());
-
-        Material materialSalvo = materialRepository.save(materialAtualizado);
-
-        return materialMapper.toDto(materialSalvo);
+        return materialMapper.toResponseDTO(materialSalvo);
     }
 
     @Transactional(readOnly = true)
     public List<MaterialResponseDTO> findAll() {
 
         return materialRepository.findAll().stream()
-                .map(materialMapper::toDto)
+                .map(materialMapper::toResponseDTO)
                 .toList();
     }
 
@@ -57,7 +54,7 @@ public class MaterialService {
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
 
-        return materialMapper.toDto(material);
+        return materialMapper.toResponseDTO(material);
     }
 
     @Transactional
@@ -72,7 +69,7 @@ public class MaterialService {
         Material material = materialRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new RuntimeException("Material não encontrado"));
 
-        return materialMapper.toDto(material);
+        return materialMapper.toResponseDTO(material);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +77,7 @@ public class MaterialService {
 
         return materialRepository.findByTituloContainingIgnoreCase(titulo)
                 .stream()
-                .map(materialMapper::toDto)
+                .map(materialMapper::toResponseDTO)
                 .toList();
     }
 
@@ -89,7 +86,7 @@ public class MaterialService {
 
         return materialRepository.findByEditoraId(editoraId)
                 .stream()
-                .map(materialMapper::toDto)
+                .map(materialMapper::toResponseDTO)
                 .toList();
     }
 }

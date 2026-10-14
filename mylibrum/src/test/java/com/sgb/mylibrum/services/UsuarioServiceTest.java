@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.mapper.UsuarioMapper;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
@@ -43,7 +44,8 @@ class UsuarioServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UsuarioService(repository, passwordEncoder, emprestimoRepository, historicoMultaRepository);
+        service = new UsuarioService(
+                repository, passwordEncoder, emprestimoRepository, historicoMultaRepository, new UsuarioMapper());
     }
 
     @Test

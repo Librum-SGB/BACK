@@ -2,20 +2,18 @@ package com.sgb.mylibrum.services;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.mapper.UsuarioMapper;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusMulta;
-import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
@@ -33,6 +31,7 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final EmprestimoRepository emprestimoRepository;
     private final HistoricoMultaRepository historicoMultaRepository;
+    private final UsuarioMapper mapper;
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> findAll(String nome, String matriculaFuncionario, Pageable pageable) {
@@ -50,32 +49,26 @@ public class UsuarioService {
         } else {
             usuarios = repository.findAll(pageable);
         }
-        return usuarios.map(this::toResponseDTO);
+        return usuarios.map(mapper::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
+        return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado")));
     }
 
     @Transactional
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
         validarUnicidade(dto, null);
-        Usuario entity = new Usuario();
-        BeanUtils.copyProperties(dto, entity, "senha");
+        Usuario entity = mapper.toEntity(dto);
         entity.setEmail(normalizarEmail(dto.getEmail()));
         entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
         if (dto.getFuncao() == null) {
             entity.setFuncao(FuncaoUsuario.USUARIO);
         }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-        if (dto.getFilialId() != null) {
-            Filial filial = new Filial();
-            filial.setId(dto.getFilialId());
-            entity.setFilial(filial);
-        }
-        return toResponseDTO(repository.save(entity));
+        return mapper.toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -83,19 +76,11 @@ public class UsuarioService {
         Usuario entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         validarUnicidade(dto, id);
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao", "senha", "funcao");
+        mapper.updateEntity(dto, entity);
         entity.setEmail(normalizarEmail(dto.getEmail()));
         entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
-        if (dto.getFuncao() != null) {
-            entity.setFuncao(dto.getFuncao());
-        }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-        if (dto.getFilialId() != null) {
-            Filial filial = new Filial();
-            filial.setId(dto.getFilialId());
-            entity.setFilial(filial);
-        }
-        return toResponseDTO(repository.save(entity));
+        return mapper.toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -120,7 +105,7 @@ public class UsuarioService {
             throw new IllegalStateException("Não é possível desbloquear usuário com multas pendentes");
         }
         usuario.setEstaBloqueado(bloqueado);
-        return toResponseDTO(repository.save(usuario));
+        return mapper.toResponseDTO(repository.save(usuario));
     }
 
     private void validarUnicidade(UsuarioRequestDTO dto, Long usuarioId) {
@@ -154,10 +139,4 @@ public class UsuarioService {
         return matricula.trim().toUpperCase(Locale.ROOT);
     }
 
-    private UsuarioResponseDTO toResponseDTO(Usuario entity) {
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        if (entity.getFilial() != null) dto.setFilialId(entity.getFilial().getId());
-        return dto;
-    }
 }

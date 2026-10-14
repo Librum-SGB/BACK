@@ -53,7 +53,7 @@ public class GeneroService {
             return null;
         }
         log.info("Genero id={} atualizando Genero: nome={}", id, entity.getNome());
-        mapper.updateEntityFromDTO(dto, entity);
+        mapper.updateEntity(dto, entity);
         log.info("Genero id={} atualizado com sucesso: novoNome={}", id, entity.getNome());
         repository.saveAndFlush(entity);
         return mapper.toResponseDTO(entity);

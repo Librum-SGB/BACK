@@ -1,58 +1,52 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.ExemplarRequestDTO;
+import com.sgb.mylibrum.dtos.mapper.ExemplarMapper;
 import com.sgb.mylibrum.dtos.response.ExemplarResponseDTO;
-import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.entities.Exemplar;
-import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.MaterialRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ExemplarService {
 
     private final ExemplarRepository repository;
     private final MaterialRepository materialRepository;
+    private final ExemplarMapper mapper;
 
     @Transactional(readOnly = true)
     public List<ExemplarResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public ExemplarResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
+        return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplar não encontrado")));
     }
 
     @Transactional
     public ExemplarResponseDTO create(ExemplarRequestDTO dto) {
-        Exemplar entity = new Exemplar();
-        BeanUtils.copyProperties(dto, entity);
-        setRelacionamentos(dto, entity);
+        Exemplar entity = mapper.toEntity(dto);
         Exemplar salvo = repository.save(entity);
         atualizarQuantidadeExemplares(salvo.getMaterial());
-        return toResponseDTO(salvo);
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
     public ExemplarResponseDTO update(Long id, ExemplarRequestDTO dto) {
         Exemplar entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
-        BeanUtils.copyProperties(dto, entity, "id", "dataCriacao", "dataUltimaAtualizacao");
-        setRelacionamentos(dto, entity);
+        mapper.updateEntity(dto, entity);
         Exemplar salvo = repository.save(entity);
         atualizarQuantidadeExemplares(salvo.getMaterial());
-        return toResponseDTO(salvo);
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
@@ -76,30 +70,4 @@ public class ExemplarService {
         materialRepository.save(materialPersistido);
     }
 
-    private void setRelacionamentos(ExemplarRequestDTO dto, Exemplar entity) {
-        if (dto.getMaterialId() != null) {
-            Material material = new Material();
-            material.setId(dto.getMaterialId());
-            entity.setMaterial(material);
-        }
-        if (dto.getFilialId() != null) {
-            Filial filial = new Filial();
-            filial.setId(dto.getFilialId());
-            entity.setFilial(filial);
-        }
-        if (dto.getEstanteId() != null) {
-            Estante estante = new Estante();
-            estante.setId(dto.getEstanteId());
-            entity.setEstante(estante);
-        }
-    }
-
-    private ExemplarResponseDTO toResponseDTO(Exemplar entity) {
-        ExemplarResponseDTO dto = new ExemplarResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        if (entity.getMaterial() != null) dto.setMaterialId(entity.getMaterial().getId());
-        if (entity.getFilial() != null) dto.setFilialId(entity.getFilial().getId());
-        if (entity.getEstante() != null) dto.setEstanteId(entity.getEstante().getId());
-        return dto;
-    }
 }

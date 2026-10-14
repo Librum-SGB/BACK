@@ -2,6 +2,7 @@ package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
+import com.sgb.mylibrum.dtos.mapper.EmprestimoMapper;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Filial;
@@ -46,7 +47,7 @@ class EmprestimoServiceTest {
     @BeforeEach
     void setUp() {
         service = new EmprestimoService(
-                repository, exemplarRepository, usuarioRepository, configuracaoRepository);
+                repository, exemplarRepository, usuarioRepository, configuracaoRepository, new EmprestimoMapper());
     }
 
     @Test

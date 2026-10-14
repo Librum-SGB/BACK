@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
+import com.sgb.mylibrum.dtos.mapper.EmprestimoMapper;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
 import com.sgb.mylibrum.entities.Configuracao;
 import com.sgb.mylibrum.entities.Emprestimo;
@@ -14,7 +15,6 @@ import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +23,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class EmprestimoService {
@@ -35,22 +33,23 @@ public class EmprestimoService {
     private final ExemplarRepository exemplarRepository;
     private final UsuarioRepository usuarioRepository;
     private final ConfiguracaoRepository configuracaoRepository;
+    private final EmprestimoMapper mapper;
 
     @Transactional(readOnly = true)
     public List<EmprestimoResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public List<EmprestimoResponseDTO> findByUsuarioId(Long usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public EmprestimoResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
+        return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado")));
     }
 
@@ -71,9 +70,7 @@ public class EmprestimoService {
         Usuario responsavel = usuarioRepository.findById(dto.getUsuarioResponsavelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário responsável não encontrado"));
 
-        Emprestimo entity = new Emprestimo();
-        BeanUtils.copyProperties(dto, entity,
-                "dataSaida", "dataDevolucaoEfetivada", "renovacoesContagem");
+        Emprestimo entity = mapper.toEntity(dto);
         entity.setUsuario(usuario);
         entity.setExemplar(exemplar);
         entity.setUsuarioResponsavel(responsavel);
@@ -83,7 +80,7 @@ public class EmprestimoService {
 
         exemplar.setStatus(StatusExemplar.EMPRESTADO);
         exemplarRepository.save(exemplar);
-        return toResponseDTO(repository.save(entity));
+        return mapper.toResponseDTO(repository.save(entity));
     }
 
     @Transactional
@@ -106,7 +103,7 @@ public class EmprestimoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
         exemplar.setStatus(StatusExemplar.DISPONIVEL);
         exemplarRepository.save(exemplar);
-        return toResponseDTO(repository.save(emprestimo));
+        return mapper.toResponseDTO(repository.save(emprestimo));
     }
 
     @Transactional
@@ -138,7 +135,7 @@ public class EmprestimoService {
         long prazoOriginal = prazoTotal / (renovacoes + 1);
         emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(prazoOriginal));
         emprestimo.setRenovacoesContagem(renovacoes + 1);
-        return toResponseDTO(repository.save(emprestimo));
+        return mapper.toResponseDTO(repository.save(emprestimo));
     }
 
     @Scheduled(cron = "${mylibrum.emprestimos.marcar-atrasados-cron:0 0 0 * * *}")
@@ -180,14 +177,4 @@ public class EmprestimoService {
         }
     }
 
-    private EmprestimoResponseDTO toResponseDTO(Emprestimo entity) {
-        EmprestimoResponseDTO dto = new EmprestimoResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        if (entity.getUsuario() != null) dto.setUsuarioId(entity.getUsuario().getId());
-        if (entity.getExemplar() != null) dto.setExemplarId(entity.getExemplar().getId());
-        if (entity.getUsuarioResponsavel() != null) {
-            dto.setUsuarioResponsavelId(entity.getUsuarioResponsavel().getId());
-        }
-        return dto;
-    }
 }

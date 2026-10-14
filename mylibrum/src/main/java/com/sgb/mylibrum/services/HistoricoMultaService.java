@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.HistoricoMultaRequestDTO;
+import com.sgb.mylibrum.dtos.mapper.HistoricoMultaMapper;
 import com.sgb.mylibrum.dtos.response.HistoricoMultaResponseDTO;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.HistoricoMulta;
@@ -12,7 +13,6 @@ import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +22,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class HistoricoMultaService {
@@ -34,39 +32,39 @@ public class HistoricoMultaService {
     private final EmprestimoRepository emprestimoRepository;
     private final ConfiguracaoRepository configuracaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final HistoricoMultaMapper mapper;
 
     @Transactional(readOnly = true)
     public List<HistoricoMultaResponseDTO> findAll(StatusMulta status) {
         List<HistoricoMulta> multas = status == null
                 ? repository.findAll()
                 : repository.findByStatus(status);
-        return multas.stream().map(this::toResponseDTO).collect(Collectors.toList());
+        return multas.stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public List<HistoricoMultaResponseDTO> findByUsuarioId(Long usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public HistoricoMultaResponseDTO findById(Long id) {
-        return toResponseDTO(repository.findById(id)
+        return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Histórico de multa não encontrado")));
     }
 
     @Transactional
     public HistoricoMultaResponseDTO create(HistoricoMultaRequestDTO dto) {
-        HistoricoMulta entity = new HistoricoMulta();
-        BeanUtils.copyProperties(dto, entity);
+        HistoricoMulta entity = mapper.toEntity(dto);
         Emprestimo emprestimo = buscarEmprestimo(dto.getEmprestimoId());
         entity.setEmprestimo(emprestimo);
         entity.setUsuario(emprestimo.getUsuario());
         entity.setStatus(StatusMulta.PENDENTE);
         HistoricoMulta salva = repository.save(entity);
         atualizarBloqueio(emprestimo.getUsuario());
-        return toResponseDTO(salva);
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional
@@ -74,8 +72,7 @@ public class HistoricoMultaService {
         HistoricoMulta entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Histórico de multa não encontrado"));
         Usuario usuarioAnterior = entity.getUsuario();
-        BeanUtils.copyProperties(dto, entity, "id", "status", "dataGeracao", "dataPagamento",
-                "dataCriacao", "dataUltimaAtualizacao");
+        mapper.updateEntity(dto, entity);
         if (dto.getEmprestimoId() != null) {
             Emprestimo emprestimo = buscarEmprestimo(dto.getEmprestimoId());
             entity.setEmprestimo(emprestimo);
@@ -86,7 +83,7 @@ public class HistoricoMultaService {
         if (!usuarioAnterior.getId().equals(entity.getUsuario().getId())) {
             atualizarBloqueio(entity.getUsuario());
         }
-        return toResponseDTO(salva);
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional
@@ -110,7 +107,7 @@ public class HistoricoMultaService {
         multa.setDataPagamento(LocalDate.now());
         HistoricoMulta salva = repository.save(multa);
         atualizarBloqueio(multa.getUsuario());
-        return toResponseDTO(salva);
+        return mapper.toResponseDTO(salva);
     }
 
     @Scheduled(cron = "${mylibrum.multas.gerar-cron:0 5 0 * * *}")
@@ -198,11 +195,4 @@ public class HistoricoMultaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado"));
     }
 
-    private HistoricoMultaResponseDTO toResponseDTO(HistoricoMulta entity) {
-        HistoricoMultaResponseDTO dto = new HistoricoMultaResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
-        if (entity.getEmprestimo() != null) dto.setEmprestimoId(entity.getEmprestimo().getId());
-        if (entity.getUsuario() != null) dto.setUsuarioId(entity.getUsuario().getId());
-        return dto;
-    }
 }

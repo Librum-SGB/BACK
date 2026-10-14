@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Component
 public class MaterialMapper {
 
-    public MaterialResponseDTO toDto(Material material) {
+    public MaterialResponseDTO toResponseDTO(Material material) {
 
         if (material == null) {
             return null;
@@ -29,6 +29,7 @@ public class MaterialMapper {
         dto.setIssn(material.getIssn());
         dto.setTema(material.getTema());
         dto.setDescricao(material.getDescricao());
+        dto.setObservacao(material.getObservacao());
         dto.setIsbn(material.getIsbn());
         dto.setEdicao(material.getEdicao());
         dto.setAnoPublicacao(material.getAnoPublicacao());
@@ -76,57 +77,60 @@ public class MaterialMapper {
         }
 
         Material material = new Material();
-
-        material.setTitulo(materialRequestDTO.getTitulo());
-        material.setTipo(materialRequestDTO.getTipo());
-        material.setSubtitulo(materialRequestDTO.getSubtitulo());
-        material.setSinopse(materialRequestDTO.getSinopse());
-        material.setIssn(materialRequestDTO.getIssn());
-        material.setTema(materialRequestDTO.getTema());
-        material.setDescricao(materialRequestDTO.getDescricao());
-        material.setIsbn(materialRequestDTO.getIsbn());
-        material.setEdicao(materialRequestDTO.getEdicao());
-        material.setAnoPublicacao(materialRequestDTO.getAnoPublicacao());
-        material.setQuantidadePaginas(materialRequestDTO.getQuantidadePaginas());
-
-        if (materialRequestDTO.getEditoraId() != null) {
-            Editora editora = new Editora();
-            editora.setId(materialRequestDTO.getEditoraId());
-            material.setEditora(editora);
-        }
-
-        if (materialRequestDTO.getAutorId() != null) {
-            Autor autor = new Autor();
-            autor.setId(materialRequestDTO.getAutorId());
-            material.setAutor(autor);
-        }
-
-        if (materialRequestDTO.getAutorIds() != null) {
-            material.setAutores(
-                    materialRequestDTO.getAutorIds()
-                            .stream()
-                            .map(id -> {
-                                Autor autor = new Autor();
-                                autor.setId(id);
-                                return autor;
-                            })
-                            .collect(Collectors.toSet())
-            );
-        }
-
-        if (materialRequestDTO.getGeneroIds() != null) {
-            material.setGeneros(
-                    materialRequestDTO.getGeneroIds()
-                            .stream()
-                            .map(id -> {
-                                Genero genero = new Genero();
-                                genero.setId(id);
-                                return genero;
-                            })
-                            .collect(Collectors.toSet())
-            );
-        }
-
+        updateEntity(materialRequestDTO, material);
         return material;
+    }
+
+    public void updateEntity(MaterialRequestDTO dto, Material material) {
+        material.setTitulo(dto.getTitulo());
+        material.setTipo(dto.getTipo());
+        material.setSubtitulo(dto.getSubtitulo());
+        material.setSinopse(dto.getSinopse());
+        material.setIssn(dto.getIssn());
+        material.setTema(dto.getTema());
+        material.setDescricao(dto.getDescricao());
+        material.setObservacao(dto.getObservacao());
+        material.setIsbn(dto.getIsbn());
+        material.setEdicao(dto.getEdicao());
+        material.setAnoPublicacao(dto.getAnoPublicacao());
+        material.setQuantidadePaginas(dto.getQuantidadePaginas());
+
+        if (dto.getEditoraId() != null) {
+            Editora editora = new Editora();
+            editora.setId(dto.getEditoraId());
+            material.setEditora(editora);
+        } else {
+            material.setEditora(null);
+        }
+
+        if (dto.getAutorId() != null) {
+            Autor autor = new Autor();
+            autor.setId(dto.getAutorId());
+            material.setAutor(autor);
+        } else {
+            material.setAutor(null);
+        }
+
+        if (dto.getAutorIds() != null) {
+            material.getAutores().clear();
+            material.getAutores().addAll(dto.getAutorIds().stream().map(id -> {
+                Autor autor = new Autor();
+                autor.setId(id);
+                return autor;
+            }).collect(Collectors.toSet()));
+        } else {
+            material.getAutores().clear();
+        }
+
+        if (dto.getGeneroIds() != null) {
+            material.getGeneros().clear();
+            material.getGeneros().addAll(dto.getGeneroIds().stream().map(id -> {
+                Genero genero = new Genero();
+                genero.setId(id);
+                return genero;
+            }).collect(Collectors.toSet()));
+        } else {
+            material.getGeneros().clear();
+        }
     }
 }
