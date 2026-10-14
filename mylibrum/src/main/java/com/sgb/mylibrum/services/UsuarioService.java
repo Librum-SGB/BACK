@@ -102,6 +102,9 @@ public class UsuarioService {
     public void delete(Long id) {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if (usuario.getFuncao() == FuncaoUsuario.ADMIN) {
+            throw new IllegalStateException("Não é possível excluir um usuário com função Admin");
+        }
         if (emprestimoRepository.existsByUsuarioIdAndStatusIn(
                 id, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO))) {
             throw new IllegalStateException("Não é possível excluir um usuário com empréstimos ativos");

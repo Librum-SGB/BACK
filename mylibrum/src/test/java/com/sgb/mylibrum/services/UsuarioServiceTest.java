@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +71,33 @@ class UsuarioServiceTest {
                 .thenReturn(true);
 
         assertThrows(IllegalStateException.class, () -> service.delete(1L));
+    }
+
+    @Test
+    void deveRejeitarExclusaoDeUsuarioAdmin() {
+        Usuario admin = usuario();
+        admin.setFuncao(FuncaoUsuario.ADMIN);
+        when(repository.findById(1L)).thenReturn(Optional.of(admin));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.delete(1L));
+
+        assertEquals("Não é possível excluir um usuário com função Admin", exception.getMessage());
+        verify(emprestimoRepository, never()).existsByUsuarioIdAndStatusIn(any(), any());
+        verify(repository, never()).delete(any(Usuario.class));
+    }
+
+    @Test
+    void deveExcluirUsuarioSemFuncaoAdminESemEmprestimosAtivos() {
+        Usuario usuario = usuario();
+        usuario.setFuncao(FuncaoUsuario.USUARIO);
+        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(emprestimoRepository.existsByUsuarioIdAndStatusIn(
+                1L, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO)))
+                .thenReturn(false);
+
+        service.delete(1L);
+
+        verify(repository).delete(usuario);
     }
 
     @Test
