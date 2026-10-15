@@ -53,7 +53,8 @@ public class ExemplarService {
     public void delete(Long id) {
         Exemplar exemplar = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
-        repository.delete(exemplar);
+        exemplar.setExcluido(true);
+        repository.save(exemplar);
         atualizarQuantidadeExemplares(exemplar.getMaterial());
     }
 

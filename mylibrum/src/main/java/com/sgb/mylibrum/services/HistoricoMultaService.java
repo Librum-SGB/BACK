@@ -91,7 +91,8 @@ public class HistoricoMultaService {
         HistoricoMulta multa = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Histórico de multa não encontrado"));
         Usuario usuario = multa.getUsuario();
-        repository.delete(multa);
+        multa.setExcluido(true);
+        repository.save(multa);
         atualizarBloqueio(usuario);
     }
 

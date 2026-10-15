@@ -65,6 +65,7 @@ public class GeneroService {
         if (genero != null) {
             desativar(genero);
             genero.setExcluido(true);
+            repository.save(genero);
             log.info("Genero id={} - nome= {} excluido com sucesso", genero.getId(), genero.getNome());
             return true;
         }

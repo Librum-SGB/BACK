@@ -43,6 +43,9 @@ public class ListaTarefaService {
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        ListaTarefa tarefa = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+        tarefa.setExcluido(true);
+        repository.save(tarefa);
     }
 }

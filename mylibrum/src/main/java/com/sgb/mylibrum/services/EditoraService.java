@@ -48,7 +48,8 @@ public class EditoraService {
     @Transactional
     public void delete(Long id) {
         Editora entity = findEntityById(id);
-        repository.delete(entity);
+        entity.setExcluido(true);
+        repository.save(entity);
     }
 
     private Editora findEntityById(Long id) {

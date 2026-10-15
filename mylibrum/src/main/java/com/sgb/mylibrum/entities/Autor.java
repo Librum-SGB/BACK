@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "autores")
 @Getter
 @Setter

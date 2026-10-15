@@ -94,7 +94,8 @@ public class UsuarioService {
                 id, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO))) {
             throw new IllegalStateException("Não é possível excluir um usuário com empréstimos ativos");
         }
-        repository.delete(usuario);
+        usuario.setExcluido(true);
+        repository.save(usuario);
     }
 
     @Transactional

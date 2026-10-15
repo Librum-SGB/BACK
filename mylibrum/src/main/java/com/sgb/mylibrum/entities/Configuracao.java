@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "configuracoes", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"filial_id", "chave"})
 })

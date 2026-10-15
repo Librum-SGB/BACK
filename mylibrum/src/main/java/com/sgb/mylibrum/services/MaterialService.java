@@ -59,8 +59,10 @@ public class MaterialService {
 
     @Transactional
     public void delete(Long id) {
-
-        materialRepository.deleteById(id);
+        Material material = materialRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
+        material.setExcluido(true);
+        materialRepository.save(material);
     }
 
     @Transactional(readOnly = true)

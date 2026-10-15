@@ -43,6 +43,9 @@ public class ConfiguracaoService {
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        Configuracao configuracao = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Configuração não encontrada"));
+        configuracao.setExcluido(true);
+        repository.save(configuracao);
     }
 }

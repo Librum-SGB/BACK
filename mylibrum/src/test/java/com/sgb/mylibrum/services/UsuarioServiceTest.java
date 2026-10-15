@@ -89,7 +89,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void deveExcluirUsuarioSemFuncaoAdminESemEmprestimosAtivos() {
+    void deveMarcarUsuarioComoExcluidoSemApagaLoFisicamente() {
         Usuario usuario = usuario();
         usuario.setFuncao(FuncaoUsuario.USUARIO);
         when(repository.findById(1L)).thenReturn(Optional.of(usuario));
@@ -99,7 +99,9 @@ class UsuarioServiceTest {
 
         service.delete(1L);
 
-        verify(repository).delete(usuario);
+        assertEquals(true, usuario.getExcluido());
+        verify(repository).save(usuario);
+        verify(repository, never()).delete(any(Usuario.class));
     }
 
     @Test

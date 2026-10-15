@@ -64,7 +64,10 @@ public class EstanteService {
         if (exemplarRepository.existsByEstanteId(id)) {
             throw new IllegalStateException("Não é possível excluir a estante porque ela possui exemplares");
         }
-        repository.deleteById(id);
+        Estante estante = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estante não encontrada"));
+        estante.setExcluido(true);
+        repository.save(estante);
     }
 
     private void setRelacionamentos(EstanteRequestDTO dto, Estante entity) {

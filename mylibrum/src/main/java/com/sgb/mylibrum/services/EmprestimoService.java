@@ -153,7 +153,8 @@ public class EmprestimoService {
         if (emprestimo.getStatus() != StatusEmprestimo.DEVOLVIDO) {
             throw new IllegalStateException("Somente empréstimos devolvidos podem ser removidos");
         }
-        repository.delete(emprestimo);
+        emprestimo.setExcluido(true);
+        repository.save(emprestimo);
     }
 
     private Emprestimo buscarEmprestimo(Long id) {

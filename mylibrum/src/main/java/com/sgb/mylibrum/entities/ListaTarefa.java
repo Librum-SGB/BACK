@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "lista_tarefas")
 @Getter
 @Setter

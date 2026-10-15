@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "filiais")
 @Getter
 @Setter

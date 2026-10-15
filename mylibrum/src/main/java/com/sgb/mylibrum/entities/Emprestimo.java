@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "emprestimos")
 @Getter
 @Setter

@@ -43,6 +43,9 @@ public class FilialService {
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        Filial filial = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Filial não encontrada"));
+        filial.setExcluido(true);
+        repository.save(filial);
     }
 }

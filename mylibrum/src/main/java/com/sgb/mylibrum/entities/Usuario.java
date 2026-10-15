@@ -24,6 +24,7 @@ import lombok.Setter;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Entity
+@org.hibernate.annotations.SQLRestriction("excluido = false")
 @Table(name = "usuarios")
 @Getter
 @Setter

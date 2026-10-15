@@ -49,6 +49,9 @@ public class AutorService {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Autor não encontrado com id: " + id);
         }
-        repository.deleteById(id);
+        Autor autor = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Autor não encontrado com id: " + id));
+        autor.setExcluido(true);
+        repository.save(autor);
     }
 }
