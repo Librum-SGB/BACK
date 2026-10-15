@@ -19,13 +19,16 @@ public class EmprestimoController {
     private final EmprestimoService service;
 
     @GetMapping
-    public ResponseEntity<List<EmprestimoResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<EmprestimoResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/usuarios/{id}")
-    public ResponseEntity<List<EmprestimoResponseDTO>> findByUsuarioId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findByUsuarioId(id));
+    public ResponseEntity<List<EmprestimoResponseDTO>> findByUsuarioId(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findByUsuarioId(id, ativo));
     }
 
     @GetMapping("/{id}")

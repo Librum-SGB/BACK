@@ -12,6 +12,7 @@ import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -35,16 +36,16 @@ public class HistoricoMultaService {
     private final HistoricoMultaMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<HistoricoMultaResponseDTO> findAll(StatusMulta status) {
-        List<HistoricoMulta> multas = status == null
-                ? repository.findAll()
-                : repository.findByStatus(status);
+    public List<HistoricoMultaResponseDTO> findAll(StatusMulta status, Boolean ativo) {
+        List<HistoricoMulta> multas = repository.findAll(AtivoSpecification.<HistoricoMulta>ativo(ativo)
+                .and(AtivoSpecification.igual("status", status)));
         return multas.stream().map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<HistoricoMultaResponseDTO> findByUsuarioId(Long usuarioId) {
-        return repository.findByUsuarioId(usuarioId).stream()
+    public List<HistoricoMultaResponseDTO> findByUsuarioId(Long usuarioId, Boolean ativo) {
+        return repository.findAll(AtivoSpecification.<HistoricoMulta>ativo(ativo)
+                        .and(AtivoSpecification.igual("usuario.id", usuarioId))).stream()
                 .map(mapper::toResponseDTO)
                 .toList();
     }

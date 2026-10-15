@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
 import com.sgb.mylibrum.dtos.response.MaterialResponseDTO;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.MaterialRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,9 +42,9 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public List<MaterialResponseDTO> findAll() {
+    public List<MaterialResponseDTO> findAll(Boolean ativo) {
 
-        return materialRepository.findAll().stream()
+        return materialRepository.findAll(AtivoSpecification.ativo(ativo)).stream()
                 .map(materialMapper::toResponseDTO)
                 .toList();
     }
@@ -75,18 +76,20 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public List<MaterialResponseDTO> findByTitulo(String titulo) {
+    public List<MaterialResponseDTO> findByTitulo(String titulo, Boolean ativo) {
 
-        return materialRepository.findByTituloContainingIgnoreCase(titulo)
+        return materialRepository.findAll(AtivoSpecification.<Material>ativo(ativo)
+                        .and(AtivoSpecification.contemIgnoreCase("titulo", titulo)))
                 .stream()
                 .map(materialMapper::toResponseDTO)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<MaterialResponseDTO> findByEditoraId(Long editoraId) {
+    public List<MaterialResponseDTO> findByEditoraId(Long editoraId, Boolean ativo) {
 
-        return materialRepository.findByEditoraId(editoraId)
+        return materialRepository.findAll(AtivoSpecification.<Material>ativo(ativo)
+                        .and(AtivoSpecification.igual("editora.id", editoraId)))
                 .stream()
                 .map(materialMapper::toResponseDTO)
                 .toList();

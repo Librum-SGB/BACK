@@ -21,13 +21,16 @@ public class HistoricoMultaController {
 
     @GetMapping
     public ResponseEntity<List<HistoricoMultaResponseDTO>> findAll(
-            @RequestParam(required = false) StatusMulta status) {
-        return ResponseEntity.ok(service.findAll(status));
+            @RequestParam(required = false) StatusMulta status,
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(status, ativo));
     }
 
     @GetMapping("/usuarios/{id}")
-    public ResponseEntity<List<HistoricoMultaResponseDTO>> findByUsuarioId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findByUsuarioId(id));
+    public ResponseEntity<List<HistoricoMultaResponseDTO>> findByUsuarioId(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findByUsuarioId(id, ativo));
     }
 
     @GetMapping("/{id}")

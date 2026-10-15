@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -100,22 +101,22 @@ class HistoricoMultaServiceTest {
 
     @Test
     void deveFiltrarMultasPorStatus() {
-        when(repository.findByStatus(StatusMulta.PENDENTE)).thenReturn(List.of());
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of());
 
-        var resultado = service.findAll(StatusMulta.PENDENTE);
+        var resultado = service.findAll(StatusMulta.PENDENTE, null);
 
         assertEquals(List.of(), resultado);
-        verify(repository).findByStatus(StatusMulta.PENDENTE);
+        verify(repository).findAll(any(Specification.class));
     }
 
     @Test
     void deveBuscarMultasPorUsuario() {
-        when(repository.findByUsuarioId(1L)).thenReturn(List.of());
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of());
 
-        var resultado = service.findByUsuarioId(1L);
+        var resultado = service.findByUsuarioId(1L, null);
 
         assertEquals(List.of(), resultado);
-        verify(repository).findByUsuarioId(1L);
+        verify(repository).findAll(any(Specification.class));
     }
 
     private Usuario usuario() {

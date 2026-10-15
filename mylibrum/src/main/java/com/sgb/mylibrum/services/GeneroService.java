@@ -4,6 +4,7 @@ import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
 import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;
 import com.sgb.mylibrum.entities.Genero;
 import com.sgb.mylibrum.repositories.GeneroRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import com.sgb.mylibrum.dtos.mapper.GeneroMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +23,10 @@ public class GeneroService {
     private final GeneroMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<GeneroResponseDTO> findAll() {
-        log.debug("Buscando todos os generos ativos");
-        return repository.findAllByAtivoTrueAndExcluidoFalse().stream().map(mapper::toResponseDTO).toList();
+    public List<GeneroResponseDTO> findAll(Boolean ativo) {
+        log.debug("Buscando generos com filtro de ativo={}", ativo);
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

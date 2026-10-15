@@ -19,8 +19,9 @@ public class ConfiguracaoController {
     private final ConfiguracaoService service;
 
     @GetMapping
-    public ResponseEntity<List<ConfiguracaoResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<ConfiguracaoResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/{id}")

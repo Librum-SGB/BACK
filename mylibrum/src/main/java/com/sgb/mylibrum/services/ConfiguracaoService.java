@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.mapper.ConfiguracaoMapper;
 import com.sgb.mylibrum.dtos.response.ConfiguracaoResponseDTO;
 import com.sgb.mylibrum.entities.Configuracao;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,9 @@ public class ConfiguracaoService {
     private final ConfiguracaoMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ConfiguracaoResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<ConfiguracaoResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

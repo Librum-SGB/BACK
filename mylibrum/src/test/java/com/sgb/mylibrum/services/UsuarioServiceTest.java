@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -129,12 +131,10 @@ class UsuarioServiceTest {
     @Test
     void deveBuscarUsuariosPorNomeEMatricula() {
         var pageable = PageRequest.of(0, 20);
-        when(repository.findByNomeContainingIgnoreCaseAndMatriculaFuncionarioIgnoreCase(
-                "ana", "MAT123", pageable)).thenReturn(Page.empty(pageable));
+        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty(pageable));
 
-        assertEquals(0, service.findAll(" ana ", "mat123", pageable).getTotalElements());
-        verify(repository).findByNomeContainingIgnoreCaseAndMatriculaFuncionarioIgnoreCase(
-                "ana", "MAT123", pageable);
+        assertEquals(0, service.findAll(" ana ", "mat123", null, pageable).getTotalElements());
+        verify(repository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     private Usuario usuario() {

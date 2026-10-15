@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.mapper.ListaTarefaMapper;
 import com.sgb.mylibrum.dtos.response.ListaTarefaResponseDTO;
 import com.sgb.mylibrum.entities.ListaTarefa;
 import com.sgb.mylibrum.repositories.ListaTarefaRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,9 @@ public class ListaTarefaService {
     private final ListaTarefaMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ListaTarefaResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<ListaTarefaResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

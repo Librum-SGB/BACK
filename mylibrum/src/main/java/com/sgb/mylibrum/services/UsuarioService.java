@@ -20,6 +20,8 @@ import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
+import org.springframework.data.jpa.domain.Specification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,21 +36,14 @@ public class UsuarioService {
     private final UsuarioMapper mapper;
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> findAll(String nome, String matriculaFuncionario, Pageable pageable) {
+    public Page<UsuarioResponseDTO> findAll(
+            String nome, String matriculaFuncionario, Boolean ativo, Pageable pageable) {
         String nomeBusca = nome == null || nome.isBlank() ? null : nome.trim();
         String matriculaBusca = normalizarMatricula(matriculaFuncionario);
-
-        Page<Usuario> usuarios;
-        if (nomeBusca != null && matriculaBusca != null) {
-            usuarios = repository.findByNomeContainingIgnoreCaseAndMatriculaFuncionarioIgnoreCase(
-                    nomeBusca, matriculaBusca, pageable);
-        } else if (nomeBusca != null) {
-            usuarios = repository.findByNomeContainingIgnoreCase(nomeBusca, pageable);
-        } else if (matriculaBusca != null) {
-            usuarios = repository.findByMatriculaFuncionarioIgnoreCase(matriculaBusca, pageable);
-        } else {
-            usuarios = repository.findAll(pageable);
-        }
+        Specification<Usuario> filtros = AtivoSpecification.<Usuario>ativo(ativo)
+                .and(AtivoSpecification.contemIgnoreCase("nome", nomeBusca))
+                .and(AtivoSpecification.<Usuario>igual("matriculaFuncionario", matriculaBusca));
+        Page<Usuario> usuarios = repository.findAll(filtros, pageable);
         return usuarios.map(mapper::toResponseDTO);
     }
 

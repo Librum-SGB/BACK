@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.response.EditoraResponseDTO;
 import com.sgb.mylibrum.entities.Editora;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EditoraRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import com.sgb.mylibrum.dtos.mapper.EditoraMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class EditoraService {
     private final EditoraMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<EditoraResponseDTO> findAll() {
-        return repository.findAll()
+    public List<EditoraResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo))
                 .stream()
                 .map(mapper::toResponseDTO)
                 .toList();

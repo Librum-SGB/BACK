@@ -24,8 +24,9 @@ public class UsuarioController {
     public ResponseEntity<Page<UsuarioResponseDTO>> findAll(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String matriculaFuncionario,
+            @RequestParam(required = false) Boolean ativo,
             @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(nome, matriculaFuncionario, pageable));
+        return ResponseEntity.ok(service.findAll(nome, matriculaFuncionario, ativo, pageable));
     }
 
     @GetMapping("/{id}")

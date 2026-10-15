@@ -14,6 +14,7 @@ import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,13 +37,15 @@ public class EmprestimoService {
     private final EmprestimoMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<EmprestimoResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<EmprestimoResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<EmprestimoResponseDTO> findByUsuarioId(Long usuarioId) {
-        return repository.findByUsuarioId(usuarioId).stream()
+    public List<EmprestimoResponseDTO> findByUsuarioId(Long usuarioId, Boolean ativo) {
+        return repository.findAll(AtivoSpecification.<Emprestimo>ativo(ativo)
+                        .and(AtivoSpecification.igual("usuario.id", usuarioId))).stream()
                 .map(mapper::toResponseDTO)
                 .toList();
     }

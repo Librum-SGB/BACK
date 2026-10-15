@@ -19,8 +19,9 @@ public class ExemplarController {
     private final ExemplarService service;
 
     @GetMapping
-    public ResponseEntity<List<ExemplarResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<ExemplarResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/{id}")

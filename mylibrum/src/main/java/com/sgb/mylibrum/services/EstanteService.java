@@ -8,6 +8,7 @@ import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EstanteRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.FilialRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +24,18 @@ public class EstanteService {
     private final EstanteMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<EstanteResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<EstanteResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<EstanteResponseDTO> findByFilialId(Long filialId) {
+    public List<EstanteResponseDTO> findByFilialId(Long filialId, Boolean ativo) {
         if (!filialRepository.existsById(filialId)) {
             throw new ResourceNotFoundException("Filial não encontrada");
         }
-        return repository.findByFilialId(filialId).stream()
+        return repository.findAll(AtivoSpecification.<Estante>ativo(ativo)
+                        .and(AtivoSpecification.igual("filial.id", filialId))).stream()
                 .map(mapper::toResponseDTO)
                 .toList();
     }

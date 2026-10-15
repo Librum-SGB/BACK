@@ -32,9 +32,10 @@ public class MaterialController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MaterialResponseDTO>> listarTodos() {
+    public ResponseEntity<List<MaterialResponseDTO>> listarTodos(
+            @RequestParam(required = false) Boolean ativo) {
 
-        List<MaterialResponseDTO> materiais = materialService.findAll();
+        List<MaterialResponseDTO> materiais = materialService.findAll(ativo);
 
         if (materiais.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -66,10 +67,11 @@ public class MaterialController {
 
     @GetMapping("/titulo")
     public ResponseEntity<List<MaterialResponseDTO>> buscarPorTitulo(
-            @RequestParam String titulo) {
+            @RequestParam String titulo,
+            @RequestParam(required = false) Boolean ativo) {
 
         List<MaterialResponseDTO> materiais =
-                materialService.findByTitulo(titulo);
+                materialService.findByTitulo(titulo, ativo);
 
         if (materiais.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -80,10 +82,11 @@ public class MaterialController {
 
     @GetMapping("/editora")
     public ResponseEntity<List<MaterialResponseDTO>> buscarPorEditora(
-            @RequestParam Long editoraId) {
+            @RequestParam Long editoraId,
+            @RequestParam(required = false) Boolean ativo) {
 
         List<MaterialResponseDTO> materiais =
-                materialService.findByEditoraId(editoraId);
+                materialService.findByEditoraId(editoraId, ativo);
 
         if (materiais.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

@@ -10,6 +10,7 @@ import com.sgb.mylibrum.dtos.response.AutorResponseDTO;
 import com.sgb.mylibrum.entities.Autor;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.AutorRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,8 +22,9 @@ public class AutorService {
     private final AutorMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<AutorResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<AutorResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

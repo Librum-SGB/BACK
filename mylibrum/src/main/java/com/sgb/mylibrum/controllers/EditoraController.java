@@ -19,8 +19,9 @@ public class EditoraController {
     private final EditoraService service;
 
     @GetMapping
-    public ResponseEntity<List<EditoraResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<EditoraResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/{id}")

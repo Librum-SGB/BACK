@@ -19,13 +19,16 @@ public class EstanteController {
     private final EstanteService service;
 
     @GetMapping
-    public ResponseEntity<List<EstanteResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<EstanteResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/filiais/{id}")
-    public ResponseEntity<List<EstanteResponseDTO>> findByFilialId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findByFilialId(id));
+    public ResponseEntity<List<EstanteResponseDTO>> findByFilialId(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findByFilialId(id, ativo));
     }
 
     @GetMapping("/{id}")

@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.mapper.FilialMapper;
 import com.sgb.mylibrum.dtos.response.FilialResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.repositories.FilialRepository;
+import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,9 @@ public class FilialService {
     private final FilialMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<FilialResponseDTO> findAll() {
-        return repository.findAll().stream().map(mapper::toResponseDTO).toList();
+    public List<FilialResponseDTO> findAll(Boolean ativo) {
+        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+                .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)

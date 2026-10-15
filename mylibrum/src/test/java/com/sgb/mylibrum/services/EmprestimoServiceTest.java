@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -75,12 +76,12 @@ class EmprestimoServiceTest {
 
     @Test
     void deveBuscarTodosEmprestimosDoUsuario() {
-        when(repository.findByUsuarioId(1L)).thenReturn(List.of());
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of());
 
-        var resultado = service.findByUsuarioId(1L);
+        var resultado = service.findByUsuarioId(1L, null);
 
         assertEquals(List.of(), resultado);
-        verify(repository).findByUsuarioId(1L);
+        verify(repository).findAll(any(Specification.class));
     }
 
     @Test

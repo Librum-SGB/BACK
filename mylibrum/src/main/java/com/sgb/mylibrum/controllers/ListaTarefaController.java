@@ -19,8 +19,9 @@ public class ListaTarefaController {
     private final ListaTarefaService service;
 
     @GetMapping
-    public ResponseEntity<List<ListaTarefaResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<ListaTarefaResponseDTO>> findAll(
+            @RequestParam(required = false) Boolean ativo) {
+        return ResponseEntity.ok(service.findAll(ativo));
     }
 
     @GetMapping("/{id}")
