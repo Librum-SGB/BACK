@@ -1,20 +1,47 @@
 package com.sgb.mylibrum.dtos.mapper;
 
 import com.sgb.mylibrum.dtos.request.ConfiguracaoRequestDTO;
+import com.sgb.mylibrum.dtos.request.ListaTarefaRequestDTO;
 import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
+import com.sgb.mylibrum.entities.ListaTarefa;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
+import com.sgb.mylibrum.entities.enums.StatusTarefa;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DtoMapperTest {
+
+    @Test
+    void listaTarefaMapperConverteStatusEPrazoEntreDtoEEntidade() {
+        ListaTarefaRequestDTO request = new ListaTarefaRequestDTO();
+        request.setUsuarioId(9L);
+        request.setDescricao("Revisar exemplares");
+        request.setStatus(StatusTarefa.EM_ANDAMENTO);
+        request.setPrazo(LocalDate.of(2026, 12, 31));
+
+        ListaTarefaMapper mapper = new ListaTarefaMapper();
+        ListaTarefa entity = mapper.toEntity(request);
+        var response = mapper.toResponseDTO(entity);
+
+        assertEquals(StatusTarefa.EM_ANDAMENTO, entity.getStatus());
+        assertEquals(LocalDate.of(2026, 12, 31), entity.getPrazo());
+        assertEquals(StatusTarefa.EM_ANDAMENTO, response.getStatus());
+        assertEquals(LocalDate.of(2026, 12, 31), response.getPrazo());
+    }
+
+    @Test
+    void listaTarefaRequestUsaPendenteComoStatusPadrao() {
+        assertEquals(StatusTarefa.PENDENTE, new ListaTarefaRequestDTO().getStatus());
+    }
 
     @Test
     void configuracaoMapperConverteFilialEntreDtoEEntidade() {

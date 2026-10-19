@@ -24,6 +24,11 @@ public class ListaTarefaController {
         return ResponseEntity.ok(service.findAll(ativo));
     }
 
+    @GetMapping("/gestores/{id}")
+    public ResponseEntity<List<ListaTarefaResponseDTO>> findByGestorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByGestorId(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ListaTarefaResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));

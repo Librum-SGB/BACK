@@ -1,8 +1,11 @@
 package com.sgb.mylibrum.entities;
 
 import com.sgb.mylibrum.entities.enums.PrioridadeTarefa;
+import com.sgb.mylibrum.entities.enums.StatusTarefa;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @org.hibernate.annotations.SQLRestriction("excluido = false")
@@ -30,6 +33,9 @@ public class ListaTarefa extends EntidadeAuditavel {
     @Column(columnDefinition = "varchar default 'MEDIA'")
     private PrioridadeTarefa prioridade = PrioridadeTarefa.MEDIA;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean concluida = false;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar default 'PENDENTE'")
+    private StatusTarefa status = StatusTarefa.PENDENTE;
+
+    private LocalDate prazo;
 }

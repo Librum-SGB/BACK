@@ -183,7 +183,9 @@ CREATE TABLE lista_tarefas (
     usuario_id BIGINT NOT NULL REFERENCES usuarios(id),
     descricao VARCHAR(255) NOT NULL,
     prioridade VARCHAR DEFAULT 'MEDIA' CHECK (prioridade IN ('BAIXA', 'MEDIA', 'ALTA', 'URGENTE')),
-    concluida BOOLEAN DEFAULT FALSE,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'
+        CHECK (status IN ('PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA')),
+    prazo DATE,
     ativo BOOLEAN DEFAULT TRUE,
     excluido BOOLEAN DEFAULT FALSE,
     data_criacao TIMESTAMP WITH TIME ZONE,

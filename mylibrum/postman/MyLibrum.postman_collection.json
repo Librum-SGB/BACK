@@ -146,9 +146,10 @@
       "name": "Tarefas",
       "item": [
         { "name": "Listar tarefas", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Listar tarefas por gestor", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/gestores/{{id}}" } },
         { "name": "Buscar tarefa por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
-        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"concluida\": false\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
-        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"concluida\": true\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
+        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"status\": \"PENDENTE\",\n  \"prazo\": \"2026-12-31\"\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"status\": \"CONCLUIDA\",\n  \"prazo\": \"2026-12-31\"\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
         { "name": "Excluir tarefa", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } }
       ]
     },

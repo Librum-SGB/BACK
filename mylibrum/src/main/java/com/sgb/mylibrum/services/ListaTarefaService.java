@@ -25,6 +25,13 @@ public class ListaTarefaService {
     }
 
     @Transactional(readOnly = true)
+    public List<ListaTarefaResponseDTO> findByGestorId(Long gestorId) {
+        return repository.findByUsuarioId(gestorId).stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ListaTarefaResponseDTO findById(Long id) {
         return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada")));

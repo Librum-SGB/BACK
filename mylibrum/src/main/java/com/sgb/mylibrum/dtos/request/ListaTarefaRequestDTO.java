@@ -1,9 +1,12 @@
 package com.sgb.mylibrum.dtos.request;
 
 import com.sgb.mylibrum.entities.enums.PrioridadeTarefa;
+import com.sgb.mylibrum.entities.enums.StatusTarefa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 @Data
 public class ListaTarefaRequestDTO {
@@ -14,5 +17,7 @@ public class ListaTarefaRequestDTO {
     private String descricao;
     
     private PrioridadeTarefa prioridade;
-    private Boolean concluida;
+    @NotNull(message = "O status é obrigatório")
+    private StatusTarefa status = StatusTarefa.PENDENTE;
+    private LocalDate prazo;
 }
