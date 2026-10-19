@@ -3,17 +3,16 @@ MANTENHA O DOCKER ABERTO!!
 
 ## Execução do sistema
 
-Com o Docker Desktop em execução, inicie o banco na raiz de `mylibrum`:
-
-```powershell
-docker compose up -d --build
-```
-
-Para apagar também o banco persistido e recriá-lo do zero:
-**Faça Isso Sempre que mudar alguma Migration**
+Para apagar banco persistido e recriá-lo do zero:
 
 ```powershell
 docker compose down -v
+```
+
+Para iniciar o ambiente, na pasta \BACK\mylibrum
+
+```powershell
+docker compose up -d --build
 ```
 
 ## Swagger
