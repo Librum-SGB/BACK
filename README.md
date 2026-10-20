@@ -62,6 +62,31 @@ Fluxo:
 2. `POST /auth/redefinir-senha` com `{"token": "...", "novaSenha": "..."}`: o token vale por 30 minutos, é de uso único e só seu hash fica no banco. Token inválido, expirado ou já usado retorna 400.
 3. Há um intervalo mínimo de 1 minuto entre solicitações para o mesmo usuário; uma nova solicitação invalida o token anterior.
 
+### Permissões por função
+
+As regras são aplicadas por rota em `SecurityConfig` (403 em JSON quando negado, 401 sem token) e, para regras que dependem do registro, no controller via `AutorizacaoService`. Rotas não listadas são negadas.
+
+| Recurso | Admin | Bibliotecária | Assistente | Usuário geral |
+| --- | --- | --- | --- | --- |
+| Materiais, exemplares, autores, editoras, gêneros: leitura | ✅ | ✅ | ✅ | ✅ |
+| Mesmos recursos: criar/editar | ✅ | ✅ | ✅ | ❌ |
+| Mesmos recursos: excluir | ✅ | ✅ | ❌ | ❌ |
+| Estantes | ✅ | ✅ | criar/editar/ler | ❌ |
+| Empréstimos: consultar | ✅ | ✅ | ✅ | só os próprios |
+| Empréstimos: criar, devolver, renovar | ✅ | ✅ | ✅ | ❌ |
+| Empréstimos: editar/excluir | ✅ | ✅ | ❌ | ❌ |
+| Multas: consultar | ✅ | ✅ | ✅ | só as próprias |
+| Multas: registrar pagamento | ✅ | ✅ | ✅ | ❌ |
+| Multas: criar/editar/excluir | ✅ | ✅ | ❌ | ❌ |
+| Usuários: listar/consultar | ✅ | ✅ | ✅ | só o próprio |
+| Usuários: criar/excluir/bloquear | ✅ | só assistentes e usuários gerais | ❌ | ❌ |
+| Usuários: editar | ✅ | assistentes, usuários gerais e o próprio registro (sem elevar função) | ❌ | só o próprio (sem alterar função, bloqueio, filial, limite ou matrícula) |
+| Filiais | ✅ | leitura | leitura | ❌ |
+| Configurações | ✅ | ❌ | ❌ | ❌ |
+| Tarefas (CRUD das próprias) | ✅ | ✅ | ✅ | ✅ |
+
+Tarefas: a tarefa sempre pertence ao usuário logado; só o dono pode editar ou excluir. O Usuário geral lista e consulta apenas as próprias; a equipe consulta as de qualquer usuário. Dashboard e relatórios ainda não possuem endpoints.
+
 ### Usuários de teste por função
 
 Todas estas contas usam a senha `senha123`.

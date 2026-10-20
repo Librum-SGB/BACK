@@ -3,6 +3,7 @@ package com.sgb.mylibrum.controllers;
 import com.sgb.mylibrum.dtos.request.HistoricoMultaRequestDTO;
 import com.sgb.mylibrum.dtos.response.HistoricoMultaResponseDTO;
 import com.sgb.mylibrum.entities.enums.StatusMulta;
+import com.sgb.mylibrum.security.AutorizacaoService;
 import com.sgb.mylibrum.services.HistoricoMultaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class HistoricoMultaController {
 
     private final HistoricoMultaService service;
+    private final AutorizacaoService autorizacao;
 
     @GetMapping
     public ResponseEntity<List<HistoricoMultaResponseDTO>> findAll(
@@ -30,12 +32,15 @@ public class HistoricoMultaController {
     public ResponseEntity<List<HistoricoMultaResponseDTO>> findByUsuarioId(
             @PathVariable Long id,
             @RequestParam(required = false) Boolean ativo) {
+        autorizacao.exigirProprioOuEquipe(id);
         return ResponseEntity.ok(service.findByUsuarioId(id, ativo));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<HistoricoMultaResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+            HistoricoMultaResponseDTO multa = service.findById(id);
+            autorizacao.exigirProprioOuEquipe(multa.getUsuarioId());
+            return ResponseEntity.ok(multa);
     }
 
     @PostMapping

@@ -2,6 +2,7 @@ package com.sgb.mylibrum.controllers;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
+import com.sgb.mylibrum.security.AutorizacaoService;
 import com.sgb.mylibrum.services.EmprestimoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 public class EmprestimoController {
 
     private final EmprestimoService service;
+    private final AutorizacaoService autorizacao;
 
     @GetMapping
     public ResponseEntity<List<EmprestimoResponseDTO>> findAll(
@@ -28,12 +30,15 @@ public class EmprestimoController {
     public ResponseEntity<List<EmprestimoResponseDTO>> findByUsuarioId(
             @PathVariable Long id,
             @RequestParam(required = false) Boolean ativo) {
+        autorizacao.exigirProprioOuEquipe(id);
         return ResponseEntity.ok(service.findByUsuarioId(id, ativo));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+        EmprestimoResponseDTO emprestimo = service.findById(id);
+        autorizacao.exigirProprioOuEquipe(emprestimo.getUsuarioId());
+        return ResponseEntity.ok(emprestimo);
     }
 
     @PostMapping
