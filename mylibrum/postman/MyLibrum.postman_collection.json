@@ -49,6 +49,30 @@
             },
             "url": "{{baseUrl}}/auth/login"
           }
+        },
+        {
+          "name": "Esqueci minha senha - Enviar e-mail",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@gmail.com\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/esqueci-senha"
+          }
+        },
+        {
+          "name": "Redefinir senha com token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"TOKEN_RECEBIDO_POR_EMAIL\",\n  \"novaSenha\": \"novaSenha123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/redefinir-senha"
+          }
         }
       ]
     },

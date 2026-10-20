@@ -44,6 +44,25 @@ class DtoMapperTest {
     }
 
     @Test
+    void configuracaoMapperMascaraSenhaSmtpENaoSobrescreveComValorMascarado() {
+        Configuracao entity = new Configuracao();
+        entity.setChave("smtp.senha");
+        entity.setValor("segredo");
+
+        assertEquals("********", new ConfiguracaoMapper().toResponseDTO(entity).getValor());
+
+        ConfiguracaoRequestDTO request = new ConfiguracaoRequestDTO();
+        request.setChave("smtp.senha");
+        request.setValor("********");
+        new ConfiguracaoMapper().updateEntity(request, entity);
+        assertEquals("segredo", entity.getValor());
+
+        request.setValor("nova-senha");
+        new ConfiguracaoMapper().updateEntity(request, entity);
+        assertEquals("nova-senha", entity.getValor());
+    }
+
+    @Test
     void configuracaoMapperConverteFilialEntreDtoEEntidade() {
         ConfiguracaoRequestDTO request = new ConfiguracaoRequestDTO();
         request.setFilialId(7L);

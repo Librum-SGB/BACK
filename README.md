@@ -42,8 +42,25 @@ Copie o valor do campo `token` e cole no Swagger no botão "Authorize" com o pre
 ## Observações
 
 - Os endpoints protegidos ficam em `/api/**`.
-- O endpoint `/auth/login` e as rotas públicas do Swagger ficam liberadas sem autenticação.
+- O endpoint `/auth/login`, os de recuperação de senha (`/auth/esqueci-senha` e `/auth/redefinir-senha`) e as rotas públicas do Swagger ficam liberados sem autenticação.
 - As credenciais abaixo são somente para desenvolvimento e são inseridas pela migration V3 em um banco novo.
+
+### Recuperação de senha por e-mail
+
+O envio usa o servidor SMTP definido nas **configurações do sistema** (`/api/configuracoes`) da filial do usuário, sem variáveis de ambiente. Cadastre estas chaves para a filial:
+
+| Chave | Obrigatória | Descrição |
+| --- | --- | --- |
+| `smtp.email` | Sim | E-mail remetente, também usado como usuário do SMTP |
+| `smtp.senha` | Sim | Senha do e-mail (no Gmail, use uma "senha de app"). É mascarada (`********`) nas respostas da API |
+| `smtp.host` | Não | Servidor SMTP (padrão `smtp.gmail.com`) |
+| `smtp.porta` | Não | Porta SMTP (padrão `587`, STARTTLS; `465` usa SSL) |
+
+Fluxo:
+
+1. `POST /auth/esqueci-senha` com `{"email": "..."}`: sempre responde 200, sem revelar se o e-mail existe. O link enviado aponta para `{app.frontend-url}/redefinir-senha?token=...` (`app.frontend-url` pode ser definido por `APP_FRONTEND_URL`, padrão `http://localhost:4200`).
+2. `POST /auth/redefinir-senha` com `{"token": "...", "novaSenha": "..."}`: o token vale por 30 minutos, é de uso único e só seu hash fica no banco. Token inválido, expirado ou já usado retorna 400.
+3. Há um intervalo mínimo de 1 minuto entre solicitações para o mesmo usuário; uma nova solicitação invalida o token anterior.
 
 ### Usuários de teste por função
 
