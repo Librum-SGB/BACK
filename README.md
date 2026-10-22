@@ -17,7 +17,7 @@ docker compose up -d --build
 
 ## Swagger
 
-Documentação dos endpoints: http://localhost:8080/swagger-ui/index.html#/
+Documentação dos endpoints: http://localhost:8184/swagger-ui/index.html#/
 
 A interface do Swagger agora está configurada para autenticação Bearer JWT. Para testar endpoints protegidos:
 
@@ -26,7 +26,7 @@ A interface do Swagger agora está configurada para autenticação Bearer JWT. P
 Use o endpoint de autenticação da API:
 
 - Método: POST
-- URL: http://localhost:8080/auth/login
+- URL: http://localhost:8184/auth/login
 - Content-Type: application/json
 
 Resposta esperada:
