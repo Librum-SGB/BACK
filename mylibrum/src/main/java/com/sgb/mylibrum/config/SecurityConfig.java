@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, ex) ->
                                 escreverErro(response, HttpStatus.FORBIDDEN, "Acesso negado")))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
 
                         // Configurações e filiais

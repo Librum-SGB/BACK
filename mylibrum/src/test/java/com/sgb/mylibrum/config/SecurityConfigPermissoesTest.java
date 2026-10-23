@@ -101,6 +101,13 @@ class SecurityConfigPermissoesTest {
     }
 
     @Test
+    void healthDoActuatorPublicoEOutrosEndpointsContinuamBloqueados() throws Exception {
+        assertEquals(404, status(null, HttpMethod.GET, "/actuator/health"));
+        assertEquals(401, status(null, HttpMethod.GET, "/actuator/metrics"));
+        assertEquals(403, status(FuncaoUsuario.ADMIN, HttpMethod.GET, "/actuator/metrics"));
+    }
+
+    @Test
     void acervoLeituraParaTodosEscritaParaEquipeExclusaoSoAdminEBibliotecaria() throws Exception {
         for (String base : new String[] { "/api/materiais", "/api/exemplares", "/api/autores", "/api/editoras", "/api/generos" }) {
             esperar(HttpMethod.GET, base, true, true, true, true);
