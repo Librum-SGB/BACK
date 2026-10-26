@@ -2,10 +2,9 @@ package com.sgb.mylibrum.controllers;
 
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +31,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas"));
+                .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas"));
 
         if (usuario.getSenha() == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
-            throw new IllegalArgumentException("Credenciais inválidas");
+            throw new BadCredentialsException("Credenciais inválidas");
         }
 
         return loginResponse(usuario.getEmail(), usuario.getFuncao());
@@ -48,13 +47,6 @@ public class AuthController {
                 "type", "Bearer",
                 "funcao", funcao.name(),
                 "message", "Login realizado com sucesso"
-        ));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentials(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                "message", ex.getMessage()
         ));
     }
 

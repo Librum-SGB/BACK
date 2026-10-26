@@ -6,6 +6,8 @@ import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusMulta;
+import com.sgb.mylibrum.exceptions.BusinessException;
+import com.sgb.mylibrum.exceptions.DuplicateResourceException;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
@@ -54,7 +56,7 @@ class UsuarioServiceTest {
     void deveRejeitarEmailDuplicadoIgnorandoMaiusculasEMinusculas() {
         when(repository.existsByEmailIgnoreCase("existente@exemplo.com")).thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> service.create(usuarioDto(
+        assertThrows(DuplicateResourceException.class, () -> service.create(usuarioDto(
                 " Existente@Exemplo.com ", null)));
     }
 
@@ -63,7 +65,7 @@ class UsuarioServiceTest {
         when(repository.existsByEmailIgnoreCase("novo@exemplo.com")).thenReturn(false);
         when(repository.existsByMatriculaFuncionarioIgnoreCase("MAT123")).thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> service.create(usuarioDto(
+        assertThrows(DuplicateResourceException.class, () -> service.create(usuarioDto(
                 "novo@exemplo.com", "mat123")));
     }
 
@@ -74,7 +76,7 @@ class UsuarioServiceTest {
                 1L, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO)))
                 .thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> service.delete(1L));
+        assertThrows(BusinessException.class, () -> service.delete(1L));
     }
 
     @Test
@@ -83,7 +85,7 @@ class UsuarioServiceTest {
         admin.setFuncao(FuncaoUsuario.ADMIN);
         when(repository.findById(1L)).thenReturn(Optional.of(admin));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.delete(1L));
+        BusinessException exception = assertThrows(BusinessException.class, () -> service.delete(1L));
 
         assertEquals("Não é possível excluir um usuário com função Admin", exception.getMessage());
         verify(emprestimoRepository, never()).existsByUsuarioIdAndStatusIn(any(), any());
@@ -125,7 +127,7 @@ class UsuarioServiceTest {
         when(historicoMultaRepository.existsByUsuarioIdAndStatus(1L, StatusMulta.PENDENTE))
                 .thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> service.atualizarBloqueio(1L, false));
+        assertThrows(BusinessException.class, () -> service.atualizarBloqueio(1L, false));
     }
 
     @Test

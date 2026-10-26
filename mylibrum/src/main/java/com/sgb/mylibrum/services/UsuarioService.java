@@ -16,6 +16,8 @@ import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusMulta;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
+import com.sgb.mylibrum.exceptions.BusinessException;
+import com.sgb.mylibrum.exceptions.DuplicateResourceException;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
@@ -83,11 +85,11 @@ public class UsuarioService {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (usuario.getFuncao() == FuncaoUsuario.ADMIN) {
-            throw new IllegalStateException("Não é possível excluir um usuário com função Admin");
+            throw new BusinessException("Não é possível excluir um usuário com função Admin");
         }
         if (emprestimoRepository.existsByUsuarioIdAndStatusIn(
                 id, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO))) {
-            throw new IllegalStateException("Não é possível excluir um usuário com empréstimos ativos");
+            throw new BusinessException("Não é possível excluir um usuário com empréstimos ativos");
         }
         usuario.setExcluido(true);
         repository.save(usuario);
@@ -98,7 +100,7 @@ public class UsuarioService {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (!bloqueado && historicoMultaRepository.existsByUsuarioIdAndStatus(id, StatusMulta.PENDENTE)) {
-            throw new IllegalStateException("Não é possível desbloquear usuário com multas pendentes");
+            throw new BusinessException("Não é possível desbloquear usuário com multas pendentes");
         }
         usuario.setEstaBloqueado(bloqueado);
         return mapper.toResponseDTO(repository.save(usuario));
@@ -110,7 +112,7 @@ public class UsuarioService {
                 ? repository.existsByEmailIgnoreCase(email)
                 : repository.existsByEmailIgnoreCaseAndIdNot(email, usuarioId);
         if (emailDuplicado) {
-            throw new IllegalStateException("Já existe um usuário cadastrado com este e-mail");
+            throw new DuplicateResourceException("Já existe um usuário cadastrado com este e-mail");
         }
 
         String matricula = normalizarMatricula(dto.getMatriculaFuncionario());
@@ -119,7 +121,7 @@ public class UsuarioService {
                     ? repository.existsByMatriculaFuncionarioIgnoreCase(matricula)
                     : repository.existsByMatriculaFuncionarioIgnoreCaseAndIdNot(matricula, usuarioId);
             if (matriculaDuplicada) {
-                throw new IllegalStateException("Já existe um usuário cadastrado com esta matrícula");
+                throw new DuplicateResourceException("Já existe um usuário cadastrado com esta matrícula");
             }
         }
     }

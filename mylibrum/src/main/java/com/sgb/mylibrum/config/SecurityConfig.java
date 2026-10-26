@@ -12,8 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.sgb.mylibrum.exceptions.ApiError;
 import com.sgb.mylibrum.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
@@ -43,9 +45,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint((request, response, ex) ->
-                                escreverErro(response, HttpStatus.UNAUTHORIZED, "Autenticação necessária"))
+                                escreverErro(request, response, HttpStatus.UNAUTHORIZED, "Autenticação necessária"))
                         .accessDeniedHandler((request, response, ex) ->
-                                escreverErro(response, HttpStatus.FORBIDDEN, "Acesso negado")))
+                                escreverErro(request, response, HttpStatus.FORBIDDEN, "Acesso negado")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
@@ -94,11 +96,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private void escreverErro(HttpServletResponse response, HttpStatus status, String mensagem)
-            throws java.io.IOException {
+    private void escreverErro(HttpServletRequest request, HttpServletResponse response, HttpStatus status,
+            String mensagem) throws java.io.IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"message\":\"" + mensagem + "\"}");
+        response.getWriter().write(ApiError.of(status, mensagem, request.getRequestURI()).toJson());
     }
 }

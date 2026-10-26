@@ -4,6 +4,7 @@ import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
 import com.sgb.mylibrum.dtos.mapper.EstanteMapper;
 import com.sgb.mylibrum.dtos.response.EstanteResponseDTO;
 import com.sgb.mylibrum.entities.Estante;
+import com.sgb.mylibrum.exceptions.BusinessException;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EstanteRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
@@ -65,7 +66,7 @@ public class EstanteService {
     @Transactional
     public void delete(Long id) {
         if (exemplarRepository.existsByEstanteId(id)) {
-            throw new IllegalStateException("Não é possível excluir a estante porque ela possui exemplares");
+            throw new BusinessException("Não é possível excluir a estante porque ela possui exemplares");
         }
         Estante estante = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estante não encontrada"));

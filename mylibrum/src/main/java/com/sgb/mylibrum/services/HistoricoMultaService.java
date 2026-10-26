@@ -7,6 +7,7 @@ import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.HistoricoMulta;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.StatusMulta;
+import com.sgb.mylibrum.exceptions.BusinessException;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
@@ -102,7 +103,7 @@ public class HistoricoMultaService {
         HistoricoMulta multa = repository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Histórico de multa não encontrado"));
         if (multa.getStatus() == StatusMulta.PAGA) {
-            throw new IllegalStateException("Esta multa já foi paga");
+            throw new BusinessException("Esta multa já foi paga");
         }
 
         multa.setStatus(StatusMulta.PAGA);

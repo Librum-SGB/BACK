@@ -9,6 +9,7 @@ import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusExemplar;
+import com.sgb.mylibrum.exceptions.BusinessException;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
@@ -61,13 +62,13 @@ public class EmprestimoService {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (Boolean.TRUE.equals(usuario.getEstaBloqueado())) {
-            throw new IllegalStateException("Usuário bloqueado não pode realizar empréstimos");
+            throw new BusinessException("Usuário bloqueado não pode realizar empréstimos");
         }
 
         Exemplar exemplar = exemplarRepository.findByIdForUpdate(dto.getExemplarId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
         if (exemplar.getStatus() != StatusExemplar.DISPONIVEL) {
-            throw new IllegalStateException("O exemplar não está disponível para empréstimo");
+            throw new BusinessException("O exemplar não está disponível para empréstimo");
         }
 
         Usuario responsavel = usuarioRepository.findById(dto.getUsuarioResponsavelId())
@@ -89,7 +90,7 @@ public class EmprestimoService {
     @Transactional
     public EmprestimoResponseDTO update(Long id, EmprestimoRequestDTO dto) {
         buscarEmprestimo(id);
-        throw new IllegalStateException(
+        throw new BusinessException(
                 "Empréstimos não podem ser alterados diretamente; use as operações de devolução ou renovação");
     }
 
@@ -97,7 +98,7 @@ public class EmprestimoService {
     public EmprestimoResponseDTO devolver(Long id) {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
-            throw new IllegalStateException("Este empréstimo já foi devolvido");
+            throw new BusinessException("Este empréstimo já foi devolvido");
         }
 
         emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
@@ -114,16 +115,16 @@ public class EmprestimoService {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() != StatusEmprestimo.ATIVO
                 || emprestimo.getDataDevolucaoPrevista().isBefore(LocalDate.now())) {
-            throw new IllegalStateException("Somente empréstimos ativos e dentro do prazo podem ser renovados");
+            throw new BusinessException("Somente empréstimos ativos e dentro do prazo podem ser renovados");
         }
         if (Boolean.TRUE.equals(emprestimo.getUsuario().getEstaBloqueado())) {
-            throw new IllegalStateException("Usuário bloqueado não pode renovar empréstimos");
+            throw new BusinessException("Usuário bloqueado não pode renovar empréstimos");
         }
 
         int limiteRenovacoes = buscarLimiteRenovacoes(emprestimo.getUsuario().getFilial().getId());
         int renovacoes = emprestimo.getRenovacoesContagem() == null ? 0 : emprestimo.getRenovacoesContagem();
         if (renovacoes >= limiteRenovacoes) {
-            throw new IllegalStateException("O limite de renovações deste empréstimo foi atingido");
+            throw new BusinessException("O limite de renovações deste empréstimo foi atingido");
         }
 
         if (emprestimo.getDataSaida() == null) {
@@ -154,7 +155,7 @@ public class EmprestimoService {
     public void delete(Long id) {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() != StatusEmprestimo.DEVOLVIDO) {
-            throw new IllegalStateException("Somente empréstimos devolvidos podem ser removidos");
+            throw new BusinessException("Somente empréstimos devolvidos podem ser removidos");
         }
         emprestimo.setExcluido(true);
         repository.save(emprestimo);

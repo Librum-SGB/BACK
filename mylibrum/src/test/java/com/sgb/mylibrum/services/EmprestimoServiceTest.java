@@ -9,6 +9,7 @@ import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusExemplar;
+import com.sgb.mylibrum.exceptions.BusinessException;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
@@ -92,7 +93,7 @@ class EmprestimoServiceTest {
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
 
-        assertThrows(IllegalStateException.class, () -> service.create(dto));
+        assertThrows(BusinessException.class, () -> service.create(dto));
     }
 
     @Test
@@ -105,7 +106,7 @@ class EmprestimoServiceTest {
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
 
-        assertThrows(IllegalStateException.class, () -> service.create(dto));
+        assertThrows(BusinessException.class, () -> service.create(dto));
     }
 
     @Test
@@ -165,7 +166,7 @@ class EmprestimoServiceTest {
         when(configuracaoRepository.findByFilialIdAndChave(5L, "emprestimo.renovacoes.max"))
                 .thenReturn(Optional.of(configuracao));
 
-        assertThrows(IllegalStateException.class, () -> service.renovar(10L));
+        assertThrows(BusinessException.class, () -> service.renovar(10L));
     }
 
     @Test
