@@ -51,4 +51,10 @@ public class EstanteController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/limpar")
+    public ResponseEntity<Void> clear(@PathVariable Long id) {
+        service.clear(id);
+        return ResponseEntity.noContent().build();
+    }
 }

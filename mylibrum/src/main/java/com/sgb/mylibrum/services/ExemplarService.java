@@ -60,6 +60,16 @@ public class ExemplarService {
         atualizarQuantidadeExemplares(exemplar.getMaterial());
     }
 
+    @Transactional
+    public void detachFromEstante(Long id) {
+        Exemplar exemplar = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
+        exemplar.setEstante(null);
+        exemplar.setPrateleira(null);
+        exemplar.setPosicao(null);
+        repository.save(exemplar);
+    }
+
     private void atualizarQuantidadeExemplares(Material material) {
         if (material == null || material.getId() == null) {
             return;

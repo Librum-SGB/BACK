@@ -29,10 +29,10 @@ public class Exemplar extends EntidadeAuditavel {
     private Filial filial;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estante_id", nullable = false)
+    @JoinColumn(name = "estante_id")
     private Estante estante;
 
-    @Column(length = 50)
+    @Column(length = 150)
     private String prateleira;
 
     @Column(length = 50)

@@ -4,6 +4,8 @@ import com.sgb.mylibrum.dtos.request.ConfiguracaoRequestDTO;
 import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
+import com.sgb.mylibrum.entities.Estante;
+import com.sgb.mylibrum.entities.EstantePrateleira;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
@@ -72,5 +74,22 @@ class DtoMapperTest {
         assertEquals(Set.of(5L),
                 material.getGeneros().stream().map(g -> g.getId()).collect(Collectors.toSet()));
         assertEquals("Observação", mapper.toResponseDTO(material).getObservacao());
+    }
+
+    @Test
+    void estanteMapperExpõeConfiguracaoDePrateleiras() {
+        Estante estante = new Estante();
+        EstantePrateleira prateleira = new EstantePrateleira();
+        prateleira.setNome("Referência");
+        prateleira.setPosicaoInicial(2);
+        prateleira.setPosicaoFinal(12);
+        prateleira.setOrdem(1);
+        estante.setPrateleiras(java.util.List.of(prateleira));
+
+        var response = new EstanteMapper().toResponseDTO(estante);
+
+        assertEquals("Referência", response.getPrateleiras().get(0).getNome());
+        assertEquals(2, response.getPrateleiras().get(0).getPosicaoInicial());
+        assertEquals(12, response.getPrateleiras().get(0).getPosicaoFinal());
     }
 }

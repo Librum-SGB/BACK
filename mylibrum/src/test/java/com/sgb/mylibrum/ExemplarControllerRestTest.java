@@ -121,4 +121,12 @@ class ExemplarControllerRestTest {
         mockMvc.perform(delete("/api/exemplares/999"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void shouldDetachExemplarWithoutDeletingIt() throws Exception {
+        mockMvc.perform(delete("/api/exemplares/4/estante"))
+                .andExpect(status().isNoContent());
+
+        org.mockito.Mockito.verify(exemplarService).detachFromEstante(4L);
+    }
 }

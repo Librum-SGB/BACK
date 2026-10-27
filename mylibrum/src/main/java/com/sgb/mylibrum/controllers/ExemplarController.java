@@ -44,4 +44,10 @@ public class ExemplarController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}/estante")
+    public ResponseEntity<Void> detachFromEstante(@PathVariable Long id) {
+        service.detachFromEstante(id);
+        return ResponseEntity.noContent().build();
+    }
 }
