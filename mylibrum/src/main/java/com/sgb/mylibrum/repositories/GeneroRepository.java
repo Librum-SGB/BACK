@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface GeneroRepository extends JpaRepository<Genero, Long>, JpaSpecificationExecutor<Genero> {
     Optional<Genero> findByNome(String nome);
+    Optional<Genero> findFirstByNomeIgnoreCase(String nome);
     boolean existsByNome(String nome);
     List<Genero> findAllByAtivoTrue();
     List<Genero> findAllByAtivoTrueAndExcluidoFalse();

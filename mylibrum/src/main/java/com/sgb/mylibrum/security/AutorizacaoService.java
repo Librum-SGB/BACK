@@ -47,6 +47,16 @@ public class AutorizacaoService {
                 .getId();
     }
 
+    public Long filialLogadaId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new AccessDeniedException("Acesso negado");
+        }
+        return usuarioRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new AccessDeniedException("Acesso negado"))
+                .getFilial().getId();
+    }
+
     /** USUARIO só acessa dados próprios; as demais funções passam (a rota já restringe a equipe). */
     public void exigirProprioOuEquipe(Long usuarioId) {
         if (funcaoLogada() == FuncaoUsuario.USUARIO && !idLogado().equals(usuarioId)) {

@@ -81,6 +81,10 @@ public class SecurityConfig {
 
                         // Acervo: estantes só para a equipe; demais cadastros legíveis por todos
                         .requestMatchers(HttpMethod.GET, "/api/estantes/**").hasAnyRole(ADMIN, BIBLIOTECARIA, ASSISTENTE)
+                        .requestMatchers(HttpMethod.GET, "/api/materiais/isbn/consulta")
+                                .hasAnyRole(ADMIN, BIBLIOTECARIA)
+                        .requestMatchers(HttpMethod.POST, "/api/materiais/isbn/cadastro")
+                                .hasAnyRole(ADMIN, BIBLIOTECARIA)
                         .requestMatchers(HttpMethod.GET, "/api/materiais/**", "/api/exemplares/**",
                                 "/api/autores/**", "/api/editoras/**", "/api/generos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/materiais/**", "/api/exemplares/**",

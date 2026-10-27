@@ -9,9 +9,15 @@ public final class ConfiguracaoChaves {
     public static final String SMTP_HOST = "smtp.host";
     public static final String SMTP_PORTA = "smtp.porta";
 
+    public static final String ISBN_GOOGLE_APIKEY = "isbn.google.apikey";
+    public static final String ISBN_ISBNDB_APIKEY = "isbn.isbndb.apikey";
+    public static final String ISBN_WORLDCAT_APIKEY = "isbn.worldcat.apikey";
+    public static final String ISBN_WORLDCAT_SECRET = "isbn.worldcat.secret";
+
     public static final String MASCARA = "********";
 
-    private static final Set<String> SENSIVEIS = Set.of(SMTP_SENHA);
+    private static final Set<String> SENSIVEIS = Set.of(SMTP_SENHA, ISBN_GOOGLE_APIKEY, ISBN_ISBNDB_APIKEY,
+            ISBN_WORLDCAT_APIKEY, ISBN_WORLDCAT_SECRET);
 
     private ConfiguracaoChaves() {
     }

@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface EditoraRepository extends JpaRepository<Editora, Long>, JpaSpecificationExecutor<Editora> {
     Optional<Editora> findByNome(String nome);
+    Optional<Editora> findFirstByNomeIgnoreCase(String nome);
 }

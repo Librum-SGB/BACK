@@ -108,6 +108,13 @@ class SecurityConfigPermissoesTest {
     }
 
     @Test
+    void consultaECadastroPorIsbnSoAdminEBibliotecaria() throws Exception {
+        esperar(HttpMethod.GET, "/api/materiais/isbn/consulta", true, true, false, false);
+        esperar(HttpMethod.POST, "/api/materiais/isbn/cadastro", true, true, false, false);
+        esperar(HttpMethod.GET, "/api/materiais/isbn", true, true, true, true);
+    }
+
+    @Test
     void acervoLeituraParaTodosEscritaParaEquipeExclusaoSoAdminEBibliotecaria() throws Exception {
         for (String base : new String[] { "/api/materiais", "/api/exemplares", "/api/autores", "/api/editoras", "/api/generos" }) {
             esperar(HttpMethod.GET, base, true, true, true, true);
