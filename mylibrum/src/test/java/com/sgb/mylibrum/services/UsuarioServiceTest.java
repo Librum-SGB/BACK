@@ -2,6 +2,7 @@ package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.mapper.ReferenciaEntidadeMapper;
+import com.sgb.mylibrum.specifications.UsuarioFiltro;
 import com.sgb.mylibrum.dtos.mapper.UsuarioMapperImpl;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
@@ -137,7 +138,7 @@ class UsuarioServiceTest {
         var pageable = PageRequest.of(0, 20);
         when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty(pageable));
 
-        assertEquals(0, service.findAll(" ana ", "mat123", null, pageable).getTotalElements());
+        assertEquals(0, service.findAll(new UsuarioFiltro(" ana ", "mat123", null, null, null, null, null, null, null), pageable).getTotalElements());
         verify(repository).findAll(any(Specification.class), any(Pageable.class));
     }
 

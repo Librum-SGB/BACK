@@ -22,7 +22,9 @@ import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.HistoricoMultaRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
-import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
+import com.sgb.mylibrum.specifications.FiltrosUtil;
+import com.sgb.mylibrum.specifications.UsuarioFiltro;
+import com.sgb.mylibrum.specifications.UsuarioSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import lombok.RequiredArgsConstructor;
@@ -38,13 +40,18 @@ public class UsuarioService {
     private final UsuarioMapper mapper;
 
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> findAll(
-            String nome, String matriculaFuncionario, Boolean ativo, Pageable pageable) {
-        String nomeBusca = nome == null || nome.isBlank() ? null : nome.trim();
-        String matriculaBusca = normalizarMatricula(matriculaFuncionario);
-        Specification<Usuario> filtros = AtivoSpecification.<Usuario>ativo(ativo)
-                .and(AtivoSpecification.contemIgnoreCase("nome", nomeBusca))
-                .and(AtivoSpecification.<Usuario>igual("matriculaFuncionario", matriculaBusca));
+    public Page<UsuarioResponseDTO> findAll(UsuarioFiltro filtro, Pageable pageable) {
+        UsuarioFiltro normalizado = new UsuarioFiltro(
+                FiltrosUtil.textoOuNulo(filtro.nome()),
+                normalizarMatricula(filtro.matriculaFuncionario()),
+                FiltrosUtil.textoOuNulo(filtro.email()),
+                FiltrosUtil.textoOuNulo(filtro.cpf()),
+                filtro.funcao(),
+                filtro.filialId(),
+                filtro.estaBloqueado(),
+                FiltrosUtil.textoOuNulo(filtro.cidade()),
+                filtro.ativo());
+        Specification<Usuario> filtros = UsuarioSpecification.filtrar(normalizado);
         Page<Usuario> usuarios = repository.findAll(filtros, pageable);
         return usuarios.map(mapper::toResponseDTO);
     }

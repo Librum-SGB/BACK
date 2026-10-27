@@ -6,6 +6,8 @@ import com.sgb.mylibrum.dtos.response.MaterialResponseDTO;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.MaterialRepository;
 import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
+import com.sgb.mylibrum.specifications.MaterialFiltro;
+import com.sgb.mylibrum.specifications.MaterialSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +44,9 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public List<MaterialResponseDTO> findAll(Boolean ativo) {
+    public List<MaterialResponseDTO> findAll(MaterialFiltro filtro) {
 
-        return materialRepository.findAll(AtivoSpecification.ativo(ativo)).stream()
+        return materialRepository.findAll(MaterialSpecification.filtrar(filtro)).stream()
                 .map(materialMapper::toResponseDTO)
                 .toList();
     }

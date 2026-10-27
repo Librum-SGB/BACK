@@ -130,6 +130,7 @@
       "name": "Exemplares",
       "item": [
         { "name": "Listar exemplares", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares" } },
+        { "name": "Filtrar exemplares (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares?status=DISPONIVEL&materialId=1&filialId=1&estanteId=1&codigoBarras=7890&dataAquisicaoDe=2026-01-01&dataAquisicaoAte=2026-12-31&ativo=true" } },
         { "name": "Buscar exemplar por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
         { "name": "Criar exemplar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"prateleira\": \"P1\",\n  \"posicao\": \"01\",\n  \"status\": \"DISPONIVEL\",\n  \"dataAquisicao\": \"2026-08-25\"\n}" }, "url": "{{baseUrl}}/api/exemplares" } },
         { "name": "Atualizar exemplar", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"status\": \"MANUTENCAO\"\n}" }, "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
@@ -181,6 +182,7 @@
       "name": "Materiais",
       "item": [
         { "name": "Listar materiais", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais" } },
+        { "name": "Filtrar materiais (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais?titulo=casmurro&isbn=9788&tipo=LIVRO&editoraId=1&autorId=1&generoId=1&anoPublicacaoDe=1800&anoPublicacaoAte=2026&tema=romance&ativo=true" } },
         { "name": "Buscar material por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } },
         { "name": "Buscar material por ISBN", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/isbn?isbn=9788535902778" } },
         { "name": "Buscar materiais por título", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/titulo?titulo=Dom%20Casmurro" } },
@@ -194,6 +196,7 @@
       "name": "Usuários",
       "item": [
         { "name": "Listar usuários", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios" } },
+        { "name": "Filtrar usuários (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios?nome=ana&email=@mylibrum&funcao=USUARIO&filialId=1&estaBloqueado=false&cidade=paulo&ativo=true&sort=nome" } },
         { "name": "Buscar usuário por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
         { "name": "Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"endereco\": \"Rua de Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"limiteLivros\": 3,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios" } },
         { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"limiteLivros\": 5,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios/{{id}}" } },

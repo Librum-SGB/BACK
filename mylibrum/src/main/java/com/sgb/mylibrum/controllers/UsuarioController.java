@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
+import com.sgb.mylibrum.specifications.FiltrosUtil;
+import com.sgb.mylibrum.specifications.UsuarioFiltro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,9 +30,17 @@ public class UsuarioController {
     public ResponseEntity<Page<UsuarioResponseDTO>> findAll(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String matriculaFuncionario,
-            @RequestParam(required = false) Boolean ativo,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) FuncaoUsuario funcao,
+            @RequestParam(required = false) Long filialId,
+            @RequestParam(required = false) Boolean estaBloqueado,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String ativo,
             @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(nome, matriculaFuncionario, ativo, pageable));
+        UsuarioFiltro filtro = new UsuarioFiltro(nome, matriculaFuncionario, email, cpf, funcao, filialId,
+                estaBloqueado, cidade, FiltrosUtil.interpretarAtivo(ativo));
+        return ResponseEntity.ok(service.findAll(filtro, pageable));
     }
 
     @GetMapping("/{id}")

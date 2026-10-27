@@ -9,6 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.sgb.mylibrum.entities.enums.StatusExemplar;
+import com.sgb.mylibrum.specifications.ExemplarFiltro;
+import com.sgb.mylibrum.specifications.FiltrosUtil;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,8 +26,18 @@ public class ExemplarController {
 
     @GetMapping
     public ResponseEntity<List<ExemplarResponseDTO>> findAll(
-            @RequestParam(required = false) Boolean ativo) {
-        return ResponseEntity.ok(service.findAll(ativo));
+            @RequestParam(required = false) StatusExemplar status,
+            @RequestParam(required = false) Long materialId,
+            @RequestParam(required = false) Long filialId,
+            @RequestParam(required = false) Long estanteId,
+            @RequestParam(required = false) String codigoBarras,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataAquisicaoDe,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataAquisicaoAte,
+            @RequestParam(required = false) String ativo) {
+        ExemplarFiltro filtro = new ExemplarFiltro(status, materialId, filialId, estanteId,
+                FiltrosUtil.textoOuNulo(codigoBarras), dataAquisicaoDe, dataAquisicaoAte,
+                FiltrosUtil.interpretarAtivo(ativo));
+        return ResponseEntity.ok(service.findAll(filtro));
     }
 
     @GetMapping("/{id}")

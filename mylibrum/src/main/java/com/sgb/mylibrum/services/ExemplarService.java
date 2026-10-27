@@ -7,7 +7,8 @@ import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.MaterialRepository;
-import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
+import com.sgb.mylibrum.specifications.ExemplarFiltro;
+import com.sgb.mylibrum.specifications.ExemplarSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,8 @@ public class ExemplarService {
     private final ExemplarMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ExemplarResponseDTO> findAll(Boolean ativo) {
-        return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
+    public List<ExemplarResponseDTO> findAll(ExemplarFiltro filtro) {
+        return repository.findAll(ExemplarSpecification.filtrar(filtro)).stream()
                 .map(mapper::toResponseDTO).toList();
     }
 

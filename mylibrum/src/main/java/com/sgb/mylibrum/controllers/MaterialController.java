@@ -9,6 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.sgb.mylibrum.entities.enums.TipoMaterial;
+import com.sgb.mylibrum.specifications.FiltrosUtil;
+import com.sgb.mylibrum.specifications.MaterialFiltro;
+
 import java.util.List;
 
 @RestController
@@ -33,9 +37,21 @@ public class MaterialController {
 
     @GetMapping
     public ResponseEntity<List<MaterialResponseDTO>> listarTodos(
-            @RequestParam(required = false) Boolean ativo) {
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String isbn,
+            @RequestParam(required = false) TipoMaterial tipo,
+            @RequestParam(required = false) Long editoraId,
+            @RequestParam(required = false) Long autorId,
+            @RequestParam(required = false) Long generoId,
+            @RequestParam(required = false) Integer anoPublicacaoDe,
+            @RequestParam(required = false) Integer anoPublicacaoAte,
+            @RequestParam(required = false) String tema,
+            @RequestParam(required = false) String ativo) {
 
-        List<MaterialResponseDTO> materiais = materialService.findAll(ativo);
+        MaterialFiltro filtro = new MaterialFiltro(FiltrosUtil.textoOuNulo(titulo), FiltrosUtil.textoOuNulo(isbn),
+                tipo, editoraId, autorId, generoId, anoPublicacaoDe, anoPublicacaoAte,
+                FiltrosUtil.textoOuNulo(tema), FiltrosUtil.interpretarAtivo(ativo));
+        List<MaterialResponseDTO> materiais = materialService.findAll(filtro);
 
         if (materiais.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
