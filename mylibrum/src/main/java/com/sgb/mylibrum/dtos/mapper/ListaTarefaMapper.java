@@ -1,37 +1,28 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
 import com.sgb.mylibrum.dtos.request.ListaTarefaRequestDTO;
 import com.sgb.mylibrum.dtos.response.ListaTarefaResponseDTO;
 import com.sgb.mylibrum.entities.ListaTarefa;
-import com.sgb.mylibrum.entities.Usuario;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ListaTarefaMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface ListaTarefaMapper {
 
-    public ListaTarefa toEntity(ListaTarefaRequestDTO dto) {
+    default ListaTarefa toEntity(ListaTarefaRequestDTO dto) {
         ListaTarefa tarefa = new ListaTarefa();
         updateEntity(dto, tarefa);
         return tarefa;
     }
 
-    public void updateEntity(ListaTarefaRequestDTO dto, ListaTarefa tarefa) {
-        BeanUtils.copyProperties(dto, tarefa,
-                "id", "dataCriacao", "dataUltimaAtualizacao", "usuarioId");
-        if (dto.getUsuarioId() != null) {
-            Usuario usuario = new Usuario();
-            usuario.setId(dto.getUsuarioId());
-            tarefa.setUsuario(usuario);
-        }
-    }
+    @IgnorarCamposDeEntidade
+    @Mapping(target = "usuario", source = "usuarioId",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(ListaTarefaRequestDTO dto, @MappingTarget ListaTarefa tarefa);
 
-    public ListaTarefaResponseDTO toResponseDTO(ListaTarefa tarefa) {
-        ListaTarefaResponseDTO dto = new ListaTarefaResponseDTO();
-        BeanUtils.copyProperties(tarefa, dto);
-        if (tarefa.getUsuario() != null) {
-            dto.setUsuarioId(tarefa.getUsuario().getId());
-        }
-        return dto;
-    }
+    @Mapping(target = "usuarioId", source = "usuario.id")
+    ListaTarefaResponseDTO toResponseDTO(ListaTarefa tarefa);
 }

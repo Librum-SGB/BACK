@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DtoMapperTest {
 
+    private final ReferenciaEntidadeMapper referencias = new ReferenciaEntidadeMapper();
+
     @Test
     void listaTarefaMapperConverteStatusEPrazoEntreDtoEEntidade() {
         ListaTarefaRequestDTO request = new ListaTarefaRequestDTO();
@@ -28,7 +30,7 @@ class DtoMapperTest {
         request.setStatus(StatusTarefa.EM_ANDAMENTO);
         request.setPrazo(LocalDate.of(2026, 12, 31));
 
-        ListaTarefaMapper mapper = new ListaTarefaMapper();
+        ListaTarefaMapper mapper = new ListaTarefaMapperImpl(referencias);
         ListaTarefa entity = mapper.toEntity(request);
         var response = mapper.toResponseDTO(entity);
 
@@ -49,16 +51,17 @@ class DtoMapperTest {
         entity.setChave("smtp.senha");
         entity.setValor("segredo");
 
-        assertEquals("********", new ConfiguracaoMapper().toResponseDTO(entity).getValor());
+        ConfiguracaoMapper mapper = new ConfiguracaoMapperImpl(referencias);
+        assertEquals("********", mapper.toResponseDTO(entity).getValor());
 
         ConfiguracaoRequestDTO request = new ConfiguracaoRequestDTO();
         request.setChave("smtp.senha");
         request.setValor("********");
-        new ConfiguracaoMapper().updateEntity(request, entity);
+        mapper.updateEntity(request, entity);
         assertEquals("segredo", entity.getValor());
 
         request.setValor("nova-senha");
-        new ConfiguracaoMapper().updateEntity(request, entity);
+        mapper.updateEntity(request, entity);
         assertEquals("nova-senha", entity.getValor());
     }
 
@@ -69,7 +72,7 @@ class DtoMapperTest {
         request.setChave("limite");
         request.setValor("5");
 
-        ConfiguracaoMapper mapper = new ConfiguracaoMapper();
+        ConfiguracaoMapper mapper = new ConfiguracaoMapperImpl(referencias);
         Configuracao entity = mapper.toEntity(request);
 
         assertEquals(7L, entity.getFilial().getId());
@@ -89,12 +92,13 @@ class DtoMapperTest {
         UsuarioRequestDTO request = new UsuarioRequestDTO();
         request.setNome("Usuário atualizado");
 
-        new UsuarioMapper().updateEntity(request, usuario);
+        UsuarioMapper usuarioMapper = new UsuarioMapperImpl(referencias);
+        usuarioMapper.updateEntity(request, usuario);
 
         assertEquals("Usuário atualizado", usuario.getNome());
         assertEquals("senha-criptografada", usuario.getSenha());
         assertEquals(FuncaoUsuario.ADMIN, usuario.getFuncao());
-        assertEquals("Usuário atualizado", new UsuarioMapper().toResponseDTO(usuario).getNome());
+        assertEquals("Usuário atualizado", usuarioMapper.toResponseDTO(usuario).getNome());
     }
 
     @Test
@@ -107,7 +111,7 @@ class DtoMapperTest {
         request.setAutorIds(Set.of(3L, 4L));
         request.setGeneroIds(Set.of(5L));
 
-        MaterialMapper mapper = new MaterialMapper();
+        MaterialMapper mapper = new MaterialMapperImpl(referencias);
         Material material = mapper.toEntity(request);
 
         assertEquals("Observação", material.getObservacao());

@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.mapper.ListaTarefaMapper;
+import com.sgb.mylibrum.dtos.mapper.ListaTarefaMapperImpl;
+import com.sgb.mylibrum.dtos.mapper.ReferenciaEntidadeMapper;
 import com.sgb.mylibrum.entities.ListaTarefa;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.StatusTarefa;
@@ -27,7 +28,7 @@ class ListaTarefaServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ListaTarefaService(repository, new ListaTarefaMapper());
+        service = new ListaTarefaService(repository, new ListaTarefaMapperImpl(new ReferenciaEntidadeMapper()));
     }
 
     @Test
