@@ -28,7 +28,9 @@ import com.sgb.mylibrum.specifications.UsuarioSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -41,6 +43,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> findAll(UsuarioFiltro filtro, Pageable pageable) {
+        log.debug("Buscando usuarios com paginacao page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         UsuarioFiltro normalizado = new UsuarioFiltro(
                 FiltrosUtil.textoOuNulo(filtro.nome()),
                 normalizarMatricula(filtro.matriculaFuncionario()),
@@ -58,12 +61,14 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO findById(Long id) {
+        log.debug("Buscando usuario com id={}", id);
         return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado")));
     }
 
     @Transactional
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+        log.info("Criando usuario: nome={}", dto.getNome());
         validarUnicidade(dto, null);
         Usuario entity = mapper.toEntity(dto);
         entity.setEmail(normalizarEmail(dto.getEmail()));
@@ -72,11 +77,14 @@ public class UsuarioService {
             entity.setFuncao(FuncaoUsuario.USUARIO);
         }
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-        return mapper.toResponseDTO(repository.save(entity));
+        Usuario salvo = repository.save(entity);
+        log.info("Usuario criado: usuarioId={}, nome={}, funcao={}", salvo.getId(), salvo.getNome(), salvo.getFuncao());
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
     public UsuarioResponseDTO update(Long id, UsuarioRequestDTO dto) {
+        log.info("Atualizando usuario: usuarioId={}, nome={}", id, dto.getNome());
         Usuario entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         validarUnicidade(dto, id);
@@ -84,7 +92,9 @@ public class UsuarioService {
         entity.setEmail(normalizarEmail(dto.getEmail()));
         entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
         entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-        return mapper.toResponseDTO(repository.save(entity));
+        Usuario salvo = repository.save(entity);
+        log.info("Usuario atualizado: usuarioId={}, nome={}, funcao={}", salvo.getId(), salvo.getNome(), salvo.getFuncao());
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
@@ -92,14 +102,17 @@ public class UsuarioService {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (usuario.getFuncao() == FuncaoUsuario.ADMIN) {
+            log.warn("Exclusao de usuario rejeitada: usuarioId={} possui funcao ADMIN", id);
             throw new BusinessException("Não é possível excluir um usuário com função Admin");
         }
         if (emprestimoRepository.existsByUsuarioIdAndStatusIn(
                 id, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO))) {
+            log.warn("Exclusao de usuario rejeitada: usuarioId={} possui emprestimos ativos", id);
             throw new BusinessException("Não é possível excluir um usuário com empréstimos ativos");
         }
         usuario.setExcluido(true);
         repository.save(usuario);
+        log.info("Usuario excluido: usuarioId={}", id);
     }
 
     @Transactional
@@ -107,10 +120,13 @@ public class UsuarioService {
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (!bloqueado && historicoMultaRepository.existsByUsuarioIdAndStatus(id, StatusMulta.PENDENTE)) {
+            log.warn("Desbloqueio rejeitado: usuarioId={} possui multas pendentes", id);
             throw new BusinessException("Não é possível desbloquear usuário com multas pendentes");
         }
         usuario.setEstaBloqueado(bloqueado);
-        return mapper.toResponseDTO(repository.save(usuario));
+        Usuario salvo = repository.save(usuario);
+        log.info("Estado de bloqueio atualizado: usuarioId={}, bloqueado={}", salvo.getId(), bloqueado);
+        return mapper.toResponseDTO(salvo);
     }
 
     private void validarUnicidade(UsuarioRequestDTO dto, Long usuarioId) {
@@ -119,6 +135,7 @@ public class UsuarioService {
                 ? repository.existsByEmailIgnoreCase(email)
                 : repository.existsByEmailIgnoreCaseAndIdNot(email, usuarioId);
         if (emailDuplicado) {
+            log.warn("Cadastro rejeitado: e-mail ja cadastrado, usuarioId={}", usuarioId);
             throw new DuplicateResourceException("Já existe um usuário cadastrado com este e-mail");
         }
 
@@ -128,6 +145,7 @@ public class UsuarioService {
                     ? repository.existsByMatriculaFuncionarioIgnoreCase(matricula)
                     : repository.existsByMatriculaFuncionarioIgnoreCaseAndIdNot(matricula, usuarioId);
             if (matriculaDuplicada) {
+                log.warn("Cadastro rejeitado: matricula ja cadastrada, usuarioId={}", usuarioId);
                 throw new DuplicateResourceException("Já existe um usuário cadastrado com esta matrícula");
             }
         }

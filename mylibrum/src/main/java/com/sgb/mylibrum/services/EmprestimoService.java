@@ -17,6 +17,7 @@ import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmprestimoService {
@@ -39,12 +41,14 @@ public class EmprestimoService {
 
     @Transactional(readOnly = true)
     public List<EmprestimoResponseDTO> findAll(Boolean ativo) {
+        log.debug("Buscando emprestimos com filtro de ativo={}", ativo);
         return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
                 .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public List<EmprestimoResponseDTO> findByUsuarioId(Long usuarioId, Boolean ativo) {
+        log.debug("Buscando emprestimos do usuarioId={} com filtro de ativo={}", usuarioId, ativo);
         return repository.findAll(AtivoSpecification.<Emprestimo>ativo(ativo)
                         .and(AtivoSpecification.igual("usuario.id", usuarioId))).stream()
                 .map(mapper::toResponseDTO)
@@ -53,21 +57,25 @@ public class EmprestimoService {
 
     @Transactional(readOnly = true)
     public EmprestimoResponseDTO findById(Long id) {
+        log.debug("Buscando emprestimo com id={}", id);
         return mapper.toResponseDTO(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado")));
     }
 
     @Transactional
     public EmprestimoResponseDTO create(EmprestimoRequestDTO dto) {
+        log.info("Criando emprestimo: usuarioId={}, exemplarId={}, usuarioResponsavelId={}", dto.getUsuarioId(), dto.getExemplarId(), dto.getUsuarioResponsavelId());
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (Boolean.TRUE.equals(usuario.getEstaBloqueado())) {
+            log.warn("Emprestimo rejeitado para usuarioId={}: usuario bloqueado", usuario.getId());
             throw new BusinessException("Usuário bloqueado não pode realizar empréstimos");
         }
 
         Exemplar exemplar = exemplarRepository.findByIdForUpdate(dto.getExemplarId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
         if (exemplar.getStatus() != StatusExemplar.DISPONIVEL) {
+            log.warn("Emprestimo rejeitado: exemplarId={} indisponivel, status={}", exemplar.getId(), exemplar.getStatus());
             throw new BusinessException("O exemplar não está disponível para empréstimo");
         }
 
@@ -84,12 +92,15 @@ public class EmprestimoService {
 
         exemplar.setStatus(StatusExemplar.EMPRESTADO);
         exemplarRepository.save(exemplar);
-        return mapper.toResponseDTO(repository.save(entity));
+        Emprestimo salvo = repository.save(entity);
+        log.info("Emprestimo criado: emprestimoId={}, usuarioId={}, exemplarId={}, status={}", salvo.getId(), usuario.getId(), exemplar.getId(), salvo.getStatus());
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
     public EmprestimoResponseDTO update(Long id, EmprestimoRequestDTO dto) {
         buscarEmprestimo(id);
+        log.warn("Atualizacao direta de emprestimo rejeitada: emprestimoId={}", id);
         throw new BusinessException(
                 "Empréstimos não podem ser alterados diretamente; use as operações de devolução ou renovação");
     }
@@ -98,6 +109,7 @@ public class EmprestimoService {
     public EmprestimoResponseDTO devolver(Long id) {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() == StatusEmprestimo.DEVOLVIDO) {
+            log.warn("Devolucao rejeitada: emprestimo ja devolvido, emprestimoId={}", id);
             throw new BusinessException("Este empréstimo já foi devolvido");
         }
 
@@ -107,7 +119,9 @@ public class EmprestimoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
         exemplar.setStatus(StatusExemplar.DISPONIVEL);
         exemplarRepository.save(exemplar);
-        return mapper.toResponseDTO(repository.save(emprestimo));
+        Emprestimo salvo = repository.save(emprestimo);
+        log.info("Emprestimo devolvido: emprestimoId={}, exemplarId={}, status={}", salvo.getId(), exemplar.getId(), salvo.getStatus());
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional
@@ -115,15 +129,18 @@ public class EmprestimoService {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() != StatusEmprestimo.ATIVO
                 || emprestimo.getDataDevolucaoPrevista().isBefore(LocalDate.now())) {
+            log.warn("Renovacao rejeitada: emprestimoId={} nao esta ativo ou esta fora do prazo", id);
             throw new BusinessException("Somente empréstimos ativos e dentro do prazo podem ser renovados");
         }
         if (Boolean.TRUE.equals(emprestimo.getUsuario().getEstaBloqueado())) {
+            log.warn("Renovacao rejeitada: usuarioId={} bloqueado, emprestimoId={}", emprestimo.getUsuario().getId(), id);
             throw new BusinessException("Usuário bloqueado não pode renovar empréstimos");
         }
 
         int limiteRenovacoes = buscarLimiteRenovacoes(emprestimo.getUsuario().getFilial().getId());
         int renovacoes = emprestimo.getRenovacoesContagem() == null ? 0 : emprestimo.getRenovacoesContagem();
         if (renovacoes >= limiteRenovacoes) {
+            log.warn("Renovacao rejeitada: limite atingido, emprestimoId={}, renovacoes={}", id, renovacoes);
             throw new BusinessException("O limite de renovações deste empréstimo foi atingido");
         }
 
@@ -139,7 +156,9 @@ public class EmprestimoService {
         long prazoOriginal = prazoTotal / (renovacoes + 1);
         emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(prazoOriginal));
         emprestimo.setRenovacoesContagem(renovacoes + 1);
-        return mapper.toResponseDTO(repository.save(emprestimo));
+        Emprestimo salvo = repository.save(emprestimo);
+        log.info("Emprestimo renovado: emprestimoId={}, renovacoes={}", salvo.getId(), salvo.getRenovacoesContagem());
+        return mapper.toResponseDTO(salvo);
     }
 
     @Scheduled(cron = "${mylibrum.emprestimos.marcar-atrasados-cron:0 0 0 * * *}")
@@ -147,7 +166,12 @@ public class EmprestimoService {
     public void marcarEmprestimosAtrasados() {
         List<Emprestimo> atrasados = repository.findByStatusInAndDataDevolucaoPrevistaBefore(
                 List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO), LocalDate.now());
-        atrasados.forEach(emprestimo -> emprestimo.setStatus(StatusEmprestimo.ATRASADO));
+        atrasados.forEach(emprestimo -> {
+            if (emprestimo.getStatus() != StatusEmprestimo.ATRASADO) {
+                log.info("Emprestimo marcado como atrasado: emprestimoId={}", emprestimo.getId());
+            }
+            emprestimo.setStatus(StatusEmprestimo.ATRASADO);
+        });
         repository.saveAll(atrasados);
     }
 
@@ -155,13 +179,16 @@ public class EmprestimoService {
     public void delete(Long id) {
         Emprestimo emprestimo = buscarEmprestimo(id);
         if (emprestimo.getStatus() != StatusEmprestimo.DEVOLVIDO) {
+            log.warn("Exclusao de emprestimo rejeitada: status nao devolvido, emprestimoId={}, status={}", id, emprestimo.getStatus());
             throw new BusinessException("Somente empréstimos devolvidos podem ser removidos");
         }
         emprestimo.setExcluido(true);
         repository.save(emprestimo);
+        log.info("Emprestimo excluido: emprestimoId={}", id);
     }
 
     private Emprestimo buscarEmprestimo(Long id) {
+        log.debug("Carregando emprestimo para atualizacao: emprestimoId={}", id);
         return repository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado"));
     }
@@ -178,6 +205,7 @@ public class EmprestimoService {
             }
             return limite;
         } catch (NumberFormatException ex) {
+            log.error("Falha ao interpretar limite de renovacoes da filialId={}", filialId, ex);
             throw new IllegalStateException("O limite de renovações configurado deve ser um número inteiro", ex);
         }
     }

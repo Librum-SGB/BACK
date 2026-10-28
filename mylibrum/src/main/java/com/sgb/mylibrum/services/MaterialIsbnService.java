@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -30,6 +32,7 @@ import com.sgb.mylibrum.repositories.GeneroRepository;
 import com.sgb.mylibrum.repositories.MaterialRepository;
 import com.sgb.mylibrum.security.AutorizacaoService;
 
+@Slf4j
 @Service
 public class MaterialIsbnService {
 
@@ -61,6 +64,7 @@ public class MaterialIsbnService {
 
     /** Prévia: não grava nada. */
     public ConsultaIsbnResponseDTO consultar(String isbnInformado) {
+        log.debug("Consultando ISBN={}", IsbnUtil.normalizar(isbnInformado));
         String isbn = IsbnUtil.normalizar(isbnInformado);
 
         ConsultaIsbnResponseDTO existente = tx.execute(s -> materialRepository.findByIsbn(isbn)
@@ -68,14 +72,17 @@ public class MaterialIsbnService {
                         false, List.of(), List.of()))
                 .orElse(null));
         if (existente != null) {
+            log.debug("Material ja cadastrado localmente para ISBN={}", isbn);
             return existente;
         }
 
         Optional<LivroExterno> encontrado = buscaIsbnService.buscar(isbn, autorizacaoService.filialLogadaId());
         if (encontrado.isEmpty()) {
+            log.warn("ISBN nao encontrado em fontes externas: isbn={}", isbn);
             return new ConsultaIsbnResponseDTO(isbn, false, null, false, null, false, List.of(), List.of());
         }
         LivroExterno livro = encontrado.get();
+        log.debug("ISBN encontrado em fonte externa: isbn={}, fonte={}", isbn, livro.fonte());
         return tx.execute(s -> new ConsultaIsbnResponseDTO(isbn, false, null, true, livro,
                 livro.editora() != null && editoraRepository.findFirstByNomeIgnoreCase(livro.editora()).isEmpty(),
                 limparNomes(livro.autores()).stream()
@@ -85,21 +92,27 @@ public class MaterialIsbnService {
     }
 
     public CadastroIsbnResponseDTO cadastrar(CadastroIsbnRequestDTO req) {
+        log.info("Iniciando cadastro por ISBN: isbn={}", IsbnUtil.normalizar(req.isbn()));
         String isbn = IsbnUtil.normalizar(req.isbn());
 
         CadastroIsbnResponseDTO existente = buscarExistente(isbn);
         if (existente != null) {
+            log.debug("Cadastro ignorado, material ja existe: isbn={}", isbn);
             return existente;
         }
 
         Optional<LivroExterno> externo = buscaIsbnService.buscar(isbn, autorizacaoService.filialLogadaId());
         String fonte = externo.map(LivroExterno::fonte).orElse(FONTE_MINIMO);
+        log.debug("Fonte selecionada para cadastro ISBN={}: fonte={}", isbn, fonte);
         LivroExterno livro = aplicarAjustes(isbn, externo.orElse(null), req);
 
         try {
-            return tx.execute(s -> new CadastroIsbnResponseDTO(true, fonte,
+            CadastroIsbnResponseDTO resposta = tx.execute(s -> new CadastroIsbnResponseDTO(true, fonte,
                     materialMapper.toResponseDTO(materialRepository.saveAndFlush(montar(livro)))));
+            log.info("Material cadastrado por ISBN: isbn={}, fonte={}", isbn, fonte);
+            return resposta;
         } catch (DataIntegrityViolationException e) {
+            log.error("Falha de integridade no cadastro de material por ISBN={}", isbn, e);
             // outro cadastro do mesmo ISBN venceu a corrida
             CadastroIsbnResponseDTO agora = buscarExistente(isbn);
             if (agora != null) {
@@ -167,6 +180,7 @@ public class MaterialIsbnService {
         return editoraRepository.findFirstByNomeIgnoreCase(nome).orElseGet(() -> {
             Editora e = new Editora();
             e.setNome(nome);
+            log.info("Editora criada durante cadastro ISBN: nome={}", nome);
             return editoraRepository.save(e);
         });
     }
@@ -175,6 +189,7 @@ public class MaterialIsbnService {
         return autorRepository.findFirstByNomeIgnoreCase(nome).orElseGet(() -> {
             Autor a = new Autor();
             a.setNome(nome);
+            log.info("Autor criado durante cadastro ISBN: nome={}", nome);
             return autorRepository.save(a);
         });
     }
@@ -183,6 +198,7 @@ public class MaterialIsbnService {
         return generoRepository.findFirstByNomeIgnoreCase(nome).orElseGet(() -> {
             Genero g = new Genero();
             g.setNome(nome);
+            log.info("Genero criado durante cadastro ISBN: nome={}", nome);
             return generoRepository.save(g);
         });
     }

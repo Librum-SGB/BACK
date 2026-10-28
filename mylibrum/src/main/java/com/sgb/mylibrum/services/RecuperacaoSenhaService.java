@@ -56,13 +56,16 @@ public class RecuperacaoSenhaService {
      */
     @Transactional
     public void solicitar(String email) {
+        log.debug("Solicitacao de recuperacao de senha recebida");
         Usuario usuario = usuarioRepository.findByEmail(email.trim()).orElse(null);
         if (usuario == null || Boolean.FALSE.equals(usuario.getAtivo())) {
+            log.debug("Solicitacao de recuperacao ignorada: usuario inexistente ou inativo");
             return;
         }
 
         OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.UTC);
         if (tokenRepository.existsByUsuarioIdAndDataCriacaoAfter(usuario.getId(), agora.minus(INTERVALO_MINIMO))) {
+            log.warn("Solicitacao de recuperacao limitada: usuarioId={}", usuario.getId());
             return;
         }
         tokenRepository.deleteByUsuarioIdAndUsadoEmIsNull(usuario.getId());
@@ -73,13 +76,14 @@ public class RecuperacaoSenhaService {
         entidade.setTokenHash(hash(token));
         entidade.setExpiraEm(agora.plus(VALIDADE_TOKEN));
         tokenRepository.save(entidade);
+        log.info("Token de recuperacao emitido para usuarioId={}", usuario.getId());
 
         try {
             emailService.enviar(usuario.getFilial().getId(), usuario.getEmail(),
-                    "Recuperação de senha - MyLibrum", montarMensagem(usuario, token));
+                    "Recupera\u00e7\u00e3o de senha - MyLibrum", montarMensagem(usuario, token));
+            log.info("E-mail de recuperacao enviado para usuarioId={}", usuario.getId());
         } catch (RuntimeException ex) {
-            log.warn("Não foi possível enviar o e-mail de recuperação de senha do usuário {}: {}",
-                    usuario.getId(), ex.getMessage());
+            log.error("Falha ao enviar e-mail de recuperacao para usuarioId={}", usuario.getId(), ex);
             tokenRepository.delete(entidade);
         }
     }
@@ -87,10 +91,14 @@ public class RecuperacaoSenhaService {
     @Transactional
     public void redefinir(String token, String novaSenha) {
         TokenRecuperacaoSenha entidade = tokenRepository.findByTokenHash(hash(token.trim()))
-                .orElseThrow(() -> new TokenRecuperacaoInvalidoException(MENSAGEM_TOKEN_INVALIDO));
+                .orElseThrow(() -> {
+                    log.warn("Redefinicao de senha rejeitada: token inexistente ou invalido");
+                    return new TokenRecuperacaoInvalidoException(MENSAGEM_TOKEN_INVALIDO);
+                });
 
         OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.UTC);
         if (entidade.getUsadoEm() != null || !entidade.getExpiraEm().isAfter(agora)) {
+            log.warn("Redefinicao de senha rejeitada: token expirado ou ja utilizado");
             throw new TokenRecuperacaoInvalidoException(MENSAGEM_TOKEN_INVALIDO);
         }
 
@@ -101,6 +109,7 @@ public class RecuperacaoSenhaService {
         entidade.setUsadoEm(agora);
         tokenRepository.save(entidade);
         tokenRepository.deleteByUsuarioIdAndUsadoEmIsNull(usuario.getId());
+        log.info("Senha redefinida com sucesso para usuarioId={}", usuario.getId());
     }
 
     private String montarMensagem(Usuario usuario, String token) {
@@ -124,6 +133,7 @@ public class RecuperacaoSenhaService {
             byte[] digest = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
         } catch (NoSuchAlgorithmException ex) {
+            log.error("Falha ao calcular hash de token de recuperacao", ex);
             throw new IllegalStateException("SHA-256 indisponível", ex);
         }
     }

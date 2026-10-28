@@ -11,11 +11,13 @@ import com.sgb.mylibrum.entities.Configuracao;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Envia e-mails usando o servidor SMTP definido nas configurações do sistema da filial
  * (chaves smtp.email, smtp.senha e, opcionalmente, smtp.host e smtp.porta).
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -43,6 +45,7 @@ public class EmailService {
         mensagem.setText(texto);
 
         criarSender(host, porta, email, senha).send(mensagem);
+        log.info("E-mail enviado com sucesso: assunto={}", assunto);
     }
 
     JavaMailSenderImpl criarSender(String host, int porta, String usuario, String senha) {
@@ -78,6 +81,7 @@ public class EmailService {
         try {
             return Integer.parseInt(valor);
         } catch (NumberFormatException ex) {
+            log.error("Falha ao interpretar configuracao da porta SMTP", ex);
             throw new IllegalStateException("Configuração '" + ConfiguracaoChaves.SMTP_PORTA + "' inválida: " + valor);
         }
     }
