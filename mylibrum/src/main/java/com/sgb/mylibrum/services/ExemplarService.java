@@ -5,6 +5,7 @@ import com.sgb.mylibrum.dtos.mapper.ExemplarMapper;
 import com.sgb.mylibrum.dtos.response.ExemplarResponseDTO;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Material;
+import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.MaterialRepository;
 import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
@@ -35,6 +36,9 @@ public class ExemplarService {
 
     @Transactional
     public ExemplarResponseDTO create(ExemplarRequestDTO dto) {
+        if (dto.getEstanteId() != null) {
+            validarMaterialNaEstante(dto.getMaterialId(), null);
+        }
         Exemplar entity = mapper.toEntity(dto);
         Exemplar salvo = repository.save(entity);
         atualizarQuantidadeExemplares(salvo.getMaterial());
@@ -44,7 +48,10 @@ public class ExemplarService {
     @Transactional
     public ExemplarResponseDTO update(Long id, ExemplarRequestDTO dto) {
         Exemplar entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exemplar não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
+        if (dto.getEstanteId() != null) {
+            validarMaterialNaEstante(dto.getMaterialId(), id);
+        }
         mapper.updateEntity(dto, entity);
         Exemplar salvo = repository.save(entity);
         atualizarQuantidadeExemplares(salvo.getMaterial());
@@ -81,6 +88,18 @@ public class ExemplarService {
         long quantidade = repository.findByMaterialId(materialPersistido.getId()).size();
         materialPersistido.setQuantidadeExemplares((int) quantidade);
         materialRepository.save(materialPersistido);
+    }
+
+    private void validarMaterialNaEstante(Long materialId, Long exemplarIdIgnorado) {
+        materialRepository.findByIdForUpdate(materialId)
+                .orElseThrow(() -> new ResourceNotFoundException("Material não encontrado"));
+
+        boolean jaEstaEmEstante = exemplarIdIgnorado == null
+                ? repository.existsByMaterialInActiveShelf(materialId)
+                : repository.existsByMaterialInAnotherActiveShelf(materialId, exemplarIdIgnorado);
+        if (jaEstaEmEstante) {
+            throw new IllegalStateException("Este material já está associado a uma estante.");
+        }
     }
 
 }

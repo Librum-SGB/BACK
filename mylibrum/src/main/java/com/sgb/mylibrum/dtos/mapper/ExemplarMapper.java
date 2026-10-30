@@ -50,6 +50,7 @@ public class ExemplarMapper {
         if (exemplar.getEstante() != null) {
             dto.setEstanteId(exemplar.getEstante().getId());
         }
+        dto.setAtivo(exemplar.getAtivo());
         return dto;
     }
 }

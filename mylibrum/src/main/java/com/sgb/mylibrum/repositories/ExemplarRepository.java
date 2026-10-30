@@ -23,6 +23,24 @@ public interface ExemplarRepository extends JpaRepository<Exemplar, Long>, JpaSp
     List<Exemplar> findByStatus(StatusExemplar status);
     boolean existsByEstanteId(Long estanteId);
 
+    @Query("""
+            select case when count(e) > 0 then true else false end
+            from Exemplar e
+            where e.material.id = :materialId and e.estante.ativo = true
+            """)
+    boolean existsByMaterialInActiveShelf(@Param("materialId") Long materialId);
+
+    @Query("""
+            select case when count(e) > 0 then true else false end
+            from Exemplar e
+            where e.material.id = :materialId
+              and e.estante.ativo = true
+              and e.id <> :exemplarId
+            """)
+    boolean existsByMaterialInAnotherActiveShelf(
+            @Param("materialId") Long materialId,
+            @Param("exemplarId") Long exemplarId);
+
     @Query(value = "select count(*) > 0 from exemplares where estante_id = :estanteId", nativeQuery = true)
     boolean existsIncludingDeletedByEstanteId(@Param("estanteId") Long estanteId);
 

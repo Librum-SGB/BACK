@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.mapper.ExemplarMapper;
+import com.sgb.mylibrum.dtos.request.ExemplarRequestDTO;
 import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Material;
@@ -15,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +31,40 @@ class ExemplarServiceTest {
     private MaterialRepository materialRepository;
     @InjectMocks
     private ExemplarService service;
+
+    @Test
+    void createRejectsMaterialAlreadyInAShelf() {
+        ExemplarRequestDTO request = new ExemplarRequestDTO();
+        request.setMaterialId(8L);
+        request.setFilialId(2L);
+        request.setEstanteId(3L);
+        request.setCodigoBarras("BARRA-8");
+        when(materialRepository.findByIdForUpdate(8L)).thenReturn(Optional.of(new Material()));
+        when(repository.existsByMaterialInActiveShelf(8L)).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> service.create(request));
+
+        verify(repository, never()).save(any(Exemplar.class));
+    }
+
+    @Test
+    void updateRejectsMaterialInAnotherShelf() {
+        Exemplar exemplar = new Exemplar();
+        exemplar.setId(5L);
+        when(repository.findById(5L)).thenReturn(Optional.of(exemplar));
+        when(materialRepository.findByIdForUpdate(8L)).thenReturn(Optional.of(new Material()));
+        when(repository.existsByMaterialInAnotherActiveShelf(8L, 5L)).thenReturn(true);
+
+        ExemplarRequestDTO request = new ExemplarRequestDTO();
+        request.setMaterialId(8L);
+        request.setFilialId(2L);
+        request.setEstanteId(3L);
+        request.setCodigoBarras("BARRA-8");
+
+        assertThrows(IllegalStateException.class, () -> service.update(5L, request));
+
+        verify(repository, never()).save(any(Exemplar.class));
+    }
 
     @Test
     void detachPreservesExemplarAndMaterialButClearsShelfLocation() {

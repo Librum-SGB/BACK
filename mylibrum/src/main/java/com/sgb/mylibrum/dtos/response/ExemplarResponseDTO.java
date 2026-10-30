@@ -11,6 +11,7 @@ public class ExemplarResponseDTO {
     private Long materialId;
     private Long filialId;
     private Long estanteId;
+    private Boolean ativo;
     private String prateleira;
     private String posicao;
     private String codigoBarras;
