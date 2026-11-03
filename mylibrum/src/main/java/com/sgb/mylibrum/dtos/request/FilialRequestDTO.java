@@ -1,9 +1,11 @@
 package com.sgb.mylibrum.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
+@Schema(description = "Dados cadastrais e de contato de uma filial. Campos marcados como obrigatórios devem ser informados.")
 public class FilialRequestDTO {
     @NotBlank(message = "O nome fantasia é obrigatório")
     private String nomeFantasia;

@@ -1,12 +1,14 @@
 package com.sgb.mylibrum.dtos.response;
 
 import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
 import com.sgb.mylibrum.entities.enums.TipoMaterial;
 
 @Data
+@Schema(description = "Material bibliográfico e seus vínculos com editora, autores e gêneros, incluindo quantidade de exemplares.")
 public class MaterialResponseDTO {
     private Long id;
     private String titulo;

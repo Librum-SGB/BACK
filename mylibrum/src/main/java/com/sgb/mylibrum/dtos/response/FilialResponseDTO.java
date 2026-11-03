@@ -1,9 +1,11 @@
 package com.sgb.mylibrum.dtos.response;
 
 import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 
 @Data
+@Schema(description = "Filial da biblioteca, com dados cadastrais, endereço, contato e situação.")
 public class FilialResponseDTO {
     private Long id;
     private String nomeFantasia;

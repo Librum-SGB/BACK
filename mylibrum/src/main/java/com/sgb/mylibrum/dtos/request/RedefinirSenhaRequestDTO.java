@@ -2,9 +2,11 @@ package com.sgb.mylibrum.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
+@Schema(description = "Token de recuperação e nova senha, que deve ter de 6 a 72 caracteres.")
 public class RedefinirSenhaRequestDTO {
     @NotBlank(message = "O token é obrigatório")
     private String token;

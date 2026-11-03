@@ -1,11 +1,13 @@
 package com.sgb.mylibrum.dtos.response;
 
 import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Data
+@Schema(description = "Dados de perfil do usuário e vínculos com a filial. A senha não é exposta na resposta.")
 public class UsuarioResponseDTO {
     private Long id;
     private String nome;
