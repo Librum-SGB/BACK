@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
@@ -21,4 +22,42 @@ public interface ExemplarRepository extends JpaRepository<Exemplar, Long>, JpaSp
     List<Exemplar> findByMaterialId(Long materialId);
     List<Exemplar> findByStatus(StatusExemplar status);
     boolean existsByEstanteId(Long estanteId);
+
+    @Query("""
+            select case when count(e) > 0 then true else false end
+            from Exemplar e
+            where e.material.id = :materialId and e.estante.ativo = true
+            """)
+    boolean existsByMaterialInActiveShelf(@Param("materialId") Long materialId);
+
+    @Query("""
+            select case when count(e) > 0 then true else false end
+            from Exemplar e
+            where e.material.id = :materialId
+              and e.estante.ativo = true
+              and e.id <> :exemplarId
+            """)
+    boolean existsByMaterialInAnotherActiveShelf(
+            @Param("materialId") Long materialId,
+            @Param("exemplarId") Long exemplarId);
+
+    @Query(value = "select count(*) > 0 from exemplares where estante_id = :estanteId", nativeQuery = true)
+    boolean existsIncludingDeletedByEstanteId(@Param("estanteId") Long estanteId);
+
+    @Modifying
+    @Query(value = "update exemplares set estante_id = null, prateleira = null, posicao = null where estante_id = :estanteId",
+            nativeQuery = true)
+    int detachAllFromEstante(@Param("estanteId") Long estanteId);
+
+    @Query(value = "select count(*) from exemplares where estante_id = :estanteId and prateleira = :nome",
+            nativeQuery = true)
+    long countByEstanteIdAndPrateleiraIncludingDeleted(@Param("estanteId") Long estanteId,
+                                                       @Param("nome") String nome);
+
+    @Modifying
+    @Query(value = "update exemplares set prateleira = :newName where estante_id = :estanteId and prateleira = :oldName",
+            nativeQuery = true)
+    int renamePrateleira(@Param("estanteId") Long estanteId,
+                         @Param("oldName") String oldName,
+                         @Param("newName") String newName);
 }

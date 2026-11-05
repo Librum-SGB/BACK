@@ -38,4 +38,8 @@ public class Estante extends EntidadeAuditavel {
 
     @OneToMany(mappedBy = "estante")
     private List<Exemplar> exemplares = new ArrayList<>();
+
+    @OneToMany(mappedBy = "estante", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordem ASC")
+    private List<EstantePrateleira> prateleiras = new ArrayList<>();
 }

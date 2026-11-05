@@ -3,7 +3,6 @@ package com.sgb.mylibrum.dtos.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
 import com.sgb.mylibrum.dtos.response.EstanteResponseDTO;
@@ -20,8 +19,8 @@ public interface EstanteMapper {
 
     @IgnorarCamposDeEntidade
     @Mapping(target = "exemplares", ignore = true)
-    @Mapping(target = "filial", source = "filialId",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "filial", ignore = true)
+    @Mapping(target = "prateleiras", ignore = true)
     void updateEntity(EstanteRequestDTO dto, @MappingTarget Estante estante);
 
     @Mapping(target = "filialId", source = "filial.id")

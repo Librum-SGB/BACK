@@ -3,98 +3,243 @@ package com.sgb.mylibrum.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.sgb.mylibrum.dtos.mapper.EstanteMapper;
+import com.sgb.mylibrum.dtos.mapper.EstanteMapperImpl;
 import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
-import com.sgb.mylibrum.dtos.response.EstanteResponseDTO;
 import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.entities.Filial;
-import com.sgb.mylibrum.exceptions.BusinessException;
+import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.repositories.EstanteRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.FilialRepository;
+import com.sgb.mylibrum.repositories.UsuarioRepository;
 
 @ExtendWith(MockitoExtension.class)
 class EstanteServiceTest {
 
     @Mock
-    private EstanteRepository repository;
+    private EstanteRepository estanteRepository;
     @Mock
     private FilialRepository filialRepository;
     @Mock
     private ExemplarRepository exemplarRepository;
     @Mock
-    private EstanteMapper mapper;
+    private UsuarioRepository usuarioRepository;
 
     private EstanteService service;
 
     @BeforeEach
     void setUp() {
-        service = new EstanteService(repository, filialRepository, exemplarRepository, mapper);
+        service = new EstanteService(
+                estanteRepository,
+                filialRepository,
+                exemplarRepository,
+                usuarioRepository,
+                new EstanteMapperImpl());
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "bibliotecaria@exemplo.com", "token", List.of()));
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    void deveCriarEstanteAssociadaAFilial() {
-        EstanteRequestDTO request = new EstanteRequestDTO();
-        request.setFilialId(10L);
-        Estante estante = new Estante();
+    void criaEstanteUsandoFilialDoUsuarioAutenticado() {
         Filial filial = new Filial();
-        filial.setId(10L);
-        when(mapper.toEntity(request)).thenReturn(estante);
-        when(filialRepository.findById(10L)).thenReturn(Optional.of(filial));
-        when(repository.save(estante)).thenReturn(estante);
-        when(mapper.toResponseDTO(estante)).thenReturn(new EstanteResponseDTO());
+        filial.setId(42L);
+        Usuario usuario = new Usuario();
+        usuario.setFilial(filial);
 
-        service.create(request);
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com")).thenReturn(Optional.of(usuario));
+        when(filialRepository.findById(42L)).thenReturn(Optional.of(filial));
+        when(estanteRepository.save(any(Estante.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertEquals(filial, estante.getFilial());
-        verify(repository).save(estante);
-    }
-
-    @Test
-    void deveFalharAoCriarEstanteComFilialInexistente() {
         EstanteRequestDTO request = new EstanteRequestDTO();
-        request.setFilialId(10L);
-        when(mapper.toEntity(request)).thenReturn(new Estante());
-        when(filialRepository.findById(10L)).thenReturn(Optional.empty());
+        request.setNome("Estante principal");
+        request.setLocalizacao("Corredor A");
+        request.setQtdPrateleiras(3);
+        request.setCapacidade(25);
 
-        assertThrows(RuntimeException.class, () -> service.create(request));
+        var response = service.create(request);
 
-        verify(repository, never()).save(org.mockito.ArgumentMatchers.any(Estante.class));
+        assertEquals(42L, response.getFilialId());
+        assertEquals(3, response.getPrateleiras().size());
+        assertEquals("Prateleira 1", response.getPrateleiras().get(0).getNome());
+        assertEquals(1, response.getPrateleiras().get(0).getPosicaoInicial());
+        assertEquals(25, response.getPrateleiras().get(0).getPosicaoFinal());
+        verify(usuarioRepository).findByEmail("bibliotecaria@exemplo.com");
+        verify(filialRepository).findById(42L);
     }
 
     @Test
-    void deveImpedirExclusaoDeEstanteComExemplares() {
-        when(exemplarRepository.existsByEstanteId(6L)).thenReturn(true);
+    void persisteConfiguracaoPersonalizadaDePrateleiras() {
+        Filial filial = new Filial();
+        filial.setId(42L);
+        Usuario usuario = new Usuario();
+        usuario.setFilial(filial);
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com")).thenReturn(Optional.of(usuario));
+        when(filialRepository.findById(42L)).thenReturn(Optional.of(filial));
+        when(estanteRepository.save(any(Estante.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThrows(BusinessException.class, () -> service.delete(6L));
+        EstanteRequestDTO request = new EstanteRequestDTO();
+        request.setNome("Estante infantil");
+        request.setLocalizacao("Corredor B");
+        var config = new com.sgb.mylibrum.dtos.request.EstantePrateleiraRequestDTO();
+        config.setNome("Contos");
+        config.setPosicaoInicial(4);
+        config.setPosicaoFinal(18);
+        config.setOrdem(2);
+        request.setPrateleiras(List.of(config));
 
-        verify(repository, never()).findById(6L);
-        verify(repository, never()).save(org.mockito.ArgumentMatchers.any(Estante.class));
+        var response = service.create(request);
+
+        assertEquals(1, response.getQtdPrateleiras());
+        assertEquals("Contos", response.getPrateleiras().get(0).getNome());
+        assertEquals(4, response.getPrateleiras().get(0).getPosicaoInicial());
+        assertEquals(18, response.getPrateleiras().get(0).getPosicaoFinal());
     }
 
     @Test
-    void deveExcluirEstanteVaziaDeFormaLogica() {
+    void limparDesvinculaExemplaresEExcluirEstanteExigeEstanteVazia() {
         Estante estante = new Estante();
-        when(exemplarRepository.existsByEstanteId(6L)).thenReturn(false);
-        when(repository.findById(6L)).thenReturn(Optional.of(estante));
+        estante.setId(17L);
+        Filial filial = new Filial();
+        filial.setId(42L);
+        estante.setFilial(filial);
+        Usuario usuario = new Usuario();
+        usuario.setFilial(filial);
+        when(estanteRepository.findById(17L)).thenReturn(Optional.of(estante));
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com")).thenReturn(Optional.of(usuario));
+        when(filialRepository.findById(42L)).thenReturn(Optional.of(filial));
+        when(exemplarRepository.existsIncludingDeletedByEstanteId(17L)).thenReturn(false);
 
-        service.delete(6L);
+        service.clear(17L);
+        service.delete(17L);
+
+        verify(exemplarRepository).detachAllFromEstante(17L);
+        verify(estanteRepository).save(estante);
+    }
+
+    @Test
+    void naoExcluiEstanteComExemplaresAindaVinculados() {
+        Estante estante = new Estante();
+        estante.setId(17L);
+        when(estanteRepository.findById(17L)).thenReturn(Optional.of(estante));
+        when(exemplarRepository.existsIncludingDeletedByEstanteId(17L)).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> service.delete(17L));
+
+        verify(estanteRepository, never()).save(estante);
+    }
+
+    @Test
+    void renomearConfiguracaoAtualizaNomeDaPrateleiraNosExemplares() {
+        Filial filial = new Filial();
+        filial.setId(42L);
+        Estante estante = new Estante();
+        estante.setId(9L);
+        estante.setFilial(filial);
+        var anterior = new com.sgb.mylibrum.entities.EstantePrateleira();
+        anterior.setId(12L);
+        anterior.setEstante(estante);
+        anterior.setNome("Prateleira antiga");
+        anterior.setPosicaoInicial(1);
+        anterior.setPosicaoFinal(10);
+        anterior.setOrdem(1);
+        estante.setPrateleiras(new java.util.ArrayList<>(List.of(anterior)));
+        Usuario usuario = new Usuario();
+        usuario.setFilial(filial);
+        when(estanteRepository.findById(9L)).thenReturn(Optional.of(estante));
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com")).thenReturn(Optional.of(usuario));
+        when(filialRepository.findById(42L)).thenReturn(Optional.of(filial));
+        when(estanteRepository.save(any(Estante.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        EstanteRequestDTO request = new EstanteRequestDTO();
+        request.setNome("Estante");
+        request.setLocalizacao("Corredor");
+        var nova = new com.sgb.mylibrum.dtos.request.EstantePrateleiraRequestDTO();
+        nova.setId(12L);
+        nova.setNome("Ficção");
+        nova.setPosicaoInicial(1);
+        nova.setPosicaoFinal(10);
+        request.setPrateleiras(List.of(nova));
+
+        var response = service.update(9L, request);
+
+        assertEquals(1, estante.getPrateleiras().size());
+        assertTrue(estante.getPrateleiras().get(0) == anterior);
+        assertEquals("Ficção", anterior.getNome());
+        assertEquals(1, response.getPrateleiras().size());
+        assertEquals(12L, response.getPrateleiras().get(0).getId());
+        ArgumentCaptor<String> oldNames = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> newNames = ArgumentCaptor.forClass(String.class);
+        verify(exemplarRepository, times(2))
+                .renamePrateleira(eq(9L), oldNames.capture(), newNames.capture());
+        assertEquals("Prateleira antiga", oldNames.getAllValues().get(0));
+        assertTrue(newNames.getAllValues().get(0).startsWith("tmp-"));
+        assertEquals(newNames.getAllValues().get(0), oldNames.getAllValues().get(1));
+        assertEquals("Ficção", newNames.getAllValues().get(1));
+    }
+
+    @Test
+    void rejeitaCriacaoQuandoUsuarioNaoPossuiFilial() {
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com"))
+                .thenReturn(Optional.of(new Usuario()));
+
+        EstanteRequestDTO request = new EstanteRequestDTO();
+        request.setNome("Estante principal");
+        request.setLocalizacao("Corredor A");
+
+        assertThrows(IllegalStateException.class, () -> service.create(request));
+    }
+
+    @Test
+    void rejeitaCriacaoQuandoUsuarioAutenticadoNaoExiste() {
+        when(usuarioRepository.findByEmail("bibliotecaria@exemplo.com"))
+                .thenReturn(Optional.empty());
+
+        EstanteRequestDTO request = new EstanteRequestDTO();
+        request.setNome("Estante principal");
+        request.setLocalizacao("Corredor A");
+
+        assertThrows(ResourceNotFoundException.class, () -> service.create(request));
+    }
+
+    @Test
+    void excluiEstanteVaziaDeFormaLogica() {
+        Estante estante = new Estante();
+        estante.setId(17L);
+        when(estanteRepository.findById(17L)).thenReturn(Optional.of(estante));
+        when(exemplarRepository.existsIncludingDeletedByEstanteId(17L)).thenReturn(false);
+
+        service.delete(17L);
 
         assertTrue(estante.getExcluido());
-        verify(repository).save(estante);
+        verify(estanteRepository).save(estante);
     }
 
     @Test
@@ -103,7 +248,7 @@ class EstanteServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> service.findByFilialId(10L, true));
 
-        verify(repository, never()).findAll(org.mockito.ArgumentMatchers
+        verify(estanteRepository, never()).findAll(org.mockito.ArgumentMatchers
                 .<org.springframework.data.jpa.domain.Specification<Estante>>any());
     }
 }

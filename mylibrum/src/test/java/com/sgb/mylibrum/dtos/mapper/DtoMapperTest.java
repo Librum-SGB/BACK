@@ -1,3 +1,4 @@
+
 package com.sgb.mylibrum.dtos.mapper;
 
 import com.sgb.mylibrum.dtos.request.ConfiguracaoRequestDTO;
@@ -5,6 +6,8 @@ import com.sgb.mylibrum.dtos.request.ListaTarefaRequestDTO;
 import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
+import com.sgb.mylibrum.entities.Estante;
+import com.sgb.mylibrum.entities.EstantePrateleira;
 import com.sgb.mylibrum.entities.ListaTarefa;
 import com.sgb.mylibrum.entities.Material;
 import com.sgb.mylibrum.entities.Usuario;
@@ -20,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DtoMapperTest {
 
-    private final ReferenciaEntidadeMapper referencias = new ReferenciaEntidadeMapper();
+    private final ReferenciaEntidadeMapper referencias =
+            new ReferenciaEntidadeMapper();
 
     @Test
     void listaTarefaMapperConverteStatusEPrazoEntreDtoEEntidade() {
@@ -42,7 +46,10 @@ class DtoMapperTest {
 
     @Test
     void listaTarefaRequestUsaPendenteComoStatusPadrao() {
-        assertEquals(StatusTarefa.PENDENTE, new ListaTarefaRequestDTO().getStatus());
+        assertEquals(
+                StatusTarefa.PENDENTE,
+                new ListaTarefaRequestDTO().getStatus()
+        );
     }
 
     @Test
@@ -52,11 +59,13 @@ class DtoMapperTest {
         entity.setValor("segredo");
 
         ConfiguracaoMapper mapper = new ConfiguracaoMapperImpl(referencias);
+
         assertEquals("********", mapper.toResponseDTO(entity).getValor());
 
         ConfiguracaoRequestDTO request = new ConfiguracaoRequestDTO();
         request.setChave("smtp.senha");
         request.setValor("********");
+
         mapper.updateEntity(request, entity);
         assertEquals("segredo", entity.getValor());
 
@@ -98,7 +107,10 @@ class DtoMapperTest {
         assertEquals("Usuário atualizado", usuario.getNome());
         assertEquals("senha-criptografada", usuario.getSenha());
         assertEquals(FuncaoUsuario.ADMIN, usuario.getFuncao());
-        assertEquals("Usuário atualizado", usuarioMapper.toResponseDTO(usuario).getNome());
+        assertEquals(
+                "Usuário atualizado",
+                usuarioMapper.toResponseDTO(usuario).getNome()
+        );
     }
 
     @Test
@@ -117,10 +129,43 @@ class DtoMapperTest {
         assertEquals("Observação", material.getObservacao());
         assertEquals(2L, material.getEditora().getId());
         assertEquals(3L, material.getAutor().getId());
-        assertEquals(Set.of(3L, 4L),
-                material.getAutores().stream().map(a -> a.getId()).collect(Collectors.toSet()));
-        assertEquals(Set.of(5L),
-                material.getGeneros().stream().map(g -> g.getId()).collect(Collectors.toSet()));
-        assertEquals("Observação", mapper.toResponseDTO(material).getObservacao());
+
+        assertEquals(
+                Set.of(3L, 4L),
+                material.getAutores().stream()
+                        .map(a -> a.getId())
+                        .collect(Collectors.toSet())
+        );
+
+        assertEquals(
+                Set.of(5L),
+                material.getGeneros().stream()
+                        .map(g -> g.getId())
+                        .collect(Collectors.toSet())
+        );
+
+        assertEquals(
+                "Observação",
+                mapper.toResponseDTO(material).getObservacao()
+        );
+    }
+
+    @Test
+    void estanteMapperExpoeConfiguracaoDePrateleiras() {
+        Estante estante = new Estante();
+        EstantePrateleira prateleira = new EstantePrateleira();
+
+        prateleira.setNome("Referência");
+        prateleira.setPosicaoInicial(2);
+        prateleira.setPosicaoFinal(12);
+        prateleira.setOrdem(1);
+
+        estante.setPrateleiras(java.util.List.of(prateleira));
+
+        var response = new EstanteMapperImpl().toResponseDTO(estante);
+
+        assertEquals("Referência", response.getPrateleiras().get(0).getNome());
+        assertEquals(2, response.getPrateleiras().get(0).getPosicaoInicial());
+        assertEquals(12, response.getPrateleiras().get(0).getPosicaoFinal());
     }
 }
