@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 escreverErro(request, response, HttpStatus.FORBIDDEN, "Acesso negado")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
+                                                .requestMatchers("/actuator/**").hasRole(ADMIN)
+                                                .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
 
                         // Configurações e filiais
                         .requestMatchers("/api/configuracoes/**").hasRole(ADMIN)

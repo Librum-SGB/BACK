@@ -104,7 +104,8 @@ class SecurityConfigPermissoesTest {
     void healthDoActuatorPublicoEOutrosEndpointsContinuamBloqueados() throws Exception {
         assertEquals(404, status(null, HttpMethod.GET, "/actuator/health"));
         assertEquals(401, status(null, HttpMethod.GET, "/actuator/metrics"));
-        assertEquals(403, status(FuncaoUsuario.ADMIN, HttpMethod.GET, "/actuator/metrics"));
+        assertEquals(403, status(FuncaoUsuario.BIBLIOTECARIA, HttpMethod.GET, "/actuator/metrics"));
+        assertEquals(404, status(FuncaoUsuario.ADMIN, HttpMethod.GET, "/actuator/metrics"));
     }
 
     @Test

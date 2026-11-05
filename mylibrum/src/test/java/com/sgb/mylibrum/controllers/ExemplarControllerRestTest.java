@@ -1,4 +1,4 @@
-package com.sgb.mylibrum;
+package com.sgb.mylibrum.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,12 +21,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sgb.mylibrum.controllers.ExemplarController;
 import com.sgb.mylibrum.dtos.request.ExemplarRequestDTO;
 import com.sgb.mylibrum.dtos.response.ExemplarResponseDTO;
 import com.sgb.mylibrum.exceptions.GlobalExceptionHandler;
 import com.sgb.mylibrum.exceptions.ResourceNotFoundException;
 import com.sgb.mylibrum.services.ExemplarService;
+import com.sgb.mylibrum.specifications.ExemplarFiltro;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class ExemplarControllerRestTest {
@@ -56,6 +58,22 @@ class ExemplarControllerRestTest {
 
         mockMvc.perform(get("/api/exemplares/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldListAndReturnExemplarById() throws Exception {
+        ExemplarResponseDTO response = new ExemplarResponseDTO();
+        response.setId(1L);
+        response.setCodigoBarras("ABC-123");
+        when(exemplarService.findAll(any(ExemplarFiltro.class))).thenReturn(List.of(response));
+        when(exemplarService.findById(1L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/exemplares").param("ativo", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].codigoBarras").value("ABC-123"));
+        mockMvc.perform(get("/api/exemplares/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
@@ -114,6 +132,24 @@ class ExemplarControllerRestTest {
     }
 
     @Test
+    void shouldReturn200WhenUpdatingExemplar() throws Exception {
+        ExemplarRequestDTO request = new ExemplarRequestDTO();
+        request.setMaterialId(10L);
+        request.setFilialId(20L);
+        request.setEstanteId(30L);
+        request.setCodigoBarras("ABC-123");
+        ExemplarResponseDTO response = new ExemplarResponseDTO();
+        response.setId(1L);
+        when(exemplarService.update(eq(1L), any(ExemplarRequestDTO.class))).thenReturn(response);
+
+        mockMvc.perform(put("/api/exemplares/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
     void shouldReturn404WhenDeletingNonExistingExemplar() throws Exception {
         doThrow(new ResourceNotFoundException("Exemplar não encontrado"))
                 .when(exemplarService).delete(999L);
@@ -128,5 +164,11 @@ class ExemplarControllerRestTest {
                 .andExpect(status().isNoContent());
 
         org.mockito.Mockito.verify(exemplarService).detachFromEstante(4L);
+    }
+
+    @Test
+    void shouldReturn204WhenDeletingExemplar() throws Exception {
+        mockMvc.perform(delete("/api/exemplares/1"))
+                .andExpect(status().isNoContent());
     }
 }
