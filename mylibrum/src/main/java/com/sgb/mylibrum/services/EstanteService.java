@@ -13,6 +13,7 @@ import com.sgb.mylibrum.repositories.FilialRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import com.sgb.mylibrum.repositories.specifications.AtivoSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Comparator;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EstanteService {
@@ -40,14 +43,17 @@ public class EstanteService {
 
     @Transactional(readOnly = true)
     public List<EstanteResponseDTO> findAll(Boolean ativo) {
+        log.debug("Buscando estantes: ativo={}", ativo);
         return repository.findAll(AtivoSpecification.ativo(ativo)).stream()
                 .map(mapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public List<EstanteResponseDTO> findByFilialId(Long filialId, Boolean ativo) {
+        log.debug("Buscando estantes da filial: filialId={}, ativo={}", filialId, ativo);
         if (!filialRepository.existsById(filialId)) {
-            throw new ResourceNotFoundException("Filial não encontrada");
+            log.warn("Filial nao encontrada ao buscar estantes: filialId={}", filialId);
+            throw new ResourceNotFoundException("Filial n?o encontrada");
         }
         return repository.findAll(AtivoSpecification.<Estante>ativo(ativo)
                         .and(AtivoSpecification.igual("filial.id", filialId))).stream()
@@ -57,8 +63,12 @@ public class EstanteService {
 
     @Transactional(readOnly = true)
     public EstanteResponseDTO findById(Long id) {
+        log.debug("Buscando estante: id={}", id);
         return mapper.toResponseDTO(repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estante não encontrada")));
+                .orElseThrow(() -> {
+                    log.warn("Estante nao encontrada: id={}", id);
+                    return new RuntimeException("Estante n?o encontrada");
+                }));
     }
 
     @Transactional
@@ -66,13 +76,18 @@ public class EstanteService {
         Estante entity = mapper.toEntity(dto);
         entity.setFilial(filialDoUsuarioAutenticado());
         aplicarPrateleiras(dto, entity, List.of());
-        return mapper.toResponseDTO(repository.save(entity));
+        Estante salva = repository.save(entity);
+        log.info("Estante criada: id={}", salva.getId());
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional
     public EstanteResponseDTO update(Long id, EstanteRequestDTO dto) {
         Estante entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estante não encontrada"));
+                .orElseThrow(() -> {
+                    log.warn("Estante não encontrada para atualização: id={}", id);
+                    return new RuntimeException("Estante não encontrada");
+                });
         Long filialUsuarioId = filialDoUsuarioAutenticado().getId();
         if (!filialUsuarioId.equals(entity.getFilial().getId())) {
             throw new ResourceNotFoundException("Estante não encontrada");
@@ -80,18 +95,25 @@ public class EstanteService {
         List<EstantePrateleira> anteriores = new ArrayList<>(entity.getPrateleiras());
         mapper.updateEntity(dto, entity);
         aplicarPrateleiras(dto, entity, anteriores);
-        return mapper.toResponseDTO(repository.save(entity));
+        Estante atualizada = repository.save(entity);
+        log.info("Estante atualizada: id={}", atualizada.getId());
+        return mapper.toResponseDTO(atualizada);
     }
 
     @Transactional
     public void delete(Long id) {
         Estante estante = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estante não encontrada"));
+                .orElseThrow(() -> {
+                    log.warn("Estante não encontrada para exclusão: id={}", id);
+                    return new RuntimeException("Estante não encontrada");
+                });
         if (exemplarRepository.existsIncludingDeletedByEstanteId(id)) {
+            log.warn("Exclusão de estante rejeitada por conter exemplares: id={}", id);
             throw new IllegalStateException("Limpe a estante antes de excluí-la");
         }
         estante.setExcluido(true);
         repository.save(estante);
+        log.info("Estante excluida: id={}", estante.getId());
     }
 
     @Transactional

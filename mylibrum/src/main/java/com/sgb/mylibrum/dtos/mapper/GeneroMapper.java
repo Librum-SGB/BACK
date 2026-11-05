@@ -1,32 +1,23 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.sgb.mylibrum.dtos.request.GeneroRequestDTO;
 import com.sgb.mylibrum.dtos.response.GeneroResponseDTO;
 import com.sgb.mylibrum.entities.Genero;
-import org.springframework.stereotype.Component;
 
-@Component
-public class GeneroMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface GeneroMapper {
 
-    public Genero toEntity(GeneroRequestDTO dto) {
+    default Genero toEntity(GeneroRequestDTO dto) {
         Genero genero = new Genero();
         updateEntity(dto, genero);
         return genero;
     }
 
-    public GeneroResponseDTO toResponseDTO(Genero genero) {
-        GeneroResponseDTO dto = new GeneroResponseDTO();
+    @IgnorarCamposDeEntidade
+    void updateEntity(GeneroRequestDTO dto, @MappingTarget Genero genero);
 
-        dto.setId(genero.getId());
-        dto.setNome(genero.getNome());
-        dto.setDescricao(genero.getDescricao());
-        dto.setDataCriacao(genero.getDataCriacao());
-        dto.setDataUltimaAtualizacao(genero.getDataUltimaAtualizacao());
-
-        return dto;
-    }
-    public void updateEntity(GeneroRequestDTO dto, Genero genero) {
-        genero.setNome(dto.getNome());
-        genero.setDescricao(dto.getDescricao());
-    }
+    GeneroResponseDTO toResponseDTO(Genero genero);
 }

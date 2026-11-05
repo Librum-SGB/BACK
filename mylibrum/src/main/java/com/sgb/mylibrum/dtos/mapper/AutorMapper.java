@@ -1,27 +1,23 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.sgb.mylibrum.dtos.request.AutorRequestDTO;
 import com.sgb.mylibrum.dtos.response.AutorResponseDTO;
 import com.sgb.mylibrum.entities.Autor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-public class AutorMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface AutorMapper {
 
-    public Autor toEntity(AutorRequestDTO dto) {
+    default Autor toEntity(AutorRequestDTO dto) {
         Autor autor = new Autor();
         updateEntity(dto, autor);
         return autor;
     }
 
-    public void updateEntity(AutorRequestDTO dto, Autor autor) {
-        BeanUtils.copyProperties(dto, autor, "id", "dataCriacao", "dataUltimaAtualizacao");
-    }
+    @IgnorarCamposDeEntidade
+    void updateEntity(AutorRequestDTO dto, @MappingTarget Autor autor);
 
-    public AutorResponseDTO toResponseDTO(Autor autor) {
-        AutorResponseDTO dto = new AutorResponseDTO();
-        BeanUtils.copyProperties(autor, dto);
-        return dto;
-    }
+    AutorResponseDTO toResponseDTO(Autor autor);
 }

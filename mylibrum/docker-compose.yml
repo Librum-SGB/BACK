@@ -34,7 +34,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-bXlsaWJydW0tc2VjcmV0LWtleS1mb3ItZGV2LW9ubHktMzItYnl0ZXM=}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8184}:8184"
 
   frontend:
     build:

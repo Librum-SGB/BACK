@@ -2,13 +2,15 @@ package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
-import com.sgb.mylibrum.dtos.mapper.EmprestimoMapper;
+import com.sgb.mylibrum.dtos.mapper.EmprestimoMapperImpl;
+import com.sgb.mylibrum.dtos.mapper.ReferenciaEntidadeMapper;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusExemplar;
+import com.sgb.mylibrum.exceptions.BusinessException;
 import com.sgb.mylibrum.repositories.ConfiguracaoRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
@@ -48,7 +50,8 @@ class EmprestimoServiceTest {
     @BeforeEach
     void setUp() {
         service = new EmprestimoService(
-                repository, exemplarRepository, usuarioRepository, configuracaoRepository, new EmprestimoMapper());
+                repository, exemplarRepository, usuarioRepository, configuracaoRepository,
+                new EmprestimoMapperImpl(new ReferenciaEntidadeMapper()));
     }
 
     @Test
@@ -92,7 +95,7 @@ class EmprestimoServiceTest {
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
 
-        assertThrows(IllegalStateException.class, () -> service.create(dto));
+        assertThrows(BusinessException.class, () -> service.create(dto));
     }
 
     @Test
@@ -105,7 +108,7 @@ class EmprestimoServiceTest {
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
 
-        assertThrows(IllegalStateException.class, () -> service.create(dto));
+        assertThrows(BusinessException.class, () -> service.create(dto));
     }
 
     @Test
@@ -165,7 +168,7 @@ class EmprestimoServiceTest {
         when(configuracaoRepository.findByFilialIdAndChave(5L, "emprestimo.renovacoes.max"))
                 .thenReturn(Optional.of(configuracao));
 
-        assertThrows(IllegalStateException.class, () -> service.renovar(10L));
+        assertThrows(BusinessException.class, () -> service.renovar(10L));
     }
 
     @Test

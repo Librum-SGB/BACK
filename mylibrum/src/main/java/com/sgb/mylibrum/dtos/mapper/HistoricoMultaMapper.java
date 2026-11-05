@@ -1,41 +1,33 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
 import com.sgb.mylibrum.dtos.request.HistoricoMultaRequestDTO;
 import com.sgb.mylibrum.dtos.response.HistoricoMultaResponseDTO;
-import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.HistoricoMulta;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-public class HistoricoMultaMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface HistoricoMultaMapper {
 
-    public HistoricoMulta toEntity(HistoricoMultaRequestDTO dto) {
+    default HistoricoMulta toEntity(HistoricoMultaRequestDTO dto) {
         HistoricoMulta multa = new HistoricoMulta();
         updateEntity(dto, multa);
         return multa;
     }
 
-    public void updateEntity(HistoricoMultaRequestDTO dto, HistoricoMulta multa) {
-        BeanUtils.copyProperties(dto, multa,
-                "id", "dataCriacao", "dataUltimaAtualizacao", "status", "dataGeracao",
-                "dataPagamento", "emprestimoId", "usuarioId");
-        if (dto.getEmprestimoId() != null) {
-            Emprestimo emprestimo = new Emprestimo();
-            emprestimo.setId(dto.getEmprestimoId());
-            multa.setEmprestimo(emprestimo);
-        }
-    }
+    @IgnorarCamposDeEntidade
+    @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "dataGeracao", ignore = true)
+    @Mapping(target = "dataPagamento", ignore = true)
+    @Mapping(target = "emprestimo", source = "emprestimoId",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(HistoricoMultaRequestDTO dto, @MappingTarget HistoricoMulta multa);
 
-    public HistoricoMultaResponseDTO toResponseDTO(HistoricoMulta multa) {
-        HistoricoMultaResponseDTO dto = new HistoricoMultaResponseDTO();
-        BeanUtils.copyProperties(multa, dto);
-        if (multa.getEmprestimo() != null) {
-            dto.setEmprestimoId(multa.getEmprestimo().getId());
-        }
-        if (multa.getUsuario() != null) {
-            dto.setUsuarioId(multa.getUsuario().getId());
-        }
-        return dto;
-    }
+    @Mapping(target = "emprestimoId", source = "emprestimo.id")
+    @Mapping(target = "usuarioId", source = "usuario.id")
+    HistoricoMultaResponseDTO toResponseDTO(HistoricoMulta multa);
 }

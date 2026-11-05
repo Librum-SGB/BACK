@@ -111,13 +111,13 @@ VALUES (1, 1, 1, 0, 0.00, 'PENDENTE', NULL, true, false),
        (6, 6, 8, 3, 8.25, 'PENDENTE', NULL, true, false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO lista_tarefas (id, usuario_id, descricao, prioridade, concluida, ativo, excluido)
-VALUES (1, 9, 'Reorganizar estantes da seção A', 'MEDIA', false, true, false),
-       (2, 10, 'Conferir devolucoes da semana', 'ALTA', false, true, false),
-       (3, 10, 'Atualizar catalogo de novidades', 'MEDIA', false, true, false),
-       (4, 10, 'Revisar materiais em manutencao', 'URGENTE', false, true, false),
-       (5, 10, 'Preparar atividades de leitura', 'BAIXA', false, true, false),
-       (6, 10, 'Organizar recebimento de livros', 'ALTA', false, true, false)
+INSERT INTO lista_tarefas (id, usuario_id, descricao, prioridade, status, prazo, ativo, excluido)
+VALUES (1, 9, 'Reorganizar estantes da seção A', 'MEDIA', 'PENDENTE', NULL, true, false),
+       (2, 10, 'Conferir devolucoes da semana', 'ALTA', 'PENDENTE', NULL, true, false),
+       (3, 10, 'Atualizar catalogo de novidades', 'MEDIA', 'PENDENTE', NULL, true, false),
+       (4, 10, 'Revisar materiais em manutencao', 'URGENTE', 'PENDENTE', NULL, true, false),
+       (5, 10, 'Preparar atividades de leitura', 'BAIXA', 'PENDENTE', NULL, true, false),
+       (6, 10, 'Organizar recebimento de livros', 'ALTA', 'PENDENTE', NULL, true, false)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO configuracoes (id, filial_id, chave, descricao, valor, ativo, excluido)

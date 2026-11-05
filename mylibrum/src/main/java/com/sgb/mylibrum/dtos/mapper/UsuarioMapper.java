@@ -1,40 +1,32 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
-import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-public class UsuarioMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface UsuarioMapper {
 
-    public Usuario toEntity(UsuarioRequestDTO dto) {
+    default Usuario toEntity(UsuarioRequestDTO dto) {
         Usuario usuario = new Usuario();
         updateEntity(dto, usuario);
         return usuario;
     }
 
-    public void updateEntity(UsuarioRequestDTO dto, Usuario usuario) {
-        BeanUtils.copyProperties(dto, usuario,
-                "id", "dataCriacao", "dataUltimaAtualizacao", "senha", "filialId", "funcao");
-        if (dto.getFuncao() != null) {
-            usuario.setFuncao(dto.getFuncao());
-        }
-        if (dto.getFilialId() != null) {
-            Filial filial = new Filial();
-            filial.setId(dto.getFilialId());
-            usuario.setFilial(filial);
-        }
-    }
+    // A senha é codificada e definida pelo serviço; função e filial só mudam quando informadas.
+    @IgnorarCamposDeEntidade
+    @Mapping(target = "senha", ignore = true)
+    @Mapping(target = "emprestimos", ignore = true)
+    @Mapping(target = "funcao", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "filial", source = "filialId",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(UsuarioRequestDTO dto, @MappingTarget Usuario usuario);
 
-    public UsuarioResponseDTO toResponseDTO(Usuario usuario) {
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        BeanUtils.copyProperties(usuario, dto);
-        if (usuario.getFilial() != null) {
-            dto.setFilialId(usuario.getFilial().getId());
-        }
-        return dto;
-    }
+    @Mapping(target = "filialId", source = "filial.id")
+    UsuarioResponseDTO toResponseDTO(Usuario usuario);
 }

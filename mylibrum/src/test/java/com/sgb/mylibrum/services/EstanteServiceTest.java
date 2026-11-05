@@ -1,6 +1,29 @@
 package com.sgb.mylibrum.services;
 
-import com.sgb.mylibrum.dtos.mapper.EstanteMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.sgb.mylibrum.dtos.mapper.EstanteMapperImpl;
 import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
 import com.sgb.mylibrum.entities.Estante;
 import com.sgb.mylibrum.entities.Filial;
@@ -10,28 +33,6 @@ import com.sgb.mylibrum.repositories.EstanteRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.FilialRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import org.mockito.ArgumentCaptor;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class EstanteServiceTest {
@@ -54,7 +55,7 @@ class EstanteServiceTest {
                 filialRepository,
                 exemplarRepository,
                 usuarioRepository,
-                new EstanteMapper());
+                new EstanteMapperImpl());
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
                         "bibliotecaria@exemplo.com", "token", List.of()));
@@ -226,5 +227,28 @@ class EstanteServiceTest {
         request.setLocalizacao("Corredor A");
 
         assertThrows(ResourceNotFoundException.class, () -> service.create(request));
+    }
+
+    @Test
+    void excluiEstanteVaziaDeFormaLogica() {
+        Estante estante = new Estante();
+        estante.setId(17L);
+        when(estanteRepository.findById(17L)).thenReturn(Optional.of(estante));
+        when(exemplarRepository.existsIncludingDeletedByEstanteId(17L)).thenReturn(false);
+
+        service.delete(17L);
+
+        assertTrue(estante.getExcluido());
+        verify(estanteRepository).save(estante);
+    }
+
+    @Test
+    void deveValidarFilialAntesDeListarEstantes() {
+        when(filialRepository.existsById(10L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.findByFilialId(10L, true));
+
+        verify(estanteRepository, never()).findAll(org.mockito.ArgumentMatchers
+                .<org.springframework.data.jpa.domain.Specification<Estante>>any());
     }
 }

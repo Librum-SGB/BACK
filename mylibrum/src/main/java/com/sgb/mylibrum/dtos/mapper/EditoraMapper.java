@@ -1,31 +1,25 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
 import com.sgb.mylibrum.dtos.request.EditoraRequestDTO;
 import com.sgb.mylibrum.dtos.response.EditoraResponseDTO;
 import com.sgb.mylibrum.entities.Editora;
-import org.springframework.stereotype.Component;
 
-@Component
-public class EditoraMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface EditoraMapper {
 
-    public Editora toEntity(EditoraRequestDTO dto) {
+    default Editora toEntity(EditoraRequestDTO dto) {
         Editora editora = new Editora();
         updateEntity(dto, editora);
         return editora;
     }
 
-    public void updateEntity(EditoraRequestDTO dto, Editora editora) {
-        editora.setNome(dto.getNome());
-        editora.setNacionalidade(dto.getNacionalidade());
-    }
+    @IgnorarCamposDeEntidade
+    @Mapping(target = "materiais", ignore = true)
+    void updateEntity(EditoraRequestDTO dto, @MappingTarget Editora editora);
 
-    public EditoraResponseDTO toResponseDTO(Editora editora) {
-        EditoraResponseDTO dto = new EditoraResponseDTO();
-        dto.setId(editora.getId());
-        dto.setNome(editora.getNome());
-        dto.setNacionalidade(editora.getNacionalidade());
-        dto.setDataCriacao(editora.getDataCriacao());
-        dto.setDataUltimaAtualizacao(editora.getDataUltimaAtualizacao());
-        return dto;
-    }
+    EditoraResponseDTO toResponseDTO(Editora editora);
 }

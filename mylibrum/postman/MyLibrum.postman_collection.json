@@ -6,7 +6,7 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "baseUrl", "value": "http://localhost:8184" },
     { "key": "token", "value": "" },
     { "key": "id", "value": "1" }
   ],
@@ -48,6 +48,30 @@
               "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"senha\": \"senha123\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Esqueci minha senha - Enviar e-mail",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@gmail.com\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/esqueci-senha"
+          }
+        },
+        {
+          "name": "Redefinir senha com token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"TOKEN_RECEBIDO_POR_EMAIL\",\n  \"novaSenha\": \"novaSenha123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/redefinir-senha"
           }
         }
       ]
@@ -106,6 +130,7 @@
       "name": "Exemplares",
       "item": [
         { "name": "Listar exemplares", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares" } },
+        { "name": "Filtrar exemplares (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares?status=DISPONIVEL&materialId=1&filialId=1&estanteId=1&codigoBarras=7890&dataAquisicaoDe=2026-01-01&dataAquisicaoAte=2026-12-31&ativo=true" } },
         { "name": "Buscar exemplar por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
         { "name": "Criar exemplar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"prateleira\": \"P1\",\n  \"posicao\": \"01\",\n  \"status\": \"DISPONIVEL\",\n  \"dataAquisicao\": \"2026-08-25\"\n}" }, "url": "{{baseUrl}}/api/exemplares" } },
         { "name": "Atualizar exemplar", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"materialId\": 1,\n  \"filialId\": 1,\n  \"estanteId\": 1,\n  \"codigoBarras\": \"789000000001\",\n  \"status\": \"MANUTENCAO\"\n}" }, "url": "{{baseUrl}}/api/exemplares/{{id}}" } },
@@ -146,9 +171,10 @@
       "name": "Tarefas",
       "item": [
         { "name": "Listar tarefas", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Listar tarefas por gestor", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/gestores/{{id}}" } },
         { "name": "Buscar tarefa por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
-        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"concluida\": false\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
-        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"concluida\": true\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
+        { "name": "Criar tarefa", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos\",\n  \"prioridade\": \"MEDIA\",\n  \"status\": \"PENDENTE\",\n  \"prazo\": \"2026-12-31\"\n}" }, "url": "{{baseUrl}}/api/tarefas" } },
+        { "name": "Atualizar tarefa", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n          \"usuarioId\": 9,\n  \"descricao\": \"Revisar exemplares devolvidos hoje\",\n  \"prioridade\": \"ALTA\",\n  \"status\": \"CONCLUIDA\",\n  \"prazo\": \"2026-12-31\"\n}" }, "url": "{{baseUrl}}/api/tarefas/{{id}}" } },
         { "name": "Excluir tarefa", "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/tarefas/{{id}}" } }
       ]
     },
@@ -156,8 +182,11 @@
       "name": "Materiais",
       "item": [
         { "name": "Listar materiais", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais" } },
+        { "name": "Filtrar materiais (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais?titulo=casmurro&isbn=9788&tipo=LIVRO&editoraId=1&autorId=1&generoId=1&anoPublicacaoDe=1800&anoPublicacaoAte=2026&tema=romance&ativo=true" } },
         { "name": "Buscar material por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/{{id}}" } },
         { "name": "Buscar material por ISBN", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/isbn?isbn=9788535902778" } },
+        { "name": "Consultar ISBN em fontes externas (prévia, não grava)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/isbn/consulta?isbn=9780132350884" } },
+        { "name": "Cadastrar material por ISBN (fontes externas)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"isbn\": \"9780132350884\"\n}" }, "url": "{{baseUrl}}/api/materiais/isbn/cadastro" } },
         { "name": "Buscar materiais por título", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/titulo?titulo=Dom%20Casmurro" } },
         { "name": "Buscar materiais por editora", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/materiais/editora?editoraId=1" } },
         { "name": "Criar material", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Dom Casmurro\",\n  \"editoraId\": 1,\n  \"tipo\": \"LIVRO\",\n  \"autorId\": 1,\n  \"autorIds\": [1],\n  \"generoIds\": [1],\n  \"isbn\": \"9788535902778\",\n  \"edicao\": 1,\n  \"anoPublicacao\": 1899,\n  \"quantidadePaginas\": 256,\n  \"sinopse\": \"Romance de Machado de Assis.\"\n}" }, "url": "{{baseUrl}}/api/materiais" } },
@@ -169,6 +198,7 @@
       "name": "Usuários",
       "item": [
         { "name": "Listar usuários", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios" } },
+        { "name": "Filtrar usuários (combinado)", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios?nome=ana&email=@mylibrum&funcao=USUARIO&filialId=1&estaBloqueado=false&cidade=paulo&ativo=true&sort=nome" } },
         { "name": "Buscar usuário por ID", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/usuarios/{{id}}" } },
         { "name": "Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"endereco\": \"Rua de Teste\",\n  \"numero\": \"10\",\n  \"bairro\": \"Centro\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01001000\",\n  \"limiteLivros\": 3,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios" } },
         { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@mylibrum.com\",\n  \"senha\": \"senha123\",\n  \"telefone\": \"11999999999\",\n  \"dataNascimento\": \"1990-01-15\",\n  \"filialId\": 1,\n  \"limiteLivros\": 5,\n  \"estaBloqueado\": false,\n          \"funcao\": \"USUARIO\"\n}" }, "url": "{{baseUrl}}/api/usuarios/{{id}}" } },

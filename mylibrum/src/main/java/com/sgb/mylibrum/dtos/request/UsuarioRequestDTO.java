@@ -6,10 +6,12 @@ import java.time.OffsetDateTime;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Data
+@Schema(description = "Dados cadastrais de usuário. Nome, e-mail, senha e filial são obrigatórios; alguns campos administrativos são limitados pelo perfil autenticado.")
 public class UsuarioRequestDTO {
     @NotBlank(message = "O nome é obrigatório")
     private String nome;

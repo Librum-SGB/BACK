@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
 
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.Usuario;
@@ -21,8 +20,17 @@ import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.repositories.FilialRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "spring.datasource.url=jdbc:h2:mem:auth-integration;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE",
+                "spring.datasource.driver-class-name=org.h2.Driver",
+                "spring.datasource.username=sa",
+                "spring.datasource.password=",
+                "spring.jpa.hibernate.ddl-auto=create-drop",
+                "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
+                "spring.flyway.enabled=false"
+        })
 class AuthControllerIntegrationTest {
 
     @LocalServerPort

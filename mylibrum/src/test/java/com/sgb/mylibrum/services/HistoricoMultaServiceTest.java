@@ -1,7 +1,8 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.entities.Configuracao;
-import com.sgb.mylibrum.dtos.mapper.HistoricoMultaMapper;
+import com.sgb.mylibrum.dtos.mapper.HistoricoMultaMapperImpl;
+import com.sgb.mylibrum.dtos.mapper.ReferenciaEntidadeMapper;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Filial;
 import com.sgb.mylibrum.entities.HistoricoMulta;
@@ -49,7 +50,7 @@ class HistoricoMultaServiceTest {
     void setUp() {
         service = new HistoricoMultaService(
                 repository, emprestimoRepository, configuracaoRepository, usuarioRepository,
-                new HistoricoMultaMapper());
+                new HistoricoMultaMapperImpl(new ReferenciaEntidadeMapper()));
     }
 
     @Test

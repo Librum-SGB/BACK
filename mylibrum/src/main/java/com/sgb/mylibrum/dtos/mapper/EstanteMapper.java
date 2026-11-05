@@ -1,44 +1,28 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
 import com.sgb.mylibrum.dtos.request.EstanteRequestDTO;
 import com.sgb.mylibrum.dtos.response.EstanteResponseDTO;
 import com.sgb.mylibrum.entities.Estante;
-import com.sgb.mylibrum.dtos.response.EstantePrateleiraResponseDTO;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+@Mapper(config = MapeamentoConfig.class)
+public interface EstanteMapper {
 
-@Component
-public class EstanteMapper {
-
-    public Estante toEntity(EstanteRequestDTO dto) {
+    default Estante toEntity(EstanteRequestDTO dto) {
         Estante estante = new Estante();
         updateEntity(dto, estante);
         return estante;
     }
 
-    public void updateEntity(EstanteRequestDTO dto, Estante estante) {
-        BeanUtils.copyProperties(dto, estante,
-                "id", "dataCriacao", "dataUltimaAtualizacao", "prateleiras");
-    }
+    @IgnorarCamposDeEntidade
+    @Mapping(target = "exemplares", ignore = true)
+    @Mapping(target = "filial", ignore = true)
+    @Mapping(target = "prateleiras", ignore = true)
+    void updateEntity(EstanteRequestDTO dto, @MappingTarget Estante estante);
 
-    public EstanteResponseDTO toResponseDTO(Estante estante) {
-        EstanteResponseDTO dto = new EstanteResponseDTO();
-        BeanUtils.copyProperties(estante, dto);
-        if (estante.getFilial() != null) {
-            dto.setFilialId(estante.getFilial().getId());
-        }
-        dto.setPrateleiras(estante.getPrateleiras() == null ? new ArrayList<>()
-                : estante.getPrateleiras().stream().map(prateleira -> {
-                    EstantePrateleiraResponseDTO prateleiraDTO = new EstantePrateleiraResponseDTO();
-                    prateleiraDTO.setId(prateleira.getId());
-                    prateleiraDTO.setNome(prateleira.getNome());
-                    prateleiraDTO.setPosicaoInicial(prateleira.getPosicaoInicial());
-                    prateleiraDTO.setPosicaoFinal(prateleira.getPosicaoFinal());
-                    prateleiraDTO.setOrdem(prateleira.getOrdem());
-                    return prateleiraDTO;
-                }).toList());
-        return dto;
-    }
+    @Mapping(target = "filialId", source = "filial.id")
+    EstanteResponseDTO toResponseDTO(Estante estante);
 }

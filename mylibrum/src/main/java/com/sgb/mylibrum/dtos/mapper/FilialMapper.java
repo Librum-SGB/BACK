@@ -1,27 +1,30 @@
 package com.sgb.mylibrum.dtos.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
 import com.sgb.mylibrum.dtos.request.FilialRequestDTO;
 import com.sgb.mylibrum.dtos.response.FilialResponseDTO;
 import com.sgb.mylibrum.entities.Filial;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
-@Component
-public class FilialMapper {
+@Mapper(config = MapeamentoConfig.class)
+public interface FilialMapper {
 
-    public Filial toEntity(FilialRequestDTO dto) {
+    default Filial toEntity(FilialRequestDTO dto) {
         Filial filial = new Filial();
         updateEntity(dto, filial);
         return filial;
     }
 
-    public void updateEntity(FilialRequestDTO dto, Filial filial) {
-        BeanUtils.copyProperties(dto, filial, "id", "dataCriacao", "dataUltimaAtualizacao");
-    }
+    // "ativo" vem do DTO, por isso não usa IgnorarCamposDeEntidade.
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCriacao", ignore = true)
+    @Mapping(target = "dataUltimaAtualizacao", ignore = true)
+    @Mapping(target = "excluido", ignore = true)
+    @Mapping(target = "estantes", ignore = true)
+    @Mapping(target = "exemplares", ignore = true)
+    void updateEntity(FilialRequestDTO dto, @MappingTarget Filial filial);
 
-    public FilialResponseDTO toResponseDTO(Filial filial) {
-        FilialResponseDTO dto = new FilialResponseDTO();
-        BeanUtils.copyProperties(filial, dto);
-        return dto;
-    }
+    FilialResponseDTO toResponseDTO(Filial filial);
 }
