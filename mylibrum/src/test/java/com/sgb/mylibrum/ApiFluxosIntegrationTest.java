@@ -26,11 +26,13 @@ import com.sgb.mylibrum.entities.Usuario;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.entities.enums.StatusEmprestimo;
 import com.sgb.mylibrum.entities.enums.StatusExemplar;
+import com.sgb.mylibrum.entities.enums.StatusTarefa;
 import com.sgb.mylibrum.repositories.EditoraRepository;
 import com.sgb.mylibrum.repositories.EmprestimoRepository;
 import com.sgb.mylibrum.repositories.EstanteRepository;
 import com.sgb.mylibrum.repositories.ExemplarRepository;
 import com.sgb.mylibrum.repositories.FilialRepository;
+import com.sgb.mylibrum.repositories.ListaTarefaRepository;
 import com.sgb.mylibrum.repositories.MaterialRepository;
 import com.sgb.mylibrum.repositories.UsuarioRepository;
 import tools.jackson.databind.JsonNode;
@@ -63,6 +65,8 @@ class ApiFluxosIntegrationTest {
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
+    private ListaTarefaRepository listaTarefaRepository;
+    @Autowired
     private EditoraRepository editoraRepository;
     @Autowired
     private MaterialRepository materialRepository;
@@ -79,6 +83,7 @@ class ApiFluxosIntegrationTest {
         exemplarRepository.deleteAll();
         estanteRepository.deleteAll();
         materialRepository.deleteAll();
+        listaTarefaRepository.deleteAll();
         usuarioRepository.deleteAll();
         editoraRepository.deleteAll();
         filialRepository.deleteAll();
@@ -101,6 +106,30 @@ class ApiFluxosIntegrationTest {
 
         assertThat(emprestimos.statusCode()).isEqualTo(200);
         assertThat(jsonMapper.readTree(emprestimos.body()).isArray()).isTrue();
+    }
+
+    @Test
+    void perfilAtualEChecklistUsamUsuarioAutenticado() throws Exception {
+        Usuario admin = criarAdmin();
+        String token = autenticar(admin.getEmail());
+
+        HttpResult perfil = get("/api/usuarios/me", token);
+        assertThat(perfil.statusCode()).isEqualTo(200);
+        assertThat(jsonMapper.readTree(perfil.body()).path("id").asLong()).isEqualTo(admin.getId());
+
+        HttpResult tarefa = post("/api/tarefas",
+                """
+                {
+                  "descricao": "Conferir devoluções",
+                  "prioridade": "MEDIA",
+                  "status": "%s"
+                }
+                """.formatted(StatusTarefa.PENDENTE.name()), token);
+
+        assertThat(tarefa.statusCode()).isEqualTo(201);
+        JsonNode tarefaCriada = jsonMapper.readTree(tarefa.body());
+        assertThat(tarefaCriada.path("usuarioId").asLong()).isEqualTo(admin.getId());
+        assertThat(tarefaCriada.path("status").asText()).isEqualTo(StatusTarefa.PENDENTE.name());
     }
 
     @Test

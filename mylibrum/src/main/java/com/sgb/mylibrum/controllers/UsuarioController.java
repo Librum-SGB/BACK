@@ -63,6 +63,13 @@ public class UsuarioController {
         return ResponseEntity.ok(service.findAll(filtro, pageable));
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "Consultar usuário autenticado", description = "Retorna o perfil associado ao token atual.")
+    @ApiResponse(responseCode = "200", description = "Perfil do usuário autenticado.")
+    public ResponseEntity<UsuarioResponseDTO> findCurrentUser() {
+        return ResponseEntity.ok(service.findById(autorizacao.idLogado()));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Consultar usuário", description = "Busca um usuário pelo identificador. O próprio usuário ou equipe autorizada pode acessar conforme as regras de autorização.")
     @ApiResponse(responseCode = "200", description = "Usuário encontrado.")
