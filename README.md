@@ -45,6 +45,10 @@ Copie o valor do campo `token` e cole no Swagger no botão "Authorize" com o pre
 
 - Os endpoints protegidos ficam em `/api/**`.
 - O endpoint `/auth/login`, os de recuperação de senha (`/auth/esqueci-senha` e `/auth/redefinir-senha`) e as rotas públicas do Swagger ficam liberados sem autenticação.
+- `GET /api/dashboard/resumo` fornece os totais do dashboard e até dez empréstimos em aberto. “A vencer” considera hoje e os próximos sete dias; “vencidos” considera datas anteriores a hoje.
+- O checklist do dashboard usa `GET /api/tarefas/minhas` e as operações de criação, atualização e exclusão em `/api/tarefas`; cada tarefa é associada ao usuário autenticado.
+- `GET /api/emprestimos/meus` fornece o histórico visível ao usuário autenticado: a equipe recebe o histórico geral e usuários comuns apenas os próprios empréstimos.
+- `POST /api/emprestimos/lote` registra em uma única transação os exemplares selecionados para um usuário. Envie `usuarioId`, `exemplarIds` e `dataDevolucaoPrevista` (`yyyy-MM-dd`); o responsável é identificado pelo token. Usuários bloqueados, exemplares indisponíveis, datas passadas, exemplares repetidos e solicitações acima do limite de empréstimos são rejeitados.
 - As credenciais abaixo são somente para desenvolvimento e são inseridas pela migration V3 em um banco novo.
 
 ### Recuperação de senha por e-mail
@@ -87,7 +91,7 @@ As regras são aplicadas por rota em `SecurityConfig` (403 em JSON quando negado
 | Configurações | ✅ | ❌ | ❌ | ❌ |
 | Tarefas (CRUD das próprias) | ✅ | ✅ | ✅ | ✅ |
 
-Tarefas: a tarefa sempre pertence ao usuário logado; só o dono pode editar ou excluir. O Usuário geral lista e consulta apenas as próprias; a equipe consulta as de qualquer usuário. Dashboard e relatórios ainda não possuem endpoints.
+Tarefas: a tarefa sempre pertence ao usuário logado; só o dono pode editar ou excluir. O Usuário geral lista e consulta apenas as próprias; a equipe consulta as de qualquer usuário. O dashboard possui resumo em `/api/dashboard/resumo`; relatórios ainda não possuem endpoint dedicado.
 
 ### Usuários de teste por função
 

@@ -21,6 +21,14 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long>, J
     List<Emprestimo> findByUsuarioId(Long usuarioId);
     List<Emprestimo> findByExemplarId(Long exemplarId);
     boolean existsByUsuarioIdAndStatusIn(Long usuarioId, List<StatusEmprestimo> statuses);
+    long countByUsuarioIdAndStatusIn(Long usuarioId, List<StatusEmprestimo> statuses);
+    long countByAtivoTrueAndStatusIn(List<StatusEmprestimo> statuses);
+    long countByAtivoTrueAndStatusInAndDataDevolucaoPrevistaBetween(
+            List<StatusEmprestimo> statuses, LocalDate inicio, LocalDate fim);
+    long countByAtivoTrueAndStatusInAndDataDevolucaoPrevistaBefore(
+            List<StatusEmprestimo> statuses, LocalDate data);
+    List<Emprestimo> findTop10ByAtivoTrueAndStatusInOrderByDataDevolucaoPrevistaAsc(
+            List<StatusEmprestimo> statuses);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Emprestimo> findByStatusInAndDataDevolucaoPrevistaBefore(
             List<StatusEmprestimo> statuses, LocalDate data);

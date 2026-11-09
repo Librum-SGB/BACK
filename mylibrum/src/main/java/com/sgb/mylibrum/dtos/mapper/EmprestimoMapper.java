@@ -21,7 +21,9 @@ public interface EmprestimoMapper {
     Emprestimo toEntity(EmprestimoRequestDTO dto);
 
     @Mapping(target = "usuarioId", source = "usuario.id")
+    @Mapping(target = "usuarioNome", source = "usuario.nome")
     @Mapping(target = "exemplarId", source = "exemplar.id")
+    @Mapping(target = "materialTitulo", source = "exemplar.material.titulo")
     @Mapping(target = "usuarioResponsavelId", source = "usuarioResponsavel.id")
     EmprestimoResponseDTO toResponseDTO(Emprestimo emprestimo);
 }

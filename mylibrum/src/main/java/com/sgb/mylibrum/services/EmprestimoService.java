@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
+import com.sgb.mylibrum.dtos.request.EmprestimoLoteRequestDTO;
 import com.sgb.mylibrum.dtos.mapper.EmprestimoMapper;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
 import com.sgb.mylibrum.entities.Configuracao;
@@ -26,12 +27,16 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.HashSet;
+import java.util.ArrayList;
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmprestimoService {
 
     private static final String CONFIG_LIMITE_RENOVACOES = "emprestimo.renovacoes.max";
+    private static final List<StatusEmprestimo> STATUS_EM_ABERTO =
+            List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
 
     private final EmprestimoRepository repository;
     private final ExemplarRepository exemplarRepository;
@@ -67,34 +72,30 @@ public class EmprestimoService {
         log.info("Criando emprestimo: usuarioId={}, exemplarId={}, usuarioResponsavelId={}", dto.getUsuarioId(), dto.getExemplarId(), dto.getUsuarioResponsavelId());
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
-        if (Boolean.TRUE.equals(usuario.getEstaBloqueado())) {
-            log.warn("Emprestimo rejeitado para usuarioId={}: usuario bloqueado", usuario.getId());
-            throw new BusinessException("Usuário bloqueado não pode realizar empréstimos");
-        }
-
-        Exemplar exemplar = exemplarRepository.findByIdForUpdate(dto.getExemplarId())
-                .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
-        if (exemplar.getStatus() != StatusExemplar.DISPONIVEL) {
-            log.warn("Emprestimo rejeitado: exemplarId={} indisponivel, status={}", exemplar.getId(), exemplar.getStatus());
-            throw new BusinessException("O exemplar não está disponível para empréstimo");
-        }
-
+        validarElegibilidade(usuario, 1, dto.getDataDevolucaoPrevista());
         Usuario responsavel = usuarioRepository.findById(dto.getUsuarioResponsavelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário responsável não encontrado"));
+        return criarEmprestimo(usuario, responsavel, dto.getExemplarId(), dto.getDataDevolucaoPrevista());
+    }
 
-        Emprestimo entity = mapper.toEntity(dto);
-        entity.setUsuario(usuario);
-        entity.setExemplar(exemplar);
-        entity.setUsuarioResponsavel(responsavel);
-        entity.setDataSaida(OffsetDateTime.now());
-        entity.setStatus(StatusEmprestimo.ATIVO);
-        entity.setRenovacoesContagem(0);
+    @Transactional
+    public List<EmprestimoResponseDTO> createBatch(EmprestimoLoteRequestDTO dto, Long responsavelId) {
+        List<Long> exemplarIds = dto.getExemplarIds();
+        if (new HashSet<>(exemplarIds).size() != exemplarIds.size()) {
+            throw new BusinessException("O mesmo exemplar não pode ser incluído mais de uma vez");
+        }
 
-        exemplar.setStatus(StatusExemplar.EMPRESTADO);
-        exemplarRepository.save(exemplar);
-        Emprestimo salvo = repository.save(entity);
-        log.info("Emprestimo criado: emprestimoId={}, usuarioId={}, exemplarId={}, status={}", salvo.getId(), usuario.getId(), exemplar.getId(), salvo.getStatus());
-        return mapper.toResponseDTO(salvo);
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        Usuario responsavel = usuarioRepository.findById(responsavelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário responsável não encontrado"));
+        validarElegibilidade(usuario, exemplarIds.size(), dto.getDataDevolucaoPrevista());
+
+        List<EmprestimoResponseDTO> criados = new ArrayList<>();
+        for (Long exemplarId : exemplarIds) {
+            criados.add(criarEmprestimo(usuario, responsavel, exemplarId, dto.getDataDevolucaoPrevista()));
+        }
+        return criados;
     }
 
     @Transactional
@@ -191,6 +192,48 @@ public class EmprestimoService {
         log.debug("Carregando emprestimo para atualizacao: emprestimoId={}", id);
         return repository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado"));
+    }
+
+    private void validarElegibilidade(Usuario usuario, int quantidadeSolicitada, LocalDate dataDevolucaoPrevista) {
+        if (Boolean.TRUE.equals(usuario.getEstaBloqueado())) {
+            log.warn("Emprestimo rejeitado para usuarioId={}: usuario bloqueado", usuario.getId());
+            throw new BusinessException("Usuário bloqueado não pode realizar empréstimos");
+        }
+        if (dataDevolucaoPrevista == null || dataDevolucaoPrevista.isBefore(LocalDate.now())) {
+            throw new BusinessException("A data de devolução não pode estar no passado");
+        }
+        int limite = usuario.getLimiteLivros() == null ? 3 : usuario.getLimiteLivros();
+        long emprestimosAbertos = repository.countByUsuarioIdAndStatusIn(usuario.getId(), STATUS_EM_ABERTO);
+        if (emprestimosAbertos + quantidadeSolicitada > limite) {
+            log.warn("Emprestimo rejeitado: limite de exemplares excedido para usuarioId={}", usuario.getId());
+            throw new BusinessException("O usuário atingiu o limite de materiais emprestados");
+        }
+    }
+
+    private EmprestimoResponseDTO criarEmprestimo(
+            Usuario usuario, Usuario responsavel, Long exemplarId, LocalDate dataDevolucaoPrevista) {
+        Exemplar exemplar = exemplarRepository.findByIdForUpdate(exemplarId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exemplar não encontrado"));
+        if (exemplar.getStatus() != StatusExemplar.DISPONIVEL) {
+            log.warn("Emprestimo rejeitado: exemplarId={} indisponivel, status={}", exemplar.getId(), exemplar.getStatus());
+            throw new BusinessException("O exemplar não está disponível para empréstimo");
+        }
+
+        Emprestimo entity = new Emprestimo();
+        entity.setUsuario(usuario);
+        entity.setExemplar(exemplar);
+        entity.setUsuarioResponsavel(responsavel);
+        entity.setDataSaida(OffsetDateTime.now());
+        entity.setDataDevolucaoPrevista(dataDevolucaoPrevista);
+        entity.setStatus(StatusEmprestimo.ATIVO);
+        entity.setRenovacoesContagem(0);
+
+        exemplar.setStatus(StatusExemplar.EMPRESTADO);
+        exemplarRepository.save(exemplar);
+        Emprestimo salvo = repository.save(entity);
+        log.info("Emprestimo criado: emprestimoId={}, usuarioId={}, exemplarId={}, status={}",
+                salvo.getId(), usuario.getId(), exemplar.getId(), salvo.getStatus());
+        return mapper.toResponseDTO(salvo);
     }
 
     private int buscarLimiteRenovacoes(Long filialId) {

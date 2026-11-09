@@ -55,6 +55,7 @@ public class SecurityConfig {
 
                         // Configurações e filiais
                         .requestMatchers("/api/configuracoes/**").hasRole(ADMIN)
+                        .requestMatchers("/api/dashboard/**").hasAnyRole(ADMIN, BIBLIOTECARIA, ASSISTENTE)
                         .requestMatchers(HttpMethod.GET, "/api/filiais/**").hasAnyRole(ADMIN, BIBLIOTECARIA, ASSISTENTE)
                         .requestMatchers("/api/filiais/**").hasRole(ADMIN)
 

@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.services;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
+import com.sgb.mylibrum.dtos.request.EmprestimoLoteRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
 import com.sgb.mylibrum.dtos.mapper.EmprestimoMapperImpl;
 import com.sgb.mylibrum.dtos.mapper.ReferenciaEntidadeMapper;
@@ -94,6 +95,7 @@ class EmprestimoServiceTest {
         dto.setUsuarioId(1L);
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
+        dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
 
         assertThrows(BusinessException.class, () -> service.create(dto));
     }
@@ -101,14 +103,67 @@ class EmprestimoServiceTest {
     @Test
     void naoDeveCriarEmprestimoComExemplarIndisponivel() {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario(1L, false)));
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(usuario(2L, false)));
         when(exemplarRepository.findByIdForUpdate(3L))
                 .thenReturn(Optional.of(exemplar(StatusExemplar.EMPRESTADO)));
         EmprestimoRequestDTO dto = new EmprestimoRequestDTO();
         dto.setUsuarioId(1L);
         dto.setExemplarId(3L);
         dto.setUsuarioResponsavelId(2L);
+        dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
 
         assertThrows(BusinessException.class, () -> service.create(dto));
+    }
+
+    @Test
+    void deveCriarTodosOsEmprestimosDoLote() {
+        Usuario usuario = usuario(1L, false);
+        Usuario responsavel = usuario(2L, false);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(responsavel));
+        when(exemplarRepository.findByIdForUpdate(3L))
+                .thenReturn(Optional.of(exemplar(StatusExemplar.DISPONIVEL)));
+        when(exemplarRepository.findByIdForUpdate(4L))
+                .thenReturn(Optional.of(exemplar(StatusExemplar.DISPONIVEL)));
+        when(repository.save(any(Emprestimo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        EmprestimoLoteRequestDTO dto = new EmprestimoLoteRequestDTO();
+        dto.setUsuarioId(1L);
+        dto.setExemplarIds(List.of(3L, 4L));
+        dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
+
+        var result = service.createBatch(dto, 2L);
+
+        assertEquals(2, result.size());
+        verify(exemplarRepository, org.mockito.Mockito.times(2)).save(org.mockito.ArgumentMatchers.argThat(
+                item -> item.getStatus() == StatusExemplar.EMPRESTADO));
+    }
+
+    @Test
+    void naoDeveUltrapassarLimiteDeEmprestimosDoUsuario() {
+        Usuario usuario = usuario(1L, false);
+        usuario.setLimiteLivros(3);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(repository.countByUsuarioIdAndStatusIn(1L, List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO)))
+                .thenReturn(3L);
+
+        EmprestimoRequestDTO dto = new EmprestimoRequestDTO();
+        dto.setUsuarioId(1L);
+        dto.setExemplarId(3L);
+        dto.setUsuarioResponsavelId(2L);
+        dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
+
+        assertThrows(BusinessException.class, () -> service.create(dto));
+    }
+
+    @Test
+    void naoDeveCriarLoteComExemplaresDuplicados() {
+        EmprestimoLoteRequestDTO dto = new EmprestimoLoteRequestDTO();
+        dto.setUsuarioId(1L);
+        dto.setExemplarIds(List.of(3L, 3L));
+        dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
+
+        assertThrows(BusinessException.class, () -> service.createBatch(dto, 2L));
     }
 
     @Test
