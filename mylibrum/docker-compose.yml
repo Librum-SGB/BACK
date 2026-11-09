@@ -4,11 +4,11 @@ services:
     container_name: mylibrum-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-librumDb}
+      POSTGRES_DB: ${POSTGRES_DB:-librum_atual}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      - "${POSTGRES_PORT:-5435}:5432"
     volumes:
       - mylibrum-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -27,14 +27,14 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-librumDb}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-librum_atual}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET:-bXlsaWJydW0tc2VjcmV0LWtleS1mb3ItZGV2LW9ubHktMzItYnl0ZXM=}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
     ports:
-      - "${BACKEND_PORT:-8184}:8184"
+      - "${BACKEND_PORT:-8080}:8184"
 
   frontend:
     build:

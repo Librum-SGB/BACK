@@ -15,9 +15,11 @@ Para iniciar o ambiente, na pasta \BACK\mylibrum
 docker compose up -d --build
 ```
 
+Por padrão, o Compose usa o banco `librum_atual`, publica o PostgreSQL na porta `5435`, a API na `8080` e o frontend na `4200`. A migration V3 cadastra as contas de teste somente quando aplicada a um banco novo; ela não é executada novamente em bancos existentes. Para preservar os dados de um banco antigo, não use `docker compose down -v` para tentar recadastrar essas contas. O banco antigo permanece separado de `librum_atual`.
+
 ## Swagger
 
-Documentação dos endpoints: http://localhost:8184/swagger-ui/index.html#/
+Documentação dos endpoints: http://localhost:8080/swagger-ui/index.html#/
 
 A interface do Swagger agora está configurada para autenticação Bearer JWT. Para testar endpoints protegidos:
 
@@ -26,7 +28,7 @@ A interface do Swagger agora está configurada para autenticação Bearer JWT. P
 Use o endpoint de autenticação da API:
 
 - Método: POST
-- URL: http://localhost:8184/auth/login
+- URL: http://localhost:8080/auth/login
 - Content-Type: application/json
 
 Resposta esperada:
