@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.controllers;
 
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
+import com.sgb.mylibrum.dtos.request.EmprestimoLoteRequestDTO;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
 import com.sgb.mylibrum.security.AutorizacaoService;
 import com.sgb.mylibrum.services.EmprestimoService;
@@ -36,6 +37,18 @@ public class EmprestimoController {
         return ResponseEntity.ok(service.findAll(ativo));
     }
 
+    @GetMapping("/meus")
+    @Operation(summary = "Listar meus empréstimos", description = "Usuários consultam somente os próprios empréstimos; a equipe consulta o histórico geral.")
+    @ApiResponse(responseCode = "200", description = "Lista de empréstimos visível ao usuário autenticado.")
+    public ResponseEntity<List<EmprestimoResponseDTO>> findMine(
+            @Parameter(description = "Filtra por situação ativa (true) ou inativa (false).")
+            @RequestParam(required = false) Boolean ativo) {
+        if (autorizacao.funcaoLogada() == com.sgb.mylibrum.entities.enums.FuncaoUsuario.USUARIO) {
+            return ResponseEntity.ok(service.findByUsuarioId(autorizacao.idLogado(), ativo));
+        }
+        return ResponseEntity.ok(service.findAll(ativo));
+    }
+
     @GetMapping("/usuarios/{id}")
     @Operation(summary = "Listar empréstimos de usuário", description = "Lista empréstimos do usuário indicado. Usuários podem consultar somente os próprios dados; equipe autorizada pode consultar outros usuários.")
     @ApiResponse(responseCode = "200", description = "Lista de empréstimos do usuário.")
@@ -63,7 +76,17 @@ public class EmprestimoController {
     @Operation(summary = "Registrar empréstimo", description = "Cria um empréstimo para o usuário e exemplar informados. A criação é permitida à equipe com perfil autorizado.")
     @ApiResponse(responseCode = "201", description = "Empréstimo criado.")
     public ResponseEntity<EmprestimoResponseDTO> create(@Valid @RequestBody EmprestimoRequestDTO dto) {
+        dto.setUsuarioResponsavelId(autorizacao.idLogado());
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PostMapping("/lote")
+    @Operation(summary = "Registrar empréstimo de vários exemplares", description = "Cria empréstimos para um usuário em uma única transação. O usuário responsável é obtido da autenticação.")
+    @ApiResponse(responseCode = "201", description = "Empréstimos criados.")
+    public ResponseEntity<List<EmprestimoResponseDTO>> createBatch(
+            @Valid @RequestBody EmprestimoLoteRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.createBatch(dto, autorizacao.idLogado()));
     }
 
     @PostMapping("/{id}/devolucao")

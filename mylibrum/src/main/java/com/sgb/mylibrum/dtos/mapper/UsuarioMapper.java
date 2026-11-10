@@ -22,6 +22,8 @@ public interface UsuarioMapper {
     @IgnorarCamposDeEntidade
     @Mapping(target = "senha", ignore = true)
     @Mapping(target = "emprestimos", ignore = true)
+    @Mapping(target = "estaBloqueado",
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "funcao", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "filial", source = "filialId",
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

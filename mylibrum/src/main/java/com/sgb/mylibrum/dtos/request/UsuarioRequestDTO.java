@@ -11,8 +11,10 @@ import lombok.Data;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 
 @Data
-@Schema(description = "Dados cadastrais de usuário. Nome, e-mail, senha e filial são obrigatórios; alguns campos administrativos são limitados pelo perfil autenticado.")
+@Schema(description = "Dados cadastrais de usuário. Nome, e-mail e filial são obrigatórios; senha é obrigatória apenas na criação. Campos administrativos são limitados pelo perfil autenticado.")
 public class UsuarioRequestDTO {
+    public interface Criacao {}
+
     @NotBlank(message = "O nome é obrigatório")
     private String nome;
     
@@ -22,7 +24,7 @@ public class UsuarioRequestDTO {
     @Email(message = "O e-mail deve ser válido")
     private String email;
 
-    @NotBlank(message = "A senha é obrigatória")
+    @NotBlank(message = "A senha é obrigatória", groups = Criacao.class)
     private String senha;
     
     private String telefone;

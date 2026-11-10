@@ -11,7 +11,9 @@ import java.time.OffsetDateTime;
 public class EmprestimoResponseDTO {
     private Long id;
     private Long usuarioId;
+    private String usuarioNome;
     private Long exemplarId;
+    private String materialTitulo;
     private Long usuarioResponsavelId;
     private StatusEmprestimo status;
     private OffsetDateTime dataSaida;

@@ -1,5 +1,6 @@
 package com.sgb.mylibrum.dtos.request;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -15,10 +16,10 @@ public class EmprestimoRequestDTO {
     @NotNull(message = "O exemplar é obrigatório")
     private Long exemplarId;
     
-    @NotNull(message = "O usuário responsável é obrigatório")
     private Long usuarioResponsavelId;
     
     @NotNull(message = "A data de devolução prevista é obrigatória")
+    @FutureOrPresent(message = "A data de devolução não pode estar no passado")
     private LocalDate dataDevolucaoPrevista;
     
     private OffsetDateTime dataSaida;

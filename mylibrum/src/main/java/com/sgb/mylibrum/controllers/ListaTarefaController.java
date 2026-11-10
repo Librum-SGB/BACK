@@ -40,6 +40,13 @@ public class ListaTarefaController {
         return ResponseEntity.ok(service.findAll(ativo));
     }
 
+    @GetMapping("/minhas")
+    @Operation(summary = "Listar minhas tarefas", description = "Lista somente as tarefas do usuário autenticado.")
+    @ApiResponse(responseCode = "200", description = "Lista de tarefas do usuário autenticado.")
+    public ResponseEntity<List<ListaTarefaResponseDTO>> findMine() {
+        return ResponseEntity.ok(service.findByGestorId(autorizacao.idLogado()));
+    }
+
     @GetMapping("/gestores/{id}")
     @Operation(summary = "Listar tarefas de usuário", description = "Lista tarefas vinculadas ao usuário indicado. O usuário autenticado só pode consultar a si próprio, salvo equipe autorizada.")
     @ApiResponse(responseCode = "200", description = "Lista de tarefas do usuário.")

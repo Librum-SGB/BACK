@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -131,6 +132,24 @@ class UsuarioServiceTest {
                 .thenReturn(true);
 
         assertThrows(BusinessException.class, () -> service.atualizarBloqueio(1L, false));
+    }
+
+    @Test
+    void devePreservarSenhaQuandoAtualizacaoNaoInformaNovaSenha() {
+        Usuario usuario = usuario();
+        usuario.setSenha("hash-existente");
+        UsuarioRequestDTO dto = usuarioDto("atualizado@exemplo.com", null);
+        dto.setSenha(null);
+        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(repository.existsByEmailIgnoreCaseAndIdNot("atualizado@exemplo.com", 1L)).thenReturn(false);
+        when(repository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.update(1L, dto);
+
+        assertEquals("hash-existente", usuario.getSenha());
+        assertEquals(false, usuario.getEstaBloqueado());
+        assertNotNull(usuario.getFilial());
+        verify(passwordEncoder, never()).encode(any());
     }
 
     @Test

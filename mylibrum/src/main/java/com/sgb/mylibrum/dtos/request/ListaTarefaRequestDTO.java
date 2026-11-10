@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Data
 @Schema(description = "Dados de uma tarefa. No endpoint de criação, o usuário associado é definido pela autenticação.")
 public class ListaTarefaRequestDTO {
-    @NotNull(message = "O usuário é obrigatório")
     private Long usuarioId;
     
     @NotBlank(message = "A descrição é obrigatória")

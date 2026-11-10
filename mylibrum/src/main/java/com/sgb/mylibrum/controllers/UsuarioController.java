@@ -7,16 +7,17 @@ import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.security.AutorizacaoService;
 import com.sgb.mylibrum.services.UsuarioService;
 import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
 import com.sgb.mylibrum.specifications.FiltrosUtil;
 import com.sgb.mylibrum.specifications.UsuarioFiltro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -76,7 +77,8 @@ public class UsuarioController {
     @Operation(summary = "Cadastrar usuário", description = "Cria uma conta. Nome, e-mail, senha e filial são obrigatórios; a função atribuída depende do perfil autenticado.")
     @ApiResponse(responseCode = "201", description = "Usuário criado.")
     @ApiResponse(responseCode = "403", description = "Perfil autenticado não pode atribuir a função solicitada.")
-    public ResponseEntity<UsuarioResponseDTO> create(@Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> create(
+            @Validated({ Default.class, UsuarioRequestDTO.Criacao.class }) @RequestBody UsuarioRequestDTO dto) {
         autorizacao.exigirPodeAtribuirFuncao(dto.getFuncao() == null ? FuncaoUsuario.USUARIO : dto.getFuncao());
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
