@@ -91,7 +91,9 @@ public class UsuarioService {
         mapper.updateEntity(dto, entity);
         entity.setEmail(normalizarEmail(dto.getEmail()));
         entity.setMatriculaFuncionario(normalizarMatricula(dto.getMatriculaFuncionario()));
-        entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
         Usuario salvo = repository.save(entity);
         log.info("Usuario atualizado: usuarioId={}, nome={}, funcao={}", salvo.getId(), salvo.getNome(), salvo.getFuncao());
         return mapper.toResponseDTO(salvo);
