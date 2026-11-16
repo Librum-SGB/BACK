@@ -24,6 +24,7 @@ public class UsuarioResponseDTO {
     private String cep;
     private Integer limiteLivros;
     private Boolean estaBloqueado;
+    private Boolean ativo;
     private FuncaoUsuario funcao;
     private String matriculaFuncionario;
     private OffsetDateTime ultimoAcesso;

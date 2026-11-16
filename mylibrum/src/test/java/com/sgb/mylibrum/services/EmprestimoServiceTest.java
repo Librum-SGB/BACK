@@ -29,8 +29,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -227,6 +231,38 @@ class EmprestimoServiceTest {
     }
 
     @Test
+    void devePreverRenovacaoSemAlterarEmprestimo() {
+        Emprestimo emprestimo = emprestimoRenovavel(0, "2");
+        when(repository.findById(10L)).thenReturn(Optional.of(emprestimo));
+
+        var previa = service.previaRenovacao(10L);
+
+        assertTrue(previa.isPermitida());
+        assertEquals(LocalDate.now().plusDays(14), previa.getDataDevolucaoAtual());
+        assertEquals(LocalDate.now().plusDays(28), previa.getNovaDataDevolucao());
+        assertEquals(0, previa.getRenovacoesRealizadas());
+        assertEquals(2, previa.getLimiteRenovacoes());
+        assertEquals(1, previa.getRenovacoesRestantes());
+        assertEquals(LocalDate.now().plusDays(14), emprestimo.getDataDevolucaoPrevista());
+        assertEquals(0, emprestimo.getRenovacoesContagem());
+        verify(repository, never()).save(any(Emprestimo.class));
+    }
+
+    @Test
+    void devePreverRenovacaoNegadaComMotivoQuandoLimiteAtingido() {
+        Emprestimo emprestimo = emprestimoRenovavel(1, "1");
+        when(repository.findById(10L)).thenReturn(Optional.of(emprestimo));
+
+        var previa = service.previaRenovacao(10L);
+
+        assertFalse(previa.isPermitida());
+        assertEquals("O limite de renovações deste empréstimo foi atingido", previa.getMotivo());
+        assertNull(previa.getNovaDataDevolucao());
+        assertEquals(1, previa.getLimiteRenovacoes());
+        assertEquals(0, previa.getRenovacoesRestantes());
+    }
+
+    @Test
     void deveMarcarEmprestimosVencidosComoAtrasados() {
         Emprestimo emprestimo = emprestimo(exemplar(StatusExemplar.EMPRESTADO));
         when(repository.findByStatusInAndDataDevolucaoPrevistaBefore(
@@ -238,6 +274,24 @@ class EmprestimoServiceTest {
 
         assertEquals(StatusEmprestimo.ATRASADO, emprestimo.getStatus());
         verify(repository).saveAll(List.of(emprestimo));
+    }
+
+    /** Empréstimo ativo de 14 dias (por renovação já feita), com limite de renovações configurado. */
+    private Emprestimo emprestimoRenovavel(int renovacoes, String limite) {
+        Usuario usuario = usuario(1L, false);
+        Filial filial = new Filial();
+        filial.setId(5L);
+        usuario.setFilial(filial);
+        Emprestimo emprestimo = emprestimo(exemplar(StatusExemplar.EMPRESTADO));
+        emprestimo.setUsuario(usuario);
+        emprestimo.setDataSaida(OffsetDateTime.now().minusDays(14L * renovacoes));
+        emprestimo.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
+        emprestimo.setRenovacoesContagem(renovacoes);
+        Configuracao configuracao = new Configuracao();
+        configuracao.setValor(limite);
+        when(configuracaoRepository.findByFilialIdAndChave(5L, "emprestimo.renovacoes.max"))
+                .thenReturn(Optional.of(configuracao));
+        return emprestimo;
     }
 
     private Usuario usuario(Long id, boolean bloqueado) {

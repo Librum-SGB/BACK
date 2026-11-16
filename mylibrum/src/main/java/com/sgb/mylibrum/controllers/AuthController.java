@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +44,10 @@ public class AuthController {
 
         if (usuario.getSenha() == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
             throw new BadCredentialsException("Credenciais inválidas");
+        }
+        // A senha é conferida antes, para não revelar a quem não a conhece que a conta existe.
+        if (Boolean.FALSE.equals(usuario.getAtivo())) {
+            throw new DisabledException("Conta inativa. Procure a biblioteca para reativá-la.");
         }
 
         return loginResponse(usuario.getEmail(), usuario.getFuncao());

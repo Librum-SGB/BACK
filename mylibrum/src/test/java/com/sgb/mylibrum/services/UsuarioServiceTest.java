@@ -113,6 +113,27 @@ class UsuarioServiceTest {
     }
 
     @Test
+    void deveInativarEReativarUsuario() {
+        Usuario usuario = usuario();
+        usuario.setFuncao(FuncaoUsuario.USUARIO);
+        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(repository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertEquals(false, service.atualizarAtivacao(1L, false).getAtivo());
+        assertEquals(true, service.atualizarAtivacao(1L, true).getAtivo());
+    }
+
+    @Test
+    void deveRejeitarInativacaoDeUsuarioAdmin() {
+        Usuario usuario = usuario();
+        usuario.setFuncao(FuncaoUsuario.ADMIN);
+        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        assertThrows(BusinessException.class, () -> service.atualizarAtivacao(1L, false));
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
     void deveAtualizarBloqueioQuandoNaoHaMultasPendentes() {
         Usuario usuario = usuario();
         when(repository.findById(1L)).thenReturn(Optional.of(usuario));
