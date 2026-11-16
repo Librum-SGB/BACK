@@ -4,6 +4,7 @@ import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.dtos.request.EmprestimoLoteRequestDTO;
 import com.sgb.mylibrum.dtos.mapper.EmprestimoMapper;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
+import com.sgb.mylibrum.dtos.response.RenovacaoPreviaResponseDTO;
 import com.sgb.mylibrum.entities.Configuracao;
 import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Exemplar;
@@ -128,6 +129,38 @@ public class EmprestimoService {
     @Transactional
     public EmprestimoResponseDTO renovar(Long id) {
         Emprestimo emprestimo = buscarEmprestimo(id);
+        CalculoRenovacao calculo = calcularRenovacao(emprestimo);
+        emprestimo.setDataDevolucaoPrevista(calculo.novaDataDevolucao());
+        emprestimo.setRenovacoesContagem(calculo.renovacoesRealizadas() + 1);
+        Emprestimo salvo = repository.save(emprestimo);
+        log.info("Emprestimo renovado: emprestimoId={}, renovacoes={}", salvo.getId(), salvo.getRenovacoesContagem());
+        return mapper.toResponseDTO(salvo);
+    }
+
+    /** Simula a renovação com as mesmas regras de {@link #renovar(Long)}, sem alterar o empréstimo. */
+    @Transactional(readOnly = true)
+    public RenovacaoPreviaResponseDTO previaRenovacao(Long id) {
+        Emprestimo emprestimo = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado"));
+        int renovacoes = renovacoesRealizadas(emprestimo);
+        try {
+            CalculoRenovacao calculo = calcularRenovacao(emprestimo);
+            return new RenovacaoPreviaResponseDTO(id, true, null, emprestimo.getDataDevolucaoPrevista(),
+                    calculo.novaDataDevolucao(), renovacoes, calculo.limiteRenovacoes(),
+                    calculo.limiteRenovacoes() - renovacoes - 1);
+        } catch (BusinessException ex) {
+            Integer limite = limiteRenovacoesSeConfigurado(emprestimo);
+            return new RenovacaoPreviaResponseDTO(id, false, ex.getMessage(), emprestimo.getDataDevolucaoPrevista(),
+                    null, renovacoes, limite, limite == null ? null : Math.max(0, limite - renovacoes));
+        }
+    }
+
+    private record CalculoRenovacao(LocalDate novaDataDevolucao, int renovacoesRealizadas, int limiteRenovacoes) {
+    }
+
+    /** Valida as regras de renovação (lança BusinessException) e calcula a nova data de devolução. */
+    private CalculoRenovacao calcularRenovacao(Emprestimo emprestimo) {
+        Long id = emprestimo.getId();
         if (emprestimo.getStatus() != StatusEmprestimo.ATIVO
                 || emprestimo.getDataDevolucaoPrevista().isBefore(LocalDate.now())) {
             log.warn("Renovacao rejeitada: emprestimoId={} nao esta ativo ou esta fora do prazo", id);
@@ -139,7 +172,7 @@ public class EmprestimoService {
         }
 
         int limiteRenovacoes = buscarLimiteRenovacoes(emprestimo.getUsuario().getFilial().getId());
-        int renovacoes = emprestimo.getRenovacoesContagem() == null ? 0 : emprestimo.getRenovacoesContagem();
+        int renovacoes = renovacoesRealizadas(emprestimo);
         if (renovacoes >= limiteRenovacoes) {
             log.warn("Renovacao rejeitada: limite atingido, emprestimoId={}, renovacoes={}", id, renovacoes);
             throw new BusinessException("O limite de renovações deste empréstimo foi atingido");
@@ -155,11 +188,24 @@ public class EmprestimoService {
         }
 
         long prazoOriginal = prazoTotal / (renovacoes + 1);
-        emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(prazoOriginal));
-        emprestimo.setRenovacoesContagem(renovacoes + 1);
-        Emprestimo salvo = repository.save(emprestimo);
-        log.info("Emprestimo renovado: emprestimoId={}, renovacoes={}", salvo.getId(), salvo.getRenovacoesContagem());
-        return mapper.toResponseDTO(salvo);
+        return new CalculoRenovacao(
+                emprestimo.getDataDevolucaoPrevista().plusDays(prazoOriginal), renovacoes, limiteRenovacoes);
+    }
+
+    private int renovacoesRealizadas(Emprestimo emprestimo) {
+        return emprestimo.getRenovacoesContagem() == null ? 0 : emprestimo.getRenovacoesContagem();
+    }
+
+    private Integer limiteRenovacoesSeConfigurado(Emprestimo emprestimo) {
+        Usuario usuario = emprestimo.getUsuario();
+        if (usuario == null || usuario.getFilial() == null) {
+            return null;
+        }
+        try {
+            return buscarLimiteRenovacoes(usuario.getFilial().getId());
+        } catch (IllegalStateException ex) {
+            return null;
+        }
     }
 
     @Scheduled(cron = "${mylibrum.emprestimos.marcar-atrasados-cron:0 0 0 * * *}")

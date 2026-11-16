@@ -119,4 +119,26 @@ class AuthControllerIntegrationTest {
         assertThat(response.body()).contains("token");
         assertThat(response.body()).contains("Bearer");
     }
+
+    @Test
+    void shouldRejectLoginOfInactiveAccount() throws Exception {
+        Usuario usuario = usuarioRepository.findByEmail("usuario@gmail.com").orElseThrow();
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
+
+        HttpClient client = HttpClient.newHttpClient();
+        String json = "{\"email\":\"usuario@gmail.com\",\"senha\":\"user123\"}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + port + "/auth/login"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.body()).contains("Conta inativa");
+        assertThat(response.body()).doesNotContain("token");
+    }
 }

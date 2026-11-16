@@ -6,7 +6,9 @@ import com.sgb.mylibrum.dtos.request.ListaTarefaRequestDTO;
 import com.sgb.mylibrum.dtos.request.MaterialRequestDTO;
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
 import com.sgb.mylibrum.entities.Configuracao;
+import com.sgb.mylibrum.entities.Emprestimo;
 import com.sgb.mylibrum.entities.Estante;
+import com.sgb.mylibrum.entities.Exemplar;
 import com.sgb.mylibrum.entities.EstantePrateleira;
 import com.sgb.mylibrum.entities.ListaTarefa;
 import com.sgb.mylibrum.entities.Material;
@@ -42,6 +44,24 @@ class DtoMapperTest {
         assertEquals(LocalDate.of(2026, 12, 31), entity.getPrazo());
         assertEquals(StatusTarefa.EM_ANDAMENTO, response.getStatus());
         assertEquals(LocalDate.of(2026, 12, 31), response.getPrazo());
+    }
+
+    @Test
+    void emprestimoMapperExpoeMaterialDoExemplar() {
+        Material material = new Material();
+        material.setId(42L);
+        material.setTitulo("Dom Casmurro");
+        Exemplar exemplar = new Exemplar();
+        exemplar.setId(7L);
+        exemplar.setMaterial(material);
+        Emprestimo emprestimo = new Emprestimo();
+        emprestimo.setExemplar(exemplar);
+
+        var response = new EmprestimoMapperImpl(referencias).toResponseDTO(emprestimo);
+
+        assertEquals(7L, response.getExemplarId());
+        assertEquals(42L, response.getMaterialId());
+        assertEquals("Dom Casmurro", response.getMaterialTitulo());
     }
 
     @Test

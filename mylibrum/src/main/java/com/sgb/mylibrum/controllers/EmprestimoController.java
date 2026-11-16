@@ -3,6 +3,7 @@ package com.sgb.mylibrum.controllers;
 import com.sgb.mylibrum.dtos.request.EmprestimoRequestDTO;
 import com.sgb.mylibrum.dtos.request.EmprestimoLoteRequestDTO;
 import com.sgb.mylibrum.dtos.response.EmprestimoResponseDTO;
+import com.sgb.mylibrum.dtos.response.RenovacaoPreviaResponseDTO;
 import com.sgb.mylibrum.security.AutorizacaoService;
 import com.sgb.mylibrum.services.EmprestimoService;
 import jakarta.validation.Valid;
@@ -94,6 +95,15 @@ public class EmprestimoController {
     @ApiResponse(responseCode = "200", description = "Devolução registrada.")
     public ResponseEntity<EmprestimoResponseDTO> devolver(@PathVariable Long id) {
         return ResponseEntity.ok(service.devolver(id));
+    }
+
+    @GetMapping("/{id}/renovacao")
+    @Operation(summary = "Simular renovação", description = "Indica se o empréstimo pode ser renovado agora, a nova data de devolução e quantas renovações restam, sem alterar o empréstimo.")
+    @ApiResponse(responseCode = "200", description = "Simulação da renovação.")
+    @ApiResponse(responseCode = "404", description = "Empréstimo não encontrado.")
+    public ResponseEntity<RenovacaoPreviaResponseDTO> previaRenovacao(@PathVariable Long id) {
+        autorizacao.exigirProprioOuEquipe(service.findById(id).getUsuarioId());
+        return ResponseEntity.ok(service.previaRenovacao(id));
     }
 
     @PostMapping("/{id}/renovacao")

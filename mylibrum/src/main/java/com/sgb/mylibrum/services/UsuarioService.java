@@ -131,6 +131,20 @@ public class UsuarioService {
         return mapper.toResponseDTO(salvo);
     }
 
+    @Transactional
+    public UsuarioResponseDTO atualizarAtivacao(Long id, Boolean ativo) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if (!ativo && usuario.getFuncao() == FuncaoUsuario.ADMIN) {
+            log.warn("Inativacao de usuario rejeitada: usuarioId={} possui funcao ADMIN", id);
+            throw new BusinessException("Não é possível inativar um usuário com função Admin");
+        }
+        usuario.setAtivo(ativo);
+        Usuario salvo = repository.save(usuario);
+        log.info("Estado de ativacao atualizado: usuarioId={}, ativo={}", salvo.getId(), ativo);
+        return mapper.toResponseDTO(salvo);
+    }
+
     private void validarUnicidade(UsuarioRequestDTO dto, Long usuarioId) {
         String email = normalizarEmail(dto.getEmail());
         boolean emailDuplicado = usuarioId == null

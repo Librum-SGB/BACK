@@ -13,6 +13,7 @@ public class EmprestimoResponseDTO {
     private Long usuarioId;
     private String usuarioNome;
     private Long exemplarId;
+    private Long materialId;
     private String materialTitulo;
     private Long usuarioResponsavelId;
     private StatusEmprestimo status;

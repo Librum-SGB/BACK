@@ -1,6 +1,7 @@
 package com.sgb.mylibrum.controllers;
 
 import com.sgb.mylibrum.dtos.request.UsuarioRequestDTO;
+import com.sgb.mylibrum.dtos.request.AtivacaoUsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.request.BloqueioUsuarioRequestDTO;
 import com.sgb.mylibrum.dtos.response.UsuarioResponseDTO;
 import com.sgb.mylibrum.entities.enums.FuncaoUsuario;
@@ -116,6 +117,17 @@ public class UsuarioController {
             @PathVariable Long id, @Valid @RequestBody BloqueioUsuarioRequestDTO dto) {
         autorizacao.exigirPodeGerenciarConta(id, service.findById(id).getFuncao(), false);
         return ResponseEntity.ok(service.atualizarBloqueio(id, dto.getBloqueado()));
+    }
+
+    @PatchMapping("/{id}/ativacao")
+    @Operation(summary = "Ativar ou inativar usuário", description = "Altera apenas o estado de ativação da conta. Contas inativas não conseguem entrar no sistema e deixam de aparecer nas listagens padrão. Requer permissão de gerenciamento sobre o usuário.")
+    @ApiResponse(responseCode = "200", description = "Estado de ativação atualizado.")
+    @ApiResponse(responseCode = "403", description = "Perfil autenticado sem permissão para gerenciar esta conta.")
+    @ApiResponse(responseCode = "422", description = "A conta não pode ser inativada (ex.: administrador).")
+    public ResponseEntity<UsuarioResponseDTO> atualizarAtivacao(
+            @PathVariable Long id, @Valid @RequestBody AtivacaoUsuarioRequestDTO dto) {
+        autorizacao.exigirPodeGerenciarConta(id, service.findById(id).getFuncao(), false);
+        return ResponseEntity.ok(service.atualizarAtivacao(id, dto.getAtivo()));
     }
 
     @DeleteMapping("/{id}")
